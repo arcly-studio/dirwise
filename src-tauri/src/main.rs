@@ -269,6 +269,39 @@ fn explorer_shows_hidden() -> bool {
     false
 }
 
+/// Má Windows zapnuté „Efekty průhlednosti" (Nastavení → Přizpůsobení →
+/// Barvy)? Podle toho je výchozí vzhled sklo, dokud si ho uživatel nepřepne.
+#[cfg(windows)]
+#[tauri::command(async)]
+fn system_transparency() -> bool {
+    use windows::core::w;
+    use windows::Win32::System::Registry::{RegGetValueW, HKEY_CURRENT_USER, RRF_RT_REG_DWORD};
+
+    let mut value: u32 = 0;
+    let mut size = std::mem::size_of::<u32>() as u32;
+
+    let status = unsafe {
+        RegGetValueW(
+            HKEY_CURRENT_USER,
+            w!("Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"),
+            w!("EnableTransparency"),
+            RRF_RT_REG_DWORD,
+            None,
+            Some(&mut value as *mut u32 as *mut _),
+            Some(&mut size),
+        )
+    };
+
+    // 0 = vypnuto; chybějící hodnota = výchozí Windows (zapnuto).
+    status.is_err() || value != 0
+}
+
+#[cfg(not(windows))]
+#[tauri::command(async)]
+fn system_transparency() -> bool {
+    true
+}
+
 /// SystemTime → unix sekundy. Nedostupný čas (nebo čas před rokem 1970) dává 0.
 fn to_unix_seconds(time: std::io::Result<std::time::SystemTime>) -> i64 {
     time.ok()
@@ -2863,6 +2896,7 @@ fn main() {
             watch_dirs,
             open_device,
             explorer_shows_hidden,
+            system_transparency,
             trash_is_permanent,
             cancel_search,
             folder_stats,

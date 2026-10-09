@@ -32,9 +32,13 @@ const KEY_TABS = "tabs";
 const KEY_UPDATES = "updates";
 const KEY_SPLIT_RATIO = "splitRatio";
 const KEY_COMMAND_USAGE = "commandUsage";
+const KEY_TRANSPARENCY = "transparency";
 
 /** Animace: podle systému (omezit animace ve Windows), vždy, nebo nikdy. */
 export type MotionPreference = "system" | "on" | "off";
+
+/** Průhlednost (sklo, 1.5): napevno zapnutá / vypnutá; bez volby podle Windows. */
+export type TransparencyPreference = "on" | "off";
 
 /** Jazyk UI: podle systému, nebo napevno (viz i18n/index.ts). */
 export type LanguagePreference = "system" | "en" | "cs";
@@ -85,6 +89,8 @@ export type Snapshot = {
   splitRatio: number;
   /** Kolikrát se který příkaz spustil — paleta z toho ukazuje nejpoužívanější. */
   commandUsage: Record<string, number>;
+  /** Menu Více → Vzhled → Průhlednost; null = podle Efektů průhlednosti Windows. */
+  transparency: TransparencyPreference | null;
 };
 
 const EMPTY: Snapshot = {
@@ -103,6 +109,7 @@ const EMPTY: Snapshot = {
   updates: { check: true, lastCheck: 0, latest: null },
   splitRatio: 0.5,
   commandUsage: {},
+  transparency: null,
 };
 
 export const SPLIT_RATIO_MIN = 0.25;
@@ -296,22 +303,37 @@ export function init(): Promise<void> {
   loading = (async () => {
     store = await load(STORE_FILE, { autoSave: 200 });
 
-    const [favorites, recents, tags, showHidden, sidebarWidth, motion, language, theme, terminal, tabs, updates, splitRatio, usage] =
-      await Promise.all([
-        store.get<unknown>(KEY_FAVORITES),
-        store.get<unknown>(KEY_RECENTS),
-        store.get<unknown>(KEY_TAGS),
-        store.get<unknown>(KEY_SHOW_HIDDEN),
-        store.get<unknown>(KEY_SIDEBAR_WIDTH),
-        store.get<unknown>(KEY_MOTION),
-        store.get<unknown>(KEY_LANGUAGE),
-        store.get<unknown>(KEY_THEME),
-        store.get<unknown>(KEY_TERMINAL),
-        store.get<unknown>(KEY_TABS),
-        store.get<unknown>(KEY_UPDATES),
-        store.get<unknown>(KEY_SPLIT_RATIO),
-        store.get<unknown>(KEY_COMMAND_USAGE),
-      ]);
+    const [
+      favorites,
+      recents,
+      tags,
+      showHidden,
+      sidebarWidth,
+      motion,
+      language,
+      theme,
+      terminal,
+      tabs,
+      updates,
+      splitRatio,
+      usage,
+      transparency,
+    ] = await Promise.all([
+      store.get<unknown>(KEY_FAVORITES),
+      store.get<unknown>(KEY_RECENTS),
+      store.get<unknown>(KEY_TAGS),
+      store.get<unknown>(KEY_SHOW_HIDDEN),
+      store.get<unknown>(KEY_SIDEBAR_WIDTH),
+      store.get<unknown>(KEY_MOTION),
+      store.get<unknown>(KEY_LANGUAGE),
+      store.get<unknown>(KEY_THEME),
+      store.get<unknown>(KEY_TERMINAL),
+      store.get<unknown>(KEY_TABS),
+      store.get<unknown>(KEY_UPDATES),
+      store.get<unknown>(KEY_SPLIT_RATIO),
+      store.get<unknown>(KEY_COMMAND_USAGE),
+      store.get<unknown>(KEY_TRANSPARENCY),
+    ]);
 
     commit({
       favorites: sanitizeFavorites(favorites),
@@ -329,6 +351,7 @@ export function init(): Promise<void> {
       updates: sanitizeUpdates(updates),
       splitRatio: typeof splitRatio === "number" ? clampSplitRatio(splitRatio) : 0.5,
       commandUsage: sanitizeUsage(usage),
+      transparency: transparency === "on" || transparency === "off" ? transparency : null,
     });
     // Zrcadlo pro první render drží krok se souborem (i po smazání dat WebView2).
     writeThemeMirror(cache.theme);
@@ -373,6 +396,13 @@ export async function setSidebarWidth(width: number, persistNow = true): Promise
 export async function setMotion(value: MotionPreference): Promise<void> {
   commit({ motion: value });
   await persist(KEY_MOTION, value);
+}
+
+/* ------------------------------ průhlednost --------------------------------- */
+
+export async function setTransparency(value: TransparencyPreference): Promise<void> {
+  commit({ transparency: value });
+  await persist(KEY_TRANSPARENCY, value);
 }
 
 /* --------------------------------- jazyk ------------------------------------ */

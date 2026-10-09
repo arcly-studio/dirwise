@@ -37,6 +37,9 @@ export type CommandId =
   | "motionSystem"
   | "motionOn"
   | "motionOff"
+  | "transparencyOn"
+  | "transparencyOff"
+  | "toggleTransparency"
   | "terminalAuto"
   | "terminalWindows"
   | "terminalPwsh"
@@ -139,6 +142,11 @@ const DEFINITIONS: Record<CommandId, CommandDefinition> = {
   motionSystem: { title: "command.motionSystem" },
   motionOn: { title: "command.motionOn" },
   motionOff: { title: "command.motionOff" },
+  // Menu Více → Vzhled ukazuje obě volby; paleta jen přepínač
+  // („Průhlednost: zapnout / vypnout" podle stavu).
+  transparencyOn: { title: "transparency.on", palette: false },
+  transparencyOff: { title: "transparency.off", palette: false },
+  toggleTransparency: { title: "command.transparencyOff" },
   terminalAuto: { title: "command.terminalAuto" },
   terminalWindows: { title: "command.terminalWindows" },
   terminalPwsh: { title: "command.terminalPwsh" },

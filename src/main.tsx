@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import { applyTheme, readThemeMirror, resolveTheme } from "./theme";
+import { applyGlass, readGlassMirror } from "./lib/glass";
 // Inter přibalený v aplikaci místo Google Fonts: funguje offline a CSP
 // nemusí povolovat cizí domény.
 import "@fontsource/inter/400.css";
@@ -11,6 +12,8 @@ import "./index.css";
 
 // Nastavit třídu ještě před prvním renderem, ať dark uživatel nevidí bílý záblesk.
 applyTheme(resolveTheme(readThemeMirror()));
+// Sklo taky — rozložení s ním a bez něj se liší, první snímek musí sedět.
+applyGlass(readGlassMirror());
 
 // Jezdec scrollbaru je vidět při najetí na kontejner — a taky chvíli po
 // posunu kolečkem nebo klávesnicí, i když kurzor stojí jinde (jako macOS).
