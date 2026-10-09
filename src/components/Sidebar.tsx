@@ -1171,14 +1171,10 @@ export function Sidebar({
 
         {pathTip && (
           <div
-            className="fixed z-50 max-w-[320px] rounded-md px-2.5 py-1.5 font-mono text-[11px] break-all text-primary"
+            className="fw-popover fixed z-50 max-w-[320px] rounded-md px-2.5 py-1.5 font-mono text-[11px] break-all text-primary"
             style={{
               left: Math.min(pathTip.x, window.innerWidth - 340),
               top: pathTip.y + 6,
-              background: "var(--bg-toolbar)",
-              border: "1px solid var(--border)",
-              boxShadow: "var(--shadow-popover)",
-              backdropFilter: "blur(20px)",
             }}
           >
             {pathTip.path}

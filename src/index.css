@@ -1703,3 +1703,119 @@ body {
 :root[data-glass="on"] .fw-panel.is-active::before {
   top: var(--glass-top);
 }
+
+/* ---------------------------- sklo: plovoucí prvky ---------------------------
+   Menu, podmenu, paleta, tooltipy a hláška. Výplň se sklem leží v ::before,
+   ne na prvku samotném: prvek s backdrop-filter je pro své potomky „backdrop
+   root" a podmenu (vnořené v menu) by pak rozmazávalo jen vnitřek rodiče.
+   Vnitřní světlý lem je taky na ::before — inset stín prvku by pod ním zmizel. */
+:root[data-glass="on"] {
+  --glass-menu: rgba(250, 250, 252, 0.78);
+  --glass-menu-blur: blur(24px) saturate(180%);
+  --glass-highlight: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+:root.dark[data-glass="on"] {
+  --glass-menu: rgba(44, 44, 46, 0.72);
+  --glass-highlight: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+:root[data-glass="on"] .fw-popover {
+  isolation: isolate;
+  background: transparent;
+  backdrop-filter: none !important;
+}
+
+/* Hláška a paleta nejsou samy pozicované — ::before se drží jich. */
+:root[data-glass="on"] .fw-popover:not(.fixed, .absolute) {
+  position: relative;
+}
+
+:root[data-glass="on"] .fw-popover::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--glass-menu);
+  backdrop-filter: var(--glass-menu-blur);
+  box-shadow: var(--glass-highlight);
+  pointer-events: none;
+}
+
+/* Náběh a odjezd bez opacity na prvku: průhledný prvek je pro ::before
+   backdrop root, takže by sklo po dobu animace nic nerozmazalo a blur by
+   naskočil až na konci. Prvek se jen posune / zvětší, zprůhledňuje se jeho
+   výplň a obsah zvlášť. */
+@keyframes fw-glass-menu-in {
+  from {
+    transform: scale(0.96);
+  }
+}
+
+@keyframes fw-glass-toast-in {
+  from {
+    transform: translateY(16px);
+  }
+}
+
+@keyframes fw-glass-toast-out {
+  to {
+    transform: translateY(16px);
+  }
+}
+
+:root[data-glass="on"] .fw-menu {
+  animation-name: fw-glass-menu-in;
+}
+
+:root[data-glass="on"] .fw-menu::before,
+:root[data-glass="on"] .fw-menu > * {
+  animation: fw-fade-in var(--dur-fade) var(--ease-out);
+}
+
+:root[data-glass="on"] .fw-tooltip {
+  animation: none;
+}
+
+:root[data-glass="on"] .fw-tooltip::before {
+  animation: fw-fade-in var(--dur-quick) var(--ease-out);
+}
+
+:root[data-glass="on"] .fw-toast-in {
+  animation-name: fw-glass-toast-in;
+}
+
+:root[data-glass="on"] .fw-toast-out {
+  animation-name: fw-glass-toast-out;
+}
+
+:root[data-glass="on"] .fw-toast-in::before,
+:root[data-glass="on"] .fw-toast-in > * {
+  animation: fw-fade-in var(--dur-slow) var(--ease-out);
+}
+
+:root[data-glass="on"] .fw-toast-out::before,
+:root[data-glass="on"] .fw-toast-out > * {
+  animation: fw-fade-out var(--dur-slow) var(--ease-out) forwards;
+}
+
+/* Paleta: výška podle obsahu (bez skla ji backdrop natáhne na max-height
+   a pod výsledky zůstává prázdná deska). Seznam má vlastní max-height.
+   Sklo nese sama: overflow: hidden se zaoblenými rohy z ní dělá backdrop
+   root, takže ::before uvnitř by nic za paletou nerozmazal. Podmenu nemá. */
+:root[data-glass="on"] .fw-palette {
+  align-self: flex-start;
+  background: var(--glass-menu);
+  backdrop-filter: var(--glass-menu-blur) !important;
+  box-shadow: var(--glass-highlight), var(--shadow-popover);
+}
+
+:root[data-glass="on"] .fw-palette::before {
+  content: none;
+}
+
+/* Dialogy mají plné pozadí; zbytek aplikace pod nimi ztmavne a rozmaže se. */
+:root[data-glass="on"] .fw-dialog-overlay {
+  backdrop-filter: blur(8px) saturate(120%);
+}

@@ -139,16 +139,12 @@ export function TooltipLayer() {
     <div
       ref={bubbleRef}
       role="tooltip"
-      className="fw-tooltip pointer-events-none fixed z-[70] max-w-[420px] rounded-md px-2 py-1 text-[11px] break-all text-primary"
+      className="fw-tooltip fw-popover pointer-events-none fixed z-[70] max-w-[420px] rounded-md px-2 py-1 text-[11px] break-all text-primary"
       style={{
         left: position?.left ?? tip.x,
         top: position?.top ?? tip.y + CURSOR_OFFSET,
         // Do změření se nekreslí, jinak by bublina na okamžik skočila.
         visibility: position === null ? "hidden" : "visible",
-        background: "var(--bg-toolbar)",
-        border: "1px solid var(--border)",
-        boxShadow: "var(--shadow-popover)",
-        backdropFilter: "blur(20px)",
       }}
     >
       {tip.text}

@@ -52,7 +52,8 @@ type ContextMenuProps = {
 };
 
 const MARGIN = 8;
-const PALETTE_WIDTH = 152;
+/** Puntíky tagů 18 px s mezerou 8 (gap-2), odsazení 10 (px-2.5) a rámeček 1. */
+const PALETTE_WIDTH = TAG_COLORS.length * 18 + (TAG_COLORS.length - 1) * 8 + 2 * 10 + 2;
 const SUBMENU_WIDTH = 180;
 
 /* ------------------------------ paleta tagů ------------------------------- */
