@@ -15,6 +15,7 @@ import {
   type FolderDropHandlers,
 } from "../lib/rowDnd";
 import { sameEntry } from "../lib/rows";
+import { useGlassInsets } from "../lib/glass";
 import { useRubberBand } from "../lib/rubberBand";
 import { tagsOf } from "../lib/storage";
 import { isTypingTarget } from "../lib/dom";
@@ -191,6 +192,8 @@ function ColumnPane({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const { dropTarget, handlers: drop } = useFolderDrop(onDropInto);
+  // Se sklem začínají řádky sloupce pod lištou (padding sloupce v index.css).
+  const rowsTop = PANE_PADDING + useGlassInsets().top;
 
   // Každý sloupec má vlastní virtualizaci — posouvá se nezávisle.
   const virtualizer = useVirtualizer({
@@ -201,7 +204,8 @@ function ColumnPane({
     getScrollElement: () => paneRef.current,
     estimateSize: () => ROW_HEIGHT,
     overscan: 10,
-    scrollMargin: PANE_PADDING,
+    scrollMargin: rowsTop,
+    scrollPaddingStart: rowsTop - PANE_PADDING,
   });
 
   const multi = column.selectedPaths;
@@ -217,8 +221,8 @@ function ColumnPane({
       if (!element) return [];
       const rect = element.getBoundingClientRect();
       if (box.right < rect.left || box.left > rect.right) return [];
-      const top = box.top - rect.top + element.scrollTop - PANE_PADDING;
-      const bottom = box.bottom - rect.top + element.scrollTop - PANE_PADDING;
+      const top = box.top - rect.top + element.scrollTop - rowsTop;
+      const bottom = box.bottom - rect.top + element.scrollTop - rowsTop;
       const first = Math.max(0, Math.floor(top / ROW_HEIGHT));
       const last = Math.min(entries.length - 1, Math.floor(bottom / ROW_HEIGHT));
       return entries.slice(first, last + 1).map((entry) => entry.path);
@@ -273,7 +277,7 @@ function ColumnPane({
       onClick={(event) => {
         if (!(event.target as Element).closest("[data-path]")) onClearSelection(index);
       }}
-      className={`fw-scroll flex w-[240px] shrink-0 flex-col overflow-x-hidden overflow-y-auto border-r border-line py-1 ${
+      className={`fw-scroll fw-column-pane flex w-[240px] shrink-0 flex-col overflow-x-hidden overflow-y-auto border-r border-line py-1 ${
         exiting ? "fw-column-out" : "fw-column-in"
       }`}
       style={{ backgroundColor: isFocused ? "var(--bg-toolbar)" : "var(--bg-main)" }}
@@ -303,7 +307,7 @@ function ColumnPane({
             <ColumnRow
               key={entry.path}
               entry={entry}
-              top={item.start - PANE_PADDING}
+              top={item.start - rowsTop}
               selected={isInSelection(entry.path)}
               cut={cutPaths.has(entry.path)}
               renaming={entry.path === renamingPath}
@@ -487,6 +491,7 @@ export function ColumnView({
   const containerRef = useRef<HTMLDivElement>(null);
   /** Živé sloupce bez těch odcházejících — cíl pro doscrollování doprava. */
   const liveRef = useRef<HTMLDivElement>(null);
+  const glass = useGlassInsets();
 
   // Zahozené sloupce se ještě chvíli dorenderují, aby stihly odjet doprava.
   // useColumns je zahazuje okamžitě, o odchod se proto musí postarat view.
@@ -624,7 +629,8 @@ export function ColumnView({
       case "PageDown":
       case "PageUp": {
         event.preventDefault();
-        const height = (liveRef.current?.firstElementChild as HTMLElement | null)?.clientHeight ?? 0;
+        // Se sklem je horní část sloupce pod lištou — stránka je jen to, co je vidět.
+        const height = ((liveRef.current?.firstElementChild as HTMLElement | null)?.clientHeight ?? 0) - glass.top;
         const page = Math.max(1, Math.floor(height / ROW_HEIGHT) - 1);
         scrollBehavior.current = smoothIfAllowed();
         move(event.key === "PageDown" ? page : -page);

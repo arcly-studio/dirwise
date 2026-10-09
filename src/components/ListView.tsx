@@ -15,6 +15,7 @@ import {
   type FolderDropHandlers,
 } from "../lib/rowDnd";
 import { sameEntry } from "../lib/rows";
+import { useGlassInsets } from "../lib/glass";
 import { tagsOf } from "../lib/storage";
 import type { ViewHandleRef } from "../lib/viewHandle";
 import {
@@ -216,6 +217,9 @@ export function ListView({
   const t = useT();
   const SortArrow = sortDirection === "asc" ? ChevronUp : ChevronDown;
   const { dropTarget, handlers: drop } = useFolderDrop(onDropInto);
+  // Se sklem začíná výpis pod lištou (padding scrolleru) a končí nad status barem.
+  const glass = useGlassInsets();
+  const rowsTop = HEADER_HEIGHT + glass.top;
 
   // Jen viditelné řádky + 10 navíc. Řádky začínají pod lepkavou hlavičkou,
   // proto scrollMargin; scrollPaddingStart drží vybraný řádek pod ní.
@@ -228,8 +232,9 @@ export function ListView({
     initialOffset,
     estimateSize: () => ROW_HEIGHT,
     overscan: 10,
-    scrollMargin: HEADER_HEIGHT,
-    scrollPaddingStart: HEADER_HEIGHT,
+    scrollMargin: rowsTop,
+    scrollPaddingStart: rowsTop,
+    scrollPaddingEnd: glass.bottom,
   });
 
   // Stabilní handlery pro memoizované řádky — volají vždy nejnovější props.
@@ -264,9 +269,9 @@ export function ListView({
         if (!element) return [];
         const rect = element.getBoundingClientRect();
         if (box.right < rect.left || box.left > rect.right) return [];
-        // Souřadnice obsahu: řádek i začíná v HEADER + i * ROW.
-        const top = box.top - rect.top + element.scrollTop - HEADER_HEIGHT;
-        const bottom = box.bottom - rect.top + element.scrollTop - HEADER_HEIGHT;
+        // Souřadnice obsahu: řádek i začíná v (sklo +) HEADER + i * ROW.
+        const top = box.top - rect.top + element.scrollTop - rowsTop;
+        const bottom = box.bottom - rect.top + element.scrollTop - rowsTop;
         const first = Math.max(0, Math.floor(top / ROW_HEIGHT));
         const last = Math.min(entries.length - 1, Math.floor(bottom / ROW_HEIGHT));
         return entries.slice(first, last + 1).map((entry) => entry.path);
@@ -275,11 +280,11 @@ export function ListView({
         columns: 1,
         rowsPerPage: Math.max(
           1,
-          Math.floor(((scrollRef.current?.clientHeight ?? 0) - HEADER_HEIGHT) / ROW_HEIGHT) - 1,
+          Math.floor(((scrollRef.current?.clientHeight ?? 0) - rowsTop - glass.bottom) / ROW_HEIGHT) - 1,
         ),
       }),
     }),
-    [entries, virtualizer, scrollRef],
+    [entries, virtualizer, scrollRef, rowsTop, glass.bottom],
   );
 
   // Kontejner se mění s view mode — virtualizace ho musí přeměřit.
@@ -290,7 +295,7 @@ export function ListView({
   return (
     <div className="min-w-0">
       <div
-        className="sticky top-0 z-10 grid h-6 items-center gap-3 border-b border-line bg-toolbar px-3 text-[11px] font-medium text-secondary"
+        className="fw-list-header sticky top-0 z-10 grid h-6 items-center gap-3 border-b border-line bg-toolbar px-3 text-[11px] font-medium text-secondary"
         style={{ gridTemplateColumns: GRID_TEMPLATE, backdropFilter: "blur(20px)" }}
       >
         <span aria-hidden />
@@ -318,7 +323,7 @@ export function ListView({
               key={entry.path}
               entry={entry}
               index={item.index}
-              top={item.start - HEADER_HEIGHT}
+              top={item.start - rowsTop}
               selected={selectedPaths.has(entry.path)}
               cut={cutPaths.has(entry.path)}
               renaming={entry.path === renamingPath}

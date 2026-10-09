@@ -122,7 +122,7 @@ export function ResultsView({
   return (
     <div className="min-w-0" role="listbox" aria-label={t("results.label")} onKeyDown={handleKeyDown}>
       <div
-        className="sticky top-0 z-10 grid h-6 items-center gap-3 border-b border-line bg-toolbar px-3 text-[11px] font-medium text-secondary"
+        className="fw-list-header sticky top-0 z-10 grid h-6 items-center gap-3 border-b border-line bg-toolbar px-3 text-[11px] font-medium text-secondary"
         style={{ gridTemplateColumns: GRID_TEMPLATE, backdropFilter: "blur(20px)" }}
       >
         <span aria-hidden />

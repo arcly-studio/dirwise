@@ -1521,3 +1521,185 @@ body {
 :root[data-motion="off"] {
   --motion-scale: 0;
 }
+
+/* ================================ sklo (1.5) ================================
+   Titulek, toolbar, záložky a status bar leží přes výpis a obsah pod nimi
+   rozmazaně prosvítá (backdrop-filter). Všechno visí pod :root[data-glass="on"]
+   (lib/glass.ts) — bez atributu se tu nic neuplatní a vzhled je jako v 1.4.2.
+   Rozložení stojí na záporných okrajích: tělo okna vyjede pod titulek i pod
+   status bar, výpis pod toolbar se záložkami; scrollery dostanou odsazení
+   stejně velké jako lišty (--glass-top / --glass-bottom, hodnoty zná i
+   lib/glass.ts kvůli virtualizaci). DOM zůstává stejný. */
+:root[data-glass="on"] {
+  /* titulek 32 + toolbar 40 + záložky 37 */
+  --glass-top: 109px;
+  /* status bar 22 (+ lišta nové verze 26, viz níž) */
+  --glass-bottom: 22px;
+  --glass-bar: rgba(246, 246, 248, 0.78);
+  --glass-blur: blur(20px) saturate(180%);
+}
+
+:root.dark[data-glass="on"] {
+  --glass-bar: rgba(36, 36, 38, 0.72);
+}
+
+:root[data-glass="on"] .fw-app:has(> .fw-update-bar) {
+  --glass-bottom: 48px;
+}
+
+/* Titulek a lišty dole leží nad tělem okna. */
+:root[data-glass="on"] .fw-titlebar,
+:root[data-glass="on"] .fw-update-bar,
+:root[data-glass="on"] .fw-statusbar {
+  position: relative;
+  z-index: 30;
+}
+
+/* Titulek je průhledný: vlevo pod ním pokračuje sidebar (semafor sedí na
+   něm jako na Macu), vpravo skleněná deska hlavní plochy. */
+:root[data-glass="on"] .fw-titlebar {
+  background: transparent;
+}
+
+:root[data-glass="on"] .fw-body {
+  margin-top: -32px;
+  margin-bottom: calc(-1 * var(--glass-bottom));
+}
+
+:root[data-glass="on"] .fw-statusbar {
+  background: var(--glass-bar);
+  backdrop-filter: var(--glass-blur);
+}
+
+/* Lišta nové verze: akcentní nádech na skle (sama je průhledná). */
+:root[data-glass="on"] .fw-update-bar {
+  background: linear-gradient(var(--accent-bg), var(--accent-bg)), var(--glass-bar);
+  backdrop-filter: var(--glass-blur);
+}
+
+/* Sidebar začíná pod titulkem a končí nad status barem; podklad sahá až
+   nahoru pod semafor. */
+:root[data-glass="on"] .fw-sidebar-box {
+  padding-top: 32px;
+  padding-bottom: var(--glass-bottom);
+  background: linear-gradient(var(--bg-sidebar), var(--bg-sidebar)), var(--bg-window);
+}
+
+:root[data-glass="on"] .fw-sidebar {
+  background: transparent;
+  backdrop-filter: none;
+}
+
+/* Hlavní plocha: jedna skleněná deska přes titulek, toolbar i záložky.
+   Linka pod ní jen s obsahem pod lištou (.is-scrolled z App.tsx). */
+:root[data-glass="on"] .fw-main {
+  position: relative;
+}
+
+:root[data-glass="on"] .fw-main::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 20;
+  height: var(--glass-top);
+  background: var(--glass-bar);
+  backdrop-filter: var(--glass-blur);
+  border-bottom: 1px solid transparent;
+  pointer-events: none;
+  transition: border-color var(--dur-fade) var(--ease-out);
+}
+
+:root[data-glass="on"] .fw-main.is-scrolled::before {
+  border-bottom-color: var(--border);
+}
+
+/* Toolbar a záložky jsou na desce bez vlastního podkladu; okraje zůstávají
+   (průhledné), aby lišty měly stejnou výšku jako bez skla. */
+:root[data-glass="on"] .fw-main > .fw-toolbar,
+:root[data-glass="on"] .fw-main > .fw-tabbar {
+  position: relative;
+  z-index: 21;
+  background: transparent;
+  backdrop-filter: none;
+  border-bottom-color: transparent;
+}
+
+:root[data-glass="on"] .fw-main > .fw-toolbar {
+  margin-top: 32px;
+}
+
+/* Panely vyjedou nahoru pod desku. isolation: jejich z-indexy (lepkavá
+   hlavička, proužek načítání) zůstanou pod lištou. */
+:root[data-glass="on"] .fw-panels {
+  margin-top: calc(-1 * var(--glass-top));
+  isolation: isolate;
+}
+
+:root[data-glass="on"] .fw-panel > .fw-scroll {
+  padding-top: var(--glass-top);
+  padding-bottom: var(--glass-bottom);
+  scroll-padding-top: calc(var(--glass-top) + var(--scroll-gap));
+  scroll-padding-bottom: calc(var(--glass-bottom) + var(--scroll-gap));
+}
+
+:root[data-glass="on"] .fw-panel > .fw-scroll[data-view="list"] {
+  scroll-padding-top: calc(var(--glass-top) + var(--list-header-h) + var(--scroll-gap));
+}
+
+/* Scrollbar začíná pod lištou a končí nad status barem. */
+:root[data-glass="on"] .fw-panel > .fw-scroll::-webkit-scrollbar-track,
+:root[data-glass="on"] .fw-column-pane::-webkit-scrollbar-track,
+:root[data-glass="on"] .fw-info-panel::-webkit-scrollbar-track {
+  margin-top: var(--glass-top);
+}
+
+:root[data-glass="on"] .fw-panel > .fw-scroll::-webkit-scrollbar-track {
+  margin-bottom: var(--glass-bottom);
+}
+
+/* Sloupce se posouvají každý zvlášť: pod lištu zajíždějí jejich řádky,
+   vodorovný scrollbar pod nimi zůstává nad status barem. */
+:root[data-glass="on"] .fw-panel > .fw-scroll[data-columns] {
+  padding-top: 0;
+}
+
+/* Sloupec končí nad status barem (odsazení má scroller panelu), takže
+   dole nic nepřekrývá — --glass-bottom 0 čte gumička (lib/rubberBand.tsx). */
+:root[data-glass="on"] .fw-column-pane {
+  --glass-bottom: 0px;
+  padding-top: calc(4px + var(--glass-top));
+  scroll-padding-top: calc(var(--glass-top) + var(--scroll-gap));
+}
+
+:root[data-glass="on"] .fw-info-panel {
+  padding-top: calc(16px + var(--glass-top));
+}
+
+/* Hlavička sloupců je taky ze skla. Pod lištu se lepí sama: lepkavý
+   prvek počítá top od hrany zmenšené o padding scrolleru. */
+:root[data-glass="on"] .fw-list-header {
+  background: var(--glass-bar);
+  backdrop-filter: var(--glass-blur) !important;
+}
+
+/* Rámeček dropu na volnou plochu: scroller sahá pod lišty, takže by byl
+   vidět jen po stranách — kreslí se do viditelné části. */
+:root[data-glass="on"] .fw-drop-zone {
+  box-shadow: none;
+}
+
+:root[data-glass="on"] .fw-panel:has(> .fw-drop-zone)::after {
+  content: "";
+  position: absolute;
+  inset: var(--glass-top) 0 var(--glass-bottom);
+  z-index: 15;
+  box-shadow: inset 0 0 0 2px var(--accent);
+  border-radius: 6px;
+  pointer-events: none;
+}
+
+/* Proužek načítání a linka aktivního panelu pod spodní hranou lišty. */
+:root[data-glass="on"] .fw-busy-line,
+:root[data-glass="on"] .fw-panel.is-active::before {
+  top: var(--glass-top);
+}

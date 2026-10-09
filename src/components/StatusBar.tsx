@@ -144,7 +144,7 @@ export function StatusBar({
         event.preventDefault();
         onContextMenu(event.clientX, event.clientY);
       }}
-      className="flex h-[22px] shrink-0 items-center justify-between gap-4 border-t border-line bg-toolbar px-3 text-[11px] text-secondary">
+      className="fw-statusbar flex h-[22px] shrink-0 items-center justify-between gap-4 border-t border-line bg-toolbar px-3 text-[11px] text-secondary">
       {editing ? (
         <PathInput
           initial={path ?? ""}

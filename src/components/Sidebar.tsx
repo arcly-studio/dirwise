@@ -1110,7 +1110,7 @@ export function Sidebar({
   }
 
   return (
-    <div ref={panelRef} className="relative flex shrink-0" style={{ width: sidebarWidth }}>
+    <div ref={panelRef} className="fw-sidebar-box relative flex shrink-0" style={{ width: sidebarWidth }}>
       <aside
         ref={asideRef}
         // Menu volné plochy visí na celém sloupci: nadpisy sekcí, prázdné stavy

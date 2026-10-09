@@ -41,9 +41,15 @@ export function useRubberBand({ onStart, onChange, hitTest }: RubberBandOptions)
     // Y v souřadnicích obsahu — přežije posun kontejneru během tažení.
     const start = { x: event.clientX, y: event.clientY + container.scrollTop };
     let started = false;
+    // Se sklem (1.5) leží přes kontejner lišty: viditelná plocha začíná pod
+    // horní a končí nad status barem (sloupce mají --glass-bottom 0).
+    const style = getComputedStyle(container);
+    const insetTop = Number.parseFloat(style.getPropertyValue("--glass-top")) || 0;
+    const insetBottom = Number.parseFloat(style.getPropertyValue("--glass-bottom")) || 0;
 
     function update(clientX: number, clientY: number) {
-      const bounds = container.getBoundingClientRect();
+      const rect = container.getBoundingClientRect();
+      const bounds = { top: rect.top + insetTop, bottom: rect.bottom - insetBottom };
 
       // U okraje posouvat, ať jde vybrat i to, co je mimo obrazovku.
       if (clientY > bounds.bottom - EDGE) container.scrollTop += EDGE_STEP;

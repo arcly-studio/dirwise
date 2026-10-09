@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { listen } from "@tauri-apps/api/event";
 import { CircleAlert, CircleCheck, FolderOpen, Plus, Search, SearchX, X } from "lucide-react";
@@ -67,6 +67,15 @@ import { errorText, failure, languageSetting, t, useLocale, type MessageKey } fr
 import { homeDir } from "@tauri-apps/api/path";
 import { canDropInto, droppedPaths, endDrag, getDrag, isExternalFileDrag } from "./lib/dnd";
 import { isTypingTarget } from "./lib/dom";
+import {
+  applyGlass,
+  GLASS_STATUS,
+  GLASS_TOP,
+  GLASS_UPDATE_BAR,
+  GlassInsetsContext,
+  NO_GLASS_INSETS,
+  type GlassInsets,
+} from "./lib/glass";
 import { applyMotion, motionEnabled, motionMs, smoothIfAllowed } from "./lib/motion";
 import * as storage from "./lib/storage";
 import { TAG_COLORS, TAG_HEX, tagLabel } from "./lib/tags";
@@ -578,6 +587,35 @@ export default function App() {
       alive = false;
     };
   }, [ready, updates.check]);
+  const updateBarShown = update !== null && updates.check;
+
+  // Sklo: lišty leží přes výpis, views o tom vědí kvůli virtualizaci.
+  // TODO(1.5 krok 4): přepínač v nastavení.
+  const glassOn = true;
+  // Layout efekt: atribut (CSS) musí platit ve stejném snímku jako insety
+  // pro virtualizaci, jinak by se rozložení a řádky na snímek rozešly.
+  useLayoutEffect(() => applyGlass(glassOn), [glassOn]);
+  const glassInsets = useMemo<GlassInsets>(
+    () =>
+      glassOn
+        ? { top: GLASS_TOP, bottom: GLASS_STATUS + (updateBarShown ? GLASS_UPDATE_BAR : 0) }
+        : NO_GLASS_INSETS,
+    [glassOn, updateBarShown],
+  );
+
+  // Linka pod skleněnou lištou jen tehdy, když pod ní je obsah: odscrollovaný
+  // výpis, nebo sloupce (ty se posouvají každý zvlášť). Třídou přímo v DOM —
+  // přes stav by každý scroll překreslil celou aplikaci. Proto musí className
+  // na <main> zůstat statický řetězec, jinak by React třídu při renderu smazal.
+  const mainRef = useRef<HTMLElement>(null);
+  const syncBarLine = () => {
+    const main = mainRef.current;
+    if (!main) return;
+    const scrolled = [...main.querySelectorAll<HTMLElement>(".fw-panel > .fw-scroll")].some(
+      (element) => element.dataset.columns !== undefined || element.scrollTop > 0,
+    );
+    main.classList.toggle("is-scrolled", scrolled);
+  };
 
   // Informace se sama sveze dolů po dvou sekundách, chyba zůstává. Časovač
   // visí na `notice`, takže nová hláška ten starý zruší a odpočet začne znovu.
@@ -2540,6 +2578,18 @@ export default function App() {
   const statusSelectedCount =
     inSearch || inTagView ? 0 : isColumnView ? (columnSelected ? 1 : 0) : targetEntries.length;
 
+  // Přepnutí view, složky, hledání nebo záložky vymění scroller (či jeho
+  // obsah) bez události scroll. Jen při těchhle změnách — App se překresluje
+  // i při každém pohybu gumičky.
+  const barLineKey = visiblePanels
+    .map((index) => {
+      const p = panels[index];
+      return [p.nav.current, p.viewMode, p.search !== null, p.tagFilter, p.isColumnView].join("|");
+    })
+    .join(";");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useLayoutEffect(syncBarLine, [barLineKey, activeTabId]);
+
   /** Jeden panel: proužek načítání, výpis a vrstva pro snímek při přepnutí view. */
   function renderPanel(index: 0 | 1) {
     const q = panels[index];
@@ -2570,7 +2620,13 @@ export default function App() {
             data-view={q.viewMode}
             onContextMenu={openBackgroundMenu}
             onClick={clearSelectionOnBackground}
+            data-columns={
+              q.isColumnView && q.search === null && q.tagFilter === null && q.nav.current !== null
+                ? ""
+                : undefined
+            }
             onScroll={(event) => {
+              syncBarLine();
               // Pozice patří složce, jejíž výpis je právě vidět.
               const shown = q.loadedPathRef.current;
               if (shown !== null && !q.isColumnView) {
@@ -2612,7 +2668,7 @@ export default function App() {
               backgroundDrop === index ? "fw-drop-zone" : ""
             }`}
           >
-            {renderContent(q)}
+            <GlassInsetsContext.Provider value={glassInsets}>{renderContent(q)}</GlassInsetsContext.Provider>
             {q.band.overlay}
           </div>
 
@@ -2808,7 +2864,7 @@ export default function App() {
     >
       <TitleBar />
 
-      <div className="flex min-h-0 flex-1">
+      <div className="fw-body flex min-h-0 flex-1">
         <Sidebar
           sections={sections}
           currentPath={nav.current}
@@ -2823,7 +2879,7 @@ export default function App() {
           onConfirm={setConfirm}
         />
 
-        <main className="flex min-w-0 flex-1 flex-col bg-main">
+        <main ref={mainRef} className="fw-main flex min-w-0 flex-1 flex-col bg-main">
           <Toolbar
             folderName={folderName}
             // Přeložený popisek ("Pictures") nesmí schovat, kde složka opravdu je.
@@ -2864,7 +2920,7 @@ export default function App() {
             newTab={commands.newTab}
           />
 
-          <div ref={panelsBoxRef} className="flex min-h-0 flex-1">
+          <div ref={panelsBoxRef} className="fw-panels flex min-h-0 flex-1">
             {visiblePanels.map((index) => (
               <Fragment key={index}>
                 {index === 1 && splitVisible && (
@@ -2884,7 +2940,7 @@ export default function App() {
         </main>
       </div>
 
-      {update && updates.check && (
+      {update && updateBarShown && (
         <div className="fw-update-bar" role="status">
           <span className="min-w-0 truncate">{t("update.available", { version: update.version })}</span>
           <button

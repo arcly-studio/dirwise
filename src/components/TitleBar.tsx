@@ -42,7 +42,7 @@ export function TitleBar() {
   return (
     <div
       data-tauri-drag-region
-      className="flex h-[32px] shrink-0 items-center gap-2 bg-window pl-[12px]"
+      className="fw-titlebar flex h-[32px] shrink-0 items-center gap-2 bg-window pl-[12px]"
     >
       <div className="group flex items-center gap-2">
         <TrafficLight

@@ -16,6 +16,7 @@ import {
   type FolderDropHandlers,
 } from "../lib/rowDnd";
 import { sameEntry } from "../lib/rows";
+import { useGlassInsets } from "../lib/glass";
 import { tagsOf } from "../lib/storage";
 import type { ViewHandleRef } from "../lib/viewHandle";
 import type { FileEntry, SelectMods, TagColor, TagMap } from "../types";
@@ -225,6 +226,8 @@ export function IconView({
   }, [scrollRef]);
 
   const rowCount = Math.ceil(entries.length / columns);
+  // Se sklem začíná mřížka pod lištou (padding scrolleru) a končí nad status barem.
+  const glass = useGlassInsets();
   const virtualizer = useVirtualizer({
     // Bez flushSync v obsluze scrollu: React 19 posun nových řádků slije do
     // jednoho vykreslení a hlavní vlákno nebrzdí začátek scrollovacího gesta.
@@ -238,8 +241,9 @@ export function IconView({
     overscan: 3,
     paddingStart: PADDING,
     paddingEnd: PADDING - GAP_Y,
-    scrollPaddingStart: 8,
-    scrollPaddingEnd: 8,
+    scrollMargin: glass.top,
+    scrollPaddingStart: 8 + glass.top,
+    scrollPaddingEnd: 8 + glass.bottom,
   });
 
   const select = useStableCallback(onSelect);
@@ -279,8 +283,8 @@ export function IconView({
         // Obdélník v souřadnicích obsahu mřížky.
         const left = box.left - rect.left - PADDING;
         const right = box.right - rect.left - PADDING;
-        const top = box.top - rect.top + element.scrollTop - PADDING;
-        const bottom = box.bottom - rect.top + element.scrollTop - PADDING;
+        const top = box.top - rect.top + element.scrollTop - glass.top - PADDING;
+        const bottom = box.bottom - rect.top + element.scrollTop - glass.top - PADDING;
 
         const hit: string[] = [];
         const firstRow = Math.max(0, Math.floor(top / ROW_PITCH));
@@ -299,10 +303,13 @@ export function IconView({
       },
       metrics: () => ({
         columns,
-        rowsPerPage: Math.max(1, Math.floor((scrollRef.current?.clientHeight ?? 0) / ROW_PITCH)),
+        rowsPerPage: Math.max(
+          1,
+          Math.floor(((scrollRef.current?.clientHeight ?? 0) - glass.top - glass.bottom) / ROW_PITCH),
+        ),
       }),
     }),
-    [entries, virtualizer, columns, rowCount, scrollRef],
+    [entries, virtualizer, columns, rowCount, scrollRef, glass],
   );
 
   return (
@@ -315,7 +322,7 @@ export function IconView({
           <div
             key={row.key}
             className="absolute top-0 flex"
-            style={{ left: PADDING, gap: GAP_X, transform: `translateY(${row.start}px)` }}
+            style={{ left: PADDING, gap: GAP_X, transform: `translateY(${row.start - glass.top}px)` }}
           >
             {cells.map((entry) => (
               <IconCell
