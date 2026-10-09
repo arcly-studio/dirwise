@@ -158,7 +158,9 @@ function rowStateClass(active: boolean, windowFocused: boolean): string {
 
 /** Ikona aktivního řádku se o kus zesvětlí, ať výběr čte i bez pozadí. */
 function iconColor(base: string, active: boolean): string {
-  return active ? `color-mix(in srgb, ${base} 85%, white)` : base;
+  // Zesvětlení patří modrému výběru; šedý výběr skla ve světlém tématu ikonu
+  // naopak ztmaví (--sidebar-icon-mix v index.css), jinak by splývala.
+  return active ? `color-mix(in srgb, ${base} 85%, var(--sidebar-icon-mix, white))` : base;
 }
 
 /** Výška řádku (ROW_CLASS h-[28px]) — posuny při přerovnání počítají s ní. */

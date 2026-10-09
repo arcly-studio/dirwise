@@ -1537,10 +1537,25 @@ body {
   --glass-bottom: 22px;
   --glass-bar: rgba(246, 246, 248, 0.78);
   --glass-blur: blur(20px) saturate(180%);
+  /* Sidebar bez blur: svislý přechod a jemný šum (~3 %), ať nepůsobí plošně.
+     Šum je šedý feTurbulence v SVG, dlaždice 160 px. Kontrast textu hlídá
+     spodní (tmavší) konec přechodu. */
+  --glass-sidebar: linear-gradient(180deg, #f3f3f6 0%, #e8e8ec 100%);
+  --glass-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
+  /* Výběr v sidebaru neutrálně šedý jako macOS Sonoma; modrá zůstává
+     pro výběr souborů ve výpisu. */
+  --glass-sidebar-selected: rgba(0, 0, 0, 0.09);
+  --glass-sidebar-selected-inactive: rgba(0, 0, 0, 0.05);
+  /* Ikona vybrané položky na šedém výběru (Sidebar.tsx iconColor). */
+  --sidebar-icon-mix: black;
 }
 
 :root.dark[data-glass="on"] {
   --glass-bar: rgba(36, 36, 38, 0.72);
+  --glass-sidebar: linear-gradient(180deg, #2c2c2f 0%, #232325 100%);
+  --glass-sidebar-selected: rgba(255, 255, 255, 0.12);
+  --glass-sidebar-selected-inactive: rgba(255, 255, 255, 0.07);
+  --sidebar-icon-mix: white;
 }
 
 :root[data-glass="on"] .fw-app:has(> .fw-update-bar) {
@@ -1582,12 +1597,25 @@ body {
 :root[data-glass="on"] .fw-sidebar-box {
   padding-top: 32px;
   padding-bottom: var(--glass-bottom);
-  background: linear-gradient(var(--bg-sidebar), var(--bg-sidebar)), var(--bg-window);
+  background: var(--glass-noise), var(--glass-sidebar);
 }
 
 :root[data-glass="on"] .fw-sidebar {
   background: transparent;
   backdrop-filter: none;
+}
+
+:root[data-glass="on"] .fw-sidebar-row.is-active {
+  background-color: var(--glass-sidebar-selected);
+}
+
+:root[data-glass="on"] .fw-sidebar-row.is-active-dim {
+  background-color: var(--glass-sidebar-selected-inactive);
+}
+
+/* Hodnota vpravo (čas, počet) by na šedém výběru měla pod 4,5 : 1. */
+:root[data-glass="on"] .fw-sidebar-row:is(.is-active, .is-active-dim) .fw-sidebar-value {
+  color: var(--text-primary);
 }
 
 /* Hlavní plocha: jedna skleněná deska přes titulek, toolbar i záložky.
