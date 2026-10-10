@@ -46,6 +46,20 @@ function setKeyboardInput(value: boolean) {
 window.addEventListener("keydown", () => setKeyboardInput(true), { capture: true, passive: true });
 window.addEventListener("pointerdown", () => setKeyboardInput(false), { capture: true, passive: true });
 
+// Samotný Alt (stisk a puštění bez další klávesy) a F10 by WebView2 předal
+// oknu a Windows by okno bez rámečku přepnul do režimu systémové nabídky —
+// aplikace by do další klávesy nebo kliknutí nereagovala. Zkratky s Altem
+// (Alt+šipky, Alt+F4, Alt+mezerník) nesou jinou klávesu, ty projdou.
+for (const type of ["keydown", "keyup"] as const) {
+  window.addEventListener(
+    type,
+    (event) => {
+      if (event.key === "Alt" || event.key === "F10") event.preventDefault();
+    },
+    { capture: true },
+  );
+}
+
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <App />
