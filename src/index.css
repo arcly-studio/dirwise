@@ -987,11 +987,20 @@ body {
     scale var(--dur-fade) var(--ease-out);
 }
 
+/* Při scrollu kolečkem jezdí řádky pod stojícím kurzorem a každý by
+   rozjel přechod hoveru — v seznamu s tisíci položkami to shazovalo snímky
+   (54 → 46 fps, změřeno). Během posunu (.is-scrolling z main.tsx) proto
+   podklad naskočí hned, stejně jako z klávesnice. */
 .fw-kbd .fw-list-row,
 .fw-kbd .fw-col-row,
 .fw-kbd .fw-result-row,
 .fw-kbd .fw-icon-tile,
-.fw-kbd .fw-icon-name {
+.fw-kbd .fw-icon-name,
+.is-scrolling .fw-list-row,
+.is-scrolling .fw-col-row,
+.is-scrolling .fw-result-row,
+.is-scrolling .fw-icon-tile,
+.is-scrolling .fw-icon-name {
   transition: none;
 }
 
@@ -1535,7 +1544,10 @@ body {
   --glass-top: 109px;
   /* status bar 22 (+ lišta nové verze 26, viz níž) */
   --glass-bottom: 22px;
-  --glass-bar: rgba(246, 246, 248, 0.78);
+  /* Krytí 0,80 a tmavší sekundární text drží AA (4,5 : 1) i nad černým
+     obsahem pod lištou (změřeno nad náhledy a nad čistě černou/bílou). */
+  --glass-bar: rgba(246, 246, 248, 0.8);
+  --glass-text-secondary: #4a4a4e;
   --glass-blur: blur(20px) saturate(180%);
   /* Sidebar bez blur: svislý přechod a jemný šum (~3 %), ať nepůsobí plošně.
      Šum je šedý feTurbulence v SVG, dlaždice 160 px. Kontrast textu hlídá
@@ -1551,7 +1563,8 @@ body {
 }
 
 :root.dark[data-glass="on"] {
-  --glass-bar: rgba(36, 36, 38, 0.72);
+  --glass-bar: rgba(36, 36, 38, 0.8);
+  --glass-text-secondary: #c7c7cc;
   --glass-sidebar: linear-gradient(180deg, #2c2c2f 0%, #232325 100%);
   --glass-sidebar-selected: rgba(255, 255, 255, 0.12);
   --glass-sidebar-selected-inactive: rgba(255, 255, 255, 0.07);
@@ -1560,6 +1573,12 @@ body {
 
 :root[data-glass="on"] .fw-app:has(> .fw-update-bar) {
   --glass-bottom: 48px;
+}
+
+/* Sekundární text (neaktivní záložky, status bar, zkratky v menu) na skle
+   o stupeň kontrastnější — pod ním může být cokoli, i bílá stránka. */
+:root[data-glass="on"] :is(.fw-titlebar, .fw-main > .fw-toolbar, .fw-main > .fw-tabbar, .fw-statusbar, .fw-update-bar, .fw-list-header, .fw-popover) {
+  --text-secondary: var(--glass-text-secondary);
 }
 
 /* Titulek a lišty dole leží nad tělem okna. */
@@ -1738,13 +1757,15 @@ body {
    root" a podmenu (vnořené v menu) by pak rozmazávalo jen vnitřek rodiče.
    Vnitřní světlý lem je taky na ::before — inset stín prvku by pod ním zmizel. */
 :root[data-glass="on"] {
-  --glass-menu: rgba(250, 250, 252, 0.78);
+  --glass-menu: rgba(250, 250, 252, 0.8);
   --glass-menu-blur: blur(24px) saturate(180%);
   --glass-highlight: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
 }
 
 :root.dark[data-glass="on"] {
-  --glass-menu: rgba(44, 44, 46, 0.72);
+  /* Víc než lišty (0,80): pod menu může ležet bílá stránka a zkratky
+     (--glass-text-secondary) by nad ní spadly pod 4,5 : 1 — změřeno. */
+  --glass-menu: rgba(44, 44, 46, 0.84);
   --glass-highlight: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
