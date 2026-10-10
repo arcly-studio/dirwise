@@ -2,38 +2,10 @@ import { createContext, useContext } from "react";
 import { invoke } from "@tauri-apps/api/core";
 
 /**
- * Vzhled „sklo" (1.5): titulek, toolbar, záložky a status bar leží přes
- * výpis a obsah pod nimi rozmazaně prosvítá. Celé CSS visí pod
- * :root[data-glass="on"] — bez atributu je vzhled přesně jako v 1.4.2.
+ * Vzhled „sklo" (od 1.5 základní): titulek, toolbar, záložky a status bar
+ * leží přes výpis a obsah pod nimi rozmazaně prosvítá. CSS visí pod
+ * :root[data-glass="on"], atribut je napevno v index.html.
  */
-export function applyGlass(on: boolean): void {
-  const root = document.documentElement;
-  if (on) root.dataset.glass = "on";
-  else delete root.dataset.glass;
-}
-
-/**
- * Zrcadlo výsledného stavu v localStorage — jen kvůli prvnímu vykreslení
- * (main.tsx), než se načte settings.json a zeptá se Windows. Bez něj by
- * okno s vypnutou průhledností na první snímek naskočilo se sklem.
- */
-const MIRROR_KEY = "finder-glass";
-
-export function readGlassMirror(): boolean {
-  try {
-    return localStorage.getItem(MIRROR_KEY) !== "off";
-  } catch {
-    return true;
-  }
-}
-
-export function writeGlassMirror(on: boolean): void {
-  try {
-    localStorage.setItem(MIRROR_KEY, on ? "on" : "off");
-  } catch {
-    // Bez zrcadla jen první snímek může mít jiný stav — nic horšího.
-  }
-}
 
 const REDUCED_QUERY = "(prefers-reduced-transparency: reduce)";
 

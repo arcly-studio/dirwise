@@ -238,9 +238,6 @@ export function Toolbar({
         item("themeLight", t("appearance.light")),
         item("themeDark", t("appearance.dark")),
         item("themeSystem", t("appearance.system")),
-        { type: "separator" },
-        item("transparencyOn"),
-        item("transparencyOff"),
       ],
     },
     {

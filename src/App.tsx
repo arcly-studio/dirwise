@@ -68,16 +68,10 @@ import { homeDir } from "@tauri-apps/api/path";
 import { canDropInto, droppedPaths, endDrag, getDrag, isExternalFileDrag } from "./lib/dnd";
 import { isTypingTarget } from "./lib/dom";
 import {
-  applyGlass,
   GLASS_STATUS,
-  readGlassMirror,
-  systemGlass,
-  watchSystemGlass,
-  writeGlassMirror,
   GLASS_TOP,
   GLASS_UPDATE_BAR,
   GlassInsetsContext,
-  NO_GLASS_INSETS,
   type GlassInsets,
 } from "./lib/glass";
 import { applyMotion, motionEnabled, motionMs, smoothIfAllowed } from "./lib/motion";
@@ -244,7 +238,6 @@ export default function App() {
     commandUsage,
     theme: themePreference,
     terminal,
-    transparency,
   } = useStorage();
   // Překreslení po přepnutí jazyka; texty se berou z `t`, které čte aktuální locale.
   const locale = useLocale();
@@ -561,17 +554,9 @@ export default function App() {
   // bílého záblesku a bez přeskočení fontu. Když JS spadne, ukáže ho Rust
   // sám po 1,5 s.
   const [ready, setReady] = useState(false);
-  // Sklo bez volby v menu podle Windows (Efekty průhlednosti, omezit
-  // průhlednost); do odpovědi drží stav zrcadlo z minulého spuštění.
-  const [glassBySystem, setGlassBySystem] = useState(readGlassMirror);
   useEffect(() => {
     let active = true;
-    Promise.all([storage.init(), document.fonts?.ready, systemGlass()])
-      // Až s načteným nastavením — dřív by systémový stav na okamžik platil
-      // i tam, kde si uživatel průhlednost nastavil sám. Okno na něj počká.
-      .then(([, , system]) => {
-        if (active) setGlassBySystem(system);
-      })
+    Promise.all([storage.init(), document.fonts?.ready])
       .catch(() => undefined)
       // Volba animací musí platit už pro rozsvícení okna.
       .then(() => applyMotion(storage.getSnapshot().motion))
@@ -603,34 +588,9 @@ export default function App() {
   const updateBarShown = update !== null && updates.check;
 
   // Sklo: lišty leží přes výpis, views o tom vědí kvůli virtualizaci.
-  // Změnu ve Windows za běhu chytí návrat do okna (watchSystemGlass).
-  useEffect(() => {
-    if (!ready) return;
-    let alive = true;
-    const check = () =>
-      void systemGlass().then((on) => {
-        if (alive) setGlassBySystem(on);
-      });
-    const stop = watchSystemGlass(check);
-    return () => {
-      alive = false;
-      stop();
-    };
-  }, [ready]);
-  const glassOn = transparency === null ? glassBySystem : transparency === "on";
-  // Zrcadlo jen s načteným nastavením, jinak by ho přepsal mezistav.
-  useEffect(() => {
-    if (ready) writeGlassMirror(glassOn);
-  }, [ready, glassOn]);
-  // Layout efekt: atribut (CSS) musí platit ve stejném snímku jako insety
-  // pro virtualizaci, jinak by se rozložení a řádky na snímek rozešly.
-  useLayoutEffect(() => applyGlass(glassOn), [glassOn]);
   const glassInsets = useMemo<GlassInsets>(
-    () =>
-      glassOn
-        ? { top: GLASS_TOP, bottom: GLASS_STATUS + (updateBarShown ? GLASS_UPDATE_BAR : 0) }
-        : NO_GLASS_INSETS,
-    [glassOn, updateBarShown],
+    () => ({ top: GLASS_TOP, bottom: GLASS_STATUS + (updateBarShown ? GLASS_UPDATE_BAR : 0) }),
+    [updateBarShown],
   );
 
   // Linka pod skleněnou lištou jen tehdy, když pod ní je obsah: odscrollovaný
@@ -2362,12 +2322,6 @@ export default function App() {
       motionSystem: { run: () => void storage.setMotion("system"), checked: motion === "system" },
       motionOn: { run: () => void storage.setMotion("on"), checked: motion === "on" },
       motionOff: { run: () => void storage.setMotion("off"), checked: motion === "off" },
-      transparencyOn: { run: () => void storage.setTransparency("on"), checked: glassOn },
-      transparencyOff: { run: () => void storage.setTransparency("off"), checked: !glassOn },
-      toggleTransparency: {
-        run: () => void storage.setTransparency(glassOn ? "off" : "on"),
-        title: glassOn ? t("command.transparencyOff") : t("command.transparencyOn"),
-      },
       terminalAuto: { run: () => void storage.setTerminal("auto"), checked: terminal === "auto" },
       terminalWindows: {
         run: () => void storage.setTerminal("windowsTerminal"),
