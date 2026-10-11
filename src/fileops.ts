@@ -372,3 +372,41 @@ export type MediaInfo = {
 export function getMediaInfo(path: string): Promise<MediaInfo> {
   return invoke<MediaInfo>("get_media_info", { path });
 }
+
+/* ---------------------------------- Koš ---------------------------------- */
+
+/** Položka v Koši. `id` = cesta v `$Recycle.Bin` (podle ní se najde znovu). */
+export type RecycleEntry = {
+  id: string;
+  name: string;
+  original_dir: string;
+  /** Unix sekundy. */
+  deleted: number;
+  size: number;
+  is_dir: boolean;
+  extension: string | null;
+};
+
+export type RecycleState = { count: number; size: number };
+
+export function recycleBinState(): Promise<RecycleState> {
+  return invoke<RecycleState>("recycle_bin_state");
+}
+
+export function listRecycleBin(): Promise<RecycleEntry[]> {
+  return invoke<RecycleEntry[]>("list_recycle_bin");
+}
+
+/** Zpět na původní místo (to zná Koš, posílá se jen `id`); obsazené místo
+ *  se nepřepisuje (skončí ve `failed`). */
+export function restoreRecycled(items: RecycleEntry[], elevate = false): Promise<DeleteReport> {
+  return invoke<DeleteReport>("restore_recycled", { ids: items.map((item) => item.id), elevate });
+}
+
+export function purgeRecycled(items: RecycleEntry[], elevate = false): Promise<DeleteReport> {
+  return invoke<DeleteReport>("purge_recycled", { ids: items.map((item) => item.id), elevate });
+}
+
+export function emptyRecycleBin(): Promise<void> {
+  return invoke<void>("empty_recycle_bin");
+}

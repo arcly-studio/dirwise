@@ -1,7 +1,7 @@
 import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { listen } from "@tauri-apps/api/event";
-import { CircleAlert, CircleCheck, FolderOpen, Plus, Search, SearchX, X } from "lucide-react";
+import { CircleAlert, CircleCheck, FolderOpen, Plus, Search, SearchX, Trash2, X } from "lucide-react";
 
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 
@@ -24,6 +24,7 @@ import { Sidebar } from "./components/Sidebar";
 import { StatusBar } from "./components/StatusBar";
 import { TabBar } from "./components/TabBar";
 import { TagView } from "./components/TagView";
+import { RecycleBinView } from "./components/RecycleBinView";
 import { FolderIcon, folderDisplayName, sidebarIcon, sidebarIconColor } from "./components/icons";
 import { TitleBar } from "./components/TitleBar";
 import { Toolbar } from "./components/Toolbar";
@@ -51,6 +52,12 @@ import {
   failureText,
   isCancelled,
   needsAdmin,
+  emptyRecycleBin,
+  purgeRecycled,
+  recycleBinState,
+  restoreRecycled,
+  type RecycleEntry,
+  type RecycleState,
   renameElevated,
   createFolderElevated,
   transferElevated,
@@ -372,6 +379,7 @@ export default function App() {
     setSortDirection,
     setQuery,
     setTagFilter,
+    setTrashView,
     setSearch,
     setActive,
     setSelection,
@@ -401,6 +409,7 @@ export default function App() {
     sortDirection,
     query,
     tagFilter,
+    trashView,
     search,
     streamingCount,
     freeSpace,
@@ -1234,6 +1243,101 @@ export default function App() {
   const deleteTargets = useCallback(() => deleteEntries(targetEntries), [deleteEntries, targetEntries]);
   const deleteTargetsPermanently = useCallback(() => deleteEntries(targetEntries, true), [deleteEntries, targetEntries]);
 
+  /* ---------------------------------- Koš ---------------------------------- */
+
+  /** Počet položek v Koši — ikona v sidebaru (prázdný / plný). */
+  const [trashState, setTrashState] = useState<RecycleState | null>(null);
+  const trashRequest = useRef(0);
+  const trashTimer = useRef<number | undefined>(undefined);
+  /** Dotaz je u plného Koše drahý a refreshToken roste i s každou změnou
+   *  sledované složky — dotazy se proto slévají (300 ms) a starší odpověď
+   *  novější nepřepíše. */
+  const refreshTrashState = useCallback(() => {
+    window.clearTimeout(trashTimer.current);
+    trashTimer.current = window.setTimeout(() => {
+      const id = ++trashRequest.current;
+      recycleBinState()
+        .then((state) => {
+          if (trashRequest.current === id) setTrashState(state);
+        })
+        .catch(() => {
+          if (trashRequest.current === id) setTrashState(null);
+        });
+    }, 300);
+  }, []);
+  // Po každé operaci (refreshToken), při návratu do okna a jednou za minutu —
+  // Koš mění i Průzkumník a jiné aplikace.
+  useEffect(refreshTrashState, [refreshTrashState, panels[0].refreshToken, panels[1].refreshToken]);
+  useEffect(() => {
+    const timer = window.setInterval(refreshTrashState, 60_000);
+    window.addEventListener("focus", refreshTrashState);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("focus", refreshTrashState);
+    };
+  }, [refreshTrashState]);
+
+  /** Obnoví položky Koše na původní místo (obsazené místo nepřepíše). */
+  const restoreRecycledItems = useCallback(
+    (items: RecycleEntry[], elevate = false) => {
+      if (items.length === 0) return;
+      void runOperation("op.restore", async () => {
+        const report = await restoreRecycled(items, elevate);
+        const admin = report.failed.filter((item) => item.admin);
+        reportFailures("op.restore", report.failed.filter((item) => !item.admin), items.length);
+        if (admin.length > 0) {
+          const retry = items.filter((item) => admin.some((failed) => failed.item === item.id));
+          askAdmin(
+            retry.map((item) => `${item.original_dir}\\${item.name}`),
+            () => restoreRecycledItems(retry, true),
+          );
+        }
+      });
+    },
+    [runOperation, reportFailures, askAdmin],
+  );
+
+  /** Trvale smaže vybrané položky Koše (s potvrzením). */
+  const purgeRecycledItems = useCallback(
+    (items: RecycleEntry[]) => {
+      if (items.length === 0) return;
+      const run = (targets: RecycleEntry[], elevate: boolean) =>
+        void runOperation("op.delete", async () => {
+          const report = await purgeRecycled(targets, elevate);
+          const admin = report.failed.filter((item) => item.admin);
+          reportFailures("op.delete", report.failed.filter((item) => !item.admin), targets.length);
+          if (admin.length > 0) {
+            const retry = targets.filter((item) => admin.some((failed) => failed.item === item.id));
+            askAdmin(
+              retry.map((item) => `${item.original_dir}\\${item.name}`),
+              () => run(retry, true),
+            );
+          }
+        });
+      setConfirm({
+        title:
+          items.length === 1
+            ? t("confirm.deleteOne", { name: items[0].name })
+            : t("confirm.deleteMany", { count: items.length }),
+        message: t("confirm.purgeMessage"),
+        confirmLabel: t("confirm.deleteConfirm"),
+        danger: true,
+        onConfirm: () => run(items, false),
+      });
+    },
+    [runOperation, reportFailures, askAdmin],
+  );
+
+  const confirmEmptyTrash = useCallback(() => {
+    setConfirm({
+      title: t("confirm.emptyTrashTitle"),
+      message: t("confirm.emptyTrashMessage"),
+      confirmLabel: t("menu.emptyTrash"),
+      danger: true,
+      onConfirm: () => void runOperation("op.emptyTrash", emptyRecycleBin),
+    });
+  }, [runOperation]);
+
   /** `select` = kopii rovnou označit. Ve výsledcích hledání se nesmí — označení
    *  by čekalo na výpis složky, ve které uživatel vůbec není. */
   const duplicateEntry = useCallback(
@@ -1581,8 +1685,10 @@ export default function App() {
     otherPanel !== null &&
     otherPanel.search === null &&
     otherPanel.tagFilter === null &&
+    !otherPanel.trashView &&
     search === null &&
-    tagFilter === null
+    tagFilter === null &&
+    !trashView
       ? otherPanel.currentDir
       : null;
   const transferToOther = useCallback(
@@ -1611,7 +1717,7 @@ export default function App() {
    *  (v column view do sloupce pod myší). Řádky složek si je chytí samy. */
   const [backgroundDrop, setBackgroundDrop] = useState<0 | 1 | null>(null);
   const backgroundDropDir = (q: Panel, event: React.DragEvent): string | null => {
-    if (q.tagFilter !== null || q.search !== null) return null;
+    if (q.tagFilter !== null || q.search !== null || q.trashView) return null;
     const column = (event.target as Element).closest<HTMLElement>("[data-column-path]");
     const dir = column?.dataset.columnPath ?? q.currentDir;
     if (dir === null) return null;
@@ -1807,7 +1913,7 @@ export default function App() {
       // Tag view a výsledky hledání nemají výběr v hlavním panelu — příkazy nad
       // výběrem by mířily na položky podkladové složky, které uživatel nevidí
       // (nejnebezpečnější je Delete). Projdou jen ty s rozsahem „overlay".
-      const overlayMode = tagFilter !== null || search !== null;
+      const overlayMode = tagFilter !== null || search !== null || trashView;
       const command = commandsRef.current
         ? commandForKey(commandsRef.current, event, { typing, overlay: overlayMode })
         : null;
@@ -1901,6 +2007,7 @@ export default function App() {
   }, [
     modalOpen,
     tagFilter,
+    trashView,
     search,
     isColumnView,
     activeEntry,
@@ -1984,7 +2091,7 @@ export default function App() {
     (event: React.MouseEvent) => {
       // Tag view ani výsledky hledání nejsou složka, takže "Nová složka" ani
       // "Vložit" by neměly kam mířit. Nativní menu tam blokuje globální handler.
-      if (tagFilter !== null || search !== null || currentDir === null) return;
+      if (tagFilter !== null || search !== null || trashView || currentDir === null) return;
       // V rozepsaném přejmenování má pravý klik nechat projít menu webview —
       // jinak by přes input vyskočilo menu složky a uživatel se nedostal
       // k vložení názvu ze schránky.
@@ -1999,19 +2106,19 @@ export default function App() {
       checkClipboard();
       setMenu({ kind: "background", x: event.clientX, y: event.clientY, dir });
     },
-    [tagFilter, search, currentDir, checkClipboard],
+    [tagFilter, trashView, search, currentDir, checkClipboard],
   );
 
   /** Klik do prázdné plochy Icon / List View zruší výběr. Column view to řeší
    *  po sloupcích sám, overlaye výběr v podkladové složce nemají. */
   const clearSelectionOnBackground = useCallback(
     (event: React.MouseEvent) => {
-      if (isColumnView || tagFilter !== null || search !== null) return;
+      if (isColumnView || tagFilter !== null || search !== null || trashView) return;
       if ((event.target as Element).closest("[data-path]")) return;
       setSelection(new Set());
       setActive(null);
     },
-    [isColumnView, tagFilter, search],
+    [isColumnView, tagFilter, trashView, search],
   );
 
   /** Tag view a výsledky hledání se navzájem vylučují — jinak by status bar
@@ -2021,10 +2128,20 @@ export default function App() {
       if (search !== null) setQuery("");
       setSearch(null);
       setOverlaySelected(null);
+      setTrashView(false);
       setTagFilter(color);
     },
     [search],
   );
+
+  /** Pohled na Koš — vylučuje se s tag view i výsledky hledání. */
+  const openTrash = useCallback(() => {
+    if (search !== null) setQuery("");
+    setSearch(null);
+    setOverlaySelected(null);
+    setTagFilter(null);
+    setTrashView(true);
+  }, [search]);
 
   const openStatusMenu = useCallback(
     (x: number, y: number) => {
@@ -2496,7 +2613,7 @@ export default function App() {
 
   const lastUndo = history.undo[history.undo.length - 1];
   const lastRedo = history.redo[history.redo.length - 1];
-  const overlayMode = tagFilter !== null || search !== null;
+  const overlayMode = tagFilter !== null || search !== null || trashView;
   // Typy z menu Nový v paletě („Nový: Dokument aplikace Word").
   const paletteNewActions: PaletteAction[] =
     currentDir === null || overlayMode
@@ -2614,6 +2731,8 @@ export default function App() {
       },
       delete: { run: deleteTargets, enabled: targetEntries.length > 0 },
       deletePermanently: { run: deleteTargetsPermanently, enabled: targetEntries.length > 0 },
+      openTrash: { run: openTrash },
+      emptyTrash: { run: confirmEmptyTrash, enabled: trashState === null || trashState.count > 0 },
       copyPath: {
         run: () => {
           const path = activeEntry?.path ?? currentDir;
@@ -2733,6 +2852,7 @@ export default function App() {
   // Ikona před názvem v toolbaru: stejná jako u složky v sidebaru, jinak
   // obecná složka; v tag view puntík barvy, ve výsledcích lupa.
   const folderIcon = (() => {
+    if (trashView) return <Trash2 size={16} strokeWidth={1.75} className="text-secondary" />;
     if (tagFilter !== null) {
       return (
         <span
@@ -2758,8 +2878,9 @@ export default function App() {
   })();
 
   const crumbs = nav.current ? breadcrumbs(nav.current) : [];
-  const folderName =
-    tagFilter !== null
+  const folderName = trashView
+    ? t("sidebar.trash")
+    : tagFilter !== null
       ? tagLabel(tagFilter)
       : search !== null
         ? t("toolbar.searchResults")
@@ -2778,7 +2899,8 @@ export default function App() {
 
   const previewEntries = isColumnView ? visibleColumnEntries : visibleEntries;
 
-  const inTagView = tagFilter !== null;
+  // Pohled na Koš hlásí počet přes tagCount — je stejně jako tag view celek.
+  const inTagView = tagFilter !== null || trashView;
   const inSearch = search !== null;
 
   // Ve výsledcích hledání není "z kolika" — počet nálezů je zároveň celek,
@@ -2808,7 +2930,7 @@ export default function App() {
   const barLineKey = visiblePanels
     .map((index) => {
       const p = panels[index];
-      return [p.nav.current, p.viewMode, p.search !== null, p.tagFilter, p.isColumnView].join("|");
+      return [p.nav.current, p.viewMode, p.search !== null, p.tagFilter, p.trashView, p.isColumnView].join("|");
     })
     .join(";");
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -2830,7 +2952,7 @@ export default function App() {
       >
           {/* Navigace i přenačtení nechávají obsah na místě, takže by jinak
               nebylo nijak poznat, že se něco děje. */}
-          {(q.loading || (q.isColumnView && q.columnsApi.rootLoading)) && q.search === null && q.tagFilter === null && (
+          {(q.loading || (q.isColumnView && q.columnsApi.rootLoading)) && q.search === null && q.tagFilter === null && !q.trashView && (
             <div className="fw-busy-line" aria-hidden />
           )}
 
@@ -2845,7 +2967,7 @@ export default function App() {
             onContextMenu={openBackgroundMenu}
             onClick={clearSelectionOnBackground}
             data-columns={
-              q.isColumnView && q.search === null && q.tagFilter === null && q.nav.current !== null
+              q.isColumnView && q.search === null && q.tagFilter === null && !q.trashView && q.nav.current !== null
                 ? ""
                 : undefined
             }
@@ -2860,7 +2982,7 @@ export default function App() {
             onMouseDown={(event) => {
               // Gumička jen nad výpisem složky — column view má vlastní po
               // sloupcích, výsledky hledání a tag view výběr nemají.
-              if (!q.isColumnView && q.tagFilter === null && q.search === null) q.band.onMouseDown(event);
+              if (!q.isColumnView && q.tagFilter === null && q.search === null && !q.trashView) q.band.onMouseDown(event);
             }}
             onDragOver={(event) => {
               if (backgroundDropDir(q, event) === null) return;
@@ -2906,6 +3028,7 @@ export default function App() {
   function renderContent(q: Panel) {
     const {
       tagFilter,
+      trashView,
       overlaySelected,
       setOverlaySelected,
       refreshToken,
@@ -2928,6 +3051,19 @@ export default function App() {
     } = q;
     // Neaktivní panel ukazuje výběr šedě, jako okno bez fokusu.
     const windowFocused = windowFocusedAll && q === panel;
+
+    if (trashView) {
+      return (
+        <RecycleBinView
+          windowFocused={windowFocused}
+          refreshToken={refreshToken}
+          onCountChange={setTagCount}
+          onRestore={restoreRecycledItems}
+          onPurge={purgeRecycledItems}
+          onEmpty={confirmEmptyTrash}
+        />
+      );
+    }
 
     if (tagFilter !== null) {
       return (
@@ -3098,6 +3234,9 @@ export default function App() {
           onReveal={reveal}
           activeTag={tagFilter}
           onSelectTag={selectTag}
+          trashActive={trashView}
+          trashCount={trashState?.count ?? 0}
+          onOpenTrash={openTrash}
           onDropInto={dropInto}
           onError={setNotice}
           onConfirm={setConfirm}
@@ -3107,7 +3246,7 @@ export default function App() {
           <Toolbar
             folderName={folderName}
             // Přeložený popisek ("Pictures") nesmí schovat, kde složka opravdu je.
-            folderPath={tagFilter === null && search === null ? nav.current : null}
+            folderPath={tagFilter === null && search === null && !trashView ? nav.current : null}
             folderIcon={folderIcon}
             viewMode={viewMode}
             onViewModeChange={changeViewMode}
@@ -3296,6 +3435,7 @@ export default function App() {
             if (currentDir === null) return;
             setQuery(text);
             setTagFilter(null);
+            setTrashView(false);
             setOverlaySelected(null);
             setSearch({ root: currentDir, query: text });
           }}

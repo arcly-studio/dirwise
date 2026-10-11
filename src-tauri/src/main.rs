@@ -13,6 +13,7 @@ mod clipboard;
 mod external_drop;
 mod fileop;
 mod native_drag;
+mod recycle;
 mod shellnew;
 
 /* --------------------------------- chyby ----------------------------------- */
@@ -2960,6 +2961,11 @@ fn main() {
             fileop::transfer_elevated,
             fileop::rename_elevated,
             fileop::create_folder_elevated,
+            recycle::recycle_bin_state,
+            recycle::list_recycle_bin,
+            recycle::restore_recycled,
+            recycle::purge_recycled,
+            recycle::empty_recycle_bin,
             restore_from_trash,
             copy_path,
             move_path,

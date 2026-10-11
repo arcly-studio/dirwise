@@ -102,6 +102,8 @@ export function usePanel({ slot, showHidden, setNotice }: PanelOptions) {
     setQuery,
     tagFilter,
     setTagFilter,
+    trashView,
+    setTrashView,
     search,
     setSearch,
     active,
@@ -203,6 +205,7 @@ export function usePanel({ slot, showHidden, setNotice }: PanelOptions) {
     setPendingSelect(null);
     setOverlaySelected(null);
     setTagFilter(null);
+    setTrashView(false);
     // Odchod z výsledků bere s sebou i dotaz. Bez toho by cílová složka zůstala
     // zafiltrovaná textem, kterým uživatel jen hledal, a chyběla by v ní půlka
     // souborů. Mimo hledání se filtr při navigaci nemaže — to je staré chování.
@@ -422,6 +425,7 @@ export function usePanel({ slot, showHidden, setNotice }: PanelOptions) {
     if (needle === "" || currentDir === null) return;
 
     setTagFilter(null);
+    setTrashView(false);
     setOverlaySelected(null);
     setSearch({ root: currentDir, query: needle });
   }, [query, currentDir]);
@@ -710,6 +714,7 @@ export function usePanel({ slot, showHidden, setNotice }: PanelOptions) {
     query,
     search,
     tagFilter,
+    trashView,
     selection: [...selection],
     active: active?.path ?? null,
     scrollTop: scrollRef.current?.scrollTop ?? 0,
@@ -743,6 +748,7 @@ export function usePanel({ slot, showHidden, setNotice }: PanelOptions) {
     setQuery(snapshot.query);
     setSearch(snapshot.search);
     setTagFilter(snapshot.tagFilter);
+    setTrashView(snapshot.trashView);
     setSelection(new Set());
     setActive(null);
     setOverlaySelected(null);
@@ -852,6 +858,8 @@ export function usePanel({ slot, showHidden, setNotice }: PanelOptions) {
     setQuery,
     tagFilter,
     setTagFilter,
+    trashView,
+    setTrashView,
     search,
     setSearch,
     active,

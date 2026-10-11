@@ -22,13 +22,18 @@ pub enum Op {
     Copy { from: String, to_dir: String, name: String },
     Move { from: String, to_dir: String, name: String },
     NewFolder { dir: String, name: String },
+    /// Položka Koše (`id` = cesta v `$Recycle.Bin`) zpět do původní složky.
+    Restore { id: String, to_dir: String, name: String },
+    /// Položka Koše trvale pryč.
+    Purge { id: String },
 }
 
 impl Op {
     /// Cesta, pod kterou operaci ohlásí shell (zdroj, u nové složky cíl).
-    fn subject(&self) -> String {
+    pub fn subject(&self) -> String {
         match self {
             Op::Delete { path } | Op::Rename { path, .. } => path.clone(),
+            Op::Restore { id, .. } | Op::Purge { id } => id.clone(),
             Op::Copy { from, .. } | Op::Move { from, .. } => from.clone(),
             Op::NewFolder { dir, name } => join(dir, name),
         }
@@ -68,8 +73,10 @@ const WIN32_FACILITY: i32 = hr(0x8007_0000);
 const E_ACCESSDENIED: i32 = hr(0x8007_0005);
 const ERROR_CANCELLED: i32 = hr(0x8007_04C7);
 const E_ABORT: i32 = hr(0x8000_4004);
-const E_FAIL: i32 = hr(0x8000_4005);
-const E_UNEXPECTED: i32 = hr(0x8000_FFFF);
+pub const E_FAIL: i32 = hr(0x8000_4005);
+pub const E_UNEXPECTED: i32 = hr(0x8000_FFFF);
+/// HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND).
+const E_NOT_FOUND: i32 = hr(0x8007_0002);
 
 // COPYENGINE_E_* ze shobjidl (hodnoty jako v crate windows).
 const CE_USER_CANCELLED: i32 = hr(0x8027_0000);
@@ -210,6 +217,11 @@ mod shell {
             // varování. Varování je potvrzovací dotaz — NOCONFIRMATION by ho
             // potlačil, proto ho Koš nemá (odpovídá Průzkumníku).
             flags |= FOFX_RECYCLEONDELETE | FOF_ALLOWUNDO | FOF_WANTNUKEWARNING;
+        } else if ops.iter().any(|op| matches!(op, Op::Restore { .. })) {
+            // Obnovení z Koše nesmí nic přepsat: obsazené místo kontroluje
+            // restore_recycled předem, kdyby mezitím vzniklo, dostane obnovená
+            // položka nové jméno.
+            flags |= FOF_RENAMEONCOLLISION;
         } else {
             // Trvalé smazání potvrdil uživatel v aplikaci; u kopie a přesunu
             // řeší kolize place() předem a „Nahradit" má přepsat bez ptaní.
@@ -234,6 +246,15 @@ mod shell {
         let sink: IFileOperationProgressSink = Sink { report: report.clone() }.into();
         let cookie = unsafe { operation.Advise(&sink)? };
 
+        // Položky Koše jen z výčtu Koše (ne podle cesty) — jinak by po nich
+        // zůstal záznam v Koši.
+        let bin = if ops.iter().any(|op| matches!(op, Op::Restore { .. } | Op::Purge { .. })) {
+            crate::recycle::shell::by_id()
+        } else {
+            Default::default()
+        };
+        let recycled = |id: &str| bin.get(&id.to_lowercase()).cloned().ok_or_else(|| windows::core::Error::from_hresult(HRESULT(super::E_NOT_FOUND)));
+
         let mut rejected = Vec::new();
         for op in ops {
             // Chybějící zdroj (SHCreateItemFromParsingName) patří jen té operaci.
@@ -251,6 +272,10 @@ mod shell {
                         Op::NewFolder { dir, name } => {
                             operation.NewItem(&item(dir)?, 0x10 /* FILE_ATTRIBUTE_DIRECTORY */, &HSTRING::from(name), None, None)
                         }
+                        Op::Restore { id, to_dir, name } => {
+                            operation.MoveItem(&recycled(id)?, &item(to_dir)?, &HSTRING::from(name), None)
+                        }
+                        Op::Purge { id } => operation.DeleteItem(&recycled(id)?, None),
                     }
                 }
             })();
@@ -349,15 +374,29 @@ impl Failure {
     }
 
     fn other(item: &str, error: AppError) -> Self {
-        Failure { path: item.to_string(), item: item.to_string(), error, admin: false }
+        Failure::at(item, item.to_string(), error)
+    }
+
+    pub fn at(item: &str, path: String, error: AppError) -> Self {
+        Failure { path, item: item.to_string(), error, admin: false }
     }
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Default)]
 pub struct DeleteReport {
-    /// Smazané cesty (původní).
+    /// Zpracované položky (u mazání původní cesty, u Koše `id`).
     deleted: Vec<String>,
     failed: Vec<Failure>,
+}
+
+impl DeleteReport {
+    pub fn done(&mut self, path: String) {
+        self.deleted.push(path);
+    }
+
+    pub fn fail(&mut self, failure: Failure) {
+        self.failed.push(failure);
+    }
 }
 
 /// Smaže výběr jednou operací shellu — do Koše, nebo trvale. Selhání

@@ -68,6 +68,8 @@ export type CommandId =
   | "rename"
   | "delete"
   | "deletePermanently"
+  | "openTrash"
+  | "emptyTrash"
   | "copyPath"
   | "openTerminal"
   | "checkUpdates"
@@ -199,6 +201,8 @@ const DEFINITIONS: Record<CommandId, CommandDefinition> = {
   delete: { title: "menu.delete", shortcut: "Delete", keys: [{ key: "Delete" }] },
   deletePermanently: { title: "menu.deletePermanently", shortcut: "Shift+Delete", keys: [{ key: "Delete", shift: true }] },
   copyPath: { title: "menu.copyPath", scope: "overlay" },
+  openTrash: { title: "menu.openTrash", scope: "global" },
+  emptyTrash: { title: "menu.emptyTrash", scope: "global" },
   openTerminal: { title: "menu.openInTerminal", scope: "overlay" },
   // Ve Store buildu se nenabízí (ani v menu Více, viz Toolbar).
   checkUpdates: { title: "toolbar.checkUpdates", palette: !__STORE__ },

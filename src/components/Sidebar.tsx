@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ChevronDown, Folder } from "lucide-react";
+import { ChevronDown, Folder, Trash2 } from "lucide-react";
 
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 
@@ -52,6 +52,10 @@ type SidebarProps = {
   onReveal: (path: string) => void;
   activeTag: TagColor | null;
   onSelectTag: (color: TagColor) => void;
+  /** Koš — poslední řádek sekce Zařízení; ikona podle počtu položek. */
+  trashActive: boolean;
+  trashCount: number;
+  onOpenTrash: () => void;
   /** Položky (nebo soubory z Průzkumníku) puštěné na složku v sidebaru. */
   onDropInto: DropInto;
   /** Chyby (Průzkumník, Terminál, schránka) — do stejné hlášky jako v App. */
@@ -661,6 +665,9 @@ export function Sidebar({
   onReveal,
   activeTag,
   onSelectTag,
+  trashActive,
+  trashCount,
+  onOpenTrash,
   onDropInto,
   onError,
   onConfirm,
@@ -1060,6 +1067,26 @@ export function Sidebar({
                 </button>
               );
             })}
+            {section.id === "devices" && (
+              <button
+                type="button"
+                data-tooltip={trashCount > 0 ? t("sidebar.trashFull", { count: trashCount }) : t("sidebar.trash")}
+                onClick={onOpenTrash}
+                className={`${ROW_CLASS} ${rowStateClass(trashActive, windowFocused)}`}
+              >
+                {/* Plný Koš = vyplněná nádoba (jako ikona Koše ve Windows). */}
+                <Trash2
+                  size={16}
+                  strokeWidth={1.75}
+                  className="fw-sidebar-icon shrink-0"
+                  color={iconColor(sidebarIconColor(section.id), trashActive)}
+                  fill={trashCount > 0 ? iconColor(sidebarIconColor(section.id), trashActive) : "none"}
+                  fillOpacity={trashCount > 0 ? 0.3 : undefined}
+                  aria-hidden
+                />
+                <span className="truncate">{t("sidebar.trash")}</span>
+              </button>
+            )}
           </nav>
         )}
       </div>

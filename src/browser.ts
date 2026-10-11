@@ -24,6 +24,8 @@ export function useBrowserState() {
   // Tag view je samostatný režim hlavního panelu — nesouvisí s nav.current,
   // proto vlastní stav a ne další ViewMode.
   const [tagFilter, setTagFilter] = useState<TagColor | null>(null);
+  /** Pohled na Koš — stejně jako tag view samostatný režim panelu. */
+  const [trashView, setTrashView] = useState(false);
 
   // Rekurzivní hledání je stejně jako tag view samostatný režim panelu. Kořen
   // se drží spolu s dotazem, aby výsledky nezůstaly viset na jiné složce, než
@@ -48,6 +50,8 @@ export function useBrowserState() {
     setQuery,
     tagFilter,
     setTagFilter,
+    trashView,
+    setTrashView,
     search,
     setSearch,
     active,
@@ -66,6 +70,7 @@ export type TabSnapshot = {
   query: string;
   search: { root: string; query: string } | null;
   tagFilter: TagColor | null;
+  trashView: boolean;
   selection: string[];
   active: string | null;
   scrollTop: number;
@@ -110,6 +115,7 @@ export function blankSnapshot(
     query: "",
     search: null,
     tagFilter: null,
+    trashView: false,
     selection: [],
     active: null,
     scrollTop: 0,
