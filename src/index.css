@@ -1932,6 +1932,25 @@ body {
   background-color: transparent !important;
 }
 
+/* Obsah pod lištou a status barem se při průhlednosti nezobrazuje. Rozmazat
+   ho nejde: okno je průhledné, výsledek backdrop-filteru je poloprůhledný
+   a pod ním prosvítá původní ostrý obsah (názvy souborů by se pletly
+   s tlačítky) — zakrýt by ho šlo jen neprůhlednou vrstvou, a ta by zakryla
+   i plochu za oknem. Maska scrolleru panelu (pokrývá i sloupce a panel
+   informací) proto výpis ořízne na hraně lišt;
+   rozložení (odsazení, virtualizace) se nemění. */
+:root[data-glass="on"][data-transparency] .fw-panel > .fw-scroll {
+  --bars-mask: linear-gradient(
+    to bottom,
+    transparent var(--glass-top),
+    #000 var(--glass-top),
+    #000 calc(100% - var(--glass-bottom)),
+    transparent calc(100% - var(--glass-bottom))
+  );
+  -webkit-mask-image: var(--bars-mask);
+  mask-image: var(--bars-mask);
+}
+
 :root[data-transparency] .fw-column-pane.is-focused {
   background-color: var(--hover) !important;
 }

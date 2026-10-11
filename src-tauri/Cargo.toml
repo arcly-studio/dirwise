@@ -1,6 +1,6 @@
 [package]
 name = "finder-win"
-version = "1.5.0"
+version = "1.5.1"
 description = "A macOS Finder-like file explorer for Windows"
 authors = ["krystof2-ops"]
 license = "MIT"

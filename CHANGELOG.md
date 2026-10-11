@@ -2,6 +2,10 @@
 
 Notable changes in each Finder-Win release. Installers are on the [Releases](https://github.com/krystof2-ops/finder-win/releases) page.
 
+## [1.5.1](https://github.com/krystof2-ops/finder-win/releases/tag/v1.5.1) – 2026-10-11
+
+- **Fixed:** with Transparency on, files scrolled under the top bar and the status bar showed through almost sharp and mixed with the buttons – content no longer shows under the bars; the desktop still shows through.
+
 ## [1.5.0](https://github.com/krystof2-ops/finder-win/releases/tag/v1.5.0) – 2026-10-11
 
 - **New default look: glass** – title bar, toolbar and tabs sit on one translucent, blurred plate and the list shows through it as you scroll; the status bar, menus, context menus, command palette, tooltips and toasts are glass too, dialogs blur what is behind them. The sidebar reaches under the window buttons, with a soft gradient, grain and a grey selection like macOS Sonoma; blue is kept for selected files. The 1.4.2 look can no longer be switched on.
