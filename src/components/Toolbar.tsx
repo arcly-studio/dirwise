@@ -19,6 +19,7 @@ import {
 import { ContextMenu, type MenuItem } from "./ContextMenu";
 import type { CommandId, Command, Commands } from "../commands";
 import { useT, type MessageKey } from "../i18n";
+import { TRANSPARENCY_BLUR_AVAILABLE } from "../lib/storage";
 import type { ViewMode } from "../types";
 
 type IconButtonProps = {
@@ -245,6 +246,14 @@ export function Toolbar({
         item("transparencySubtle"),
         item("transparencyMedium"),
         item("transparencyStrong"),
+        // Styl průhlednosti jen s rozmazanou (zatím vypnutá, lib/storage.ts).
+        ...(TRANSPARENCY_BLUR_AVAILABLE
+          ? ([
+              { type: "separator" },
+              item("transparencyClear"),
+              { ...item("transparencyBlur"), tooltip: t("transparency.blurHint") },
+            ] satisfies MenuItem[])
+          : []),
       ],
     },
     {

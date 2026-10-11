@@ -37,6 +37,9 @@ const KEY_COMMAND_USAGE = "commandUsage";
 // všichni (i z 1.4.x) začínají s vypnutou průhledností.
 const KEY_WINDOW_TRANSPARENCY = "windowTransparency";
 const KEY_TRANSPARENCY_STRENGTH = "transparencyStrength";
+// Styl průhlednosti: čistá (bez rozmazání, funguje všude) nebo rozmazaná
+// (Acrylic). Chybějící nebo neznámá hodnota (i z vývoje 1.5) = čistá.
+const KEY_TRANSPARENCY_STYLE = "transparencyStyle";
 const KEY_LEGACY_TRANSPARENCY = "transparency";
 
 /** Animace: podle systému (omezit animace ve Windows), vždy, nebo nikdy. */
@@ -45,6 +48,18 @@ export type MotionPreference = "system" | "on" | "off";
 /** Síla průhlednosti okna (menu Více → Vzhled, paleta). */
 export type TransparencyStrength = "subtle" | "medium" | "strong";
 export const TRANSPARENCY_STRENGTHS: readonly TransparencyStrength[] = ["subtle", "medium", "strong"];
+
+/** Styl průhlednosti: clear = průhledné okno bez rozmazání, blur = Acrylic. */
+export type TransparencyStyle = "clear" | "blur";
+/**
+ * Rozmazaná (Acrylic) je v 1.5 vypnutá a skrytá: na vývojovém stroji se
+ * kreslí jen šedě a čeká na test na jiném PC (CLAUDE.md). Dokud je false,
+ * menu ani paleta styl nenabízí a uložená „blur“ se načte jako „clear“.
+ */
+export const TRANSPARENCY_BLUR_AVAILABLE: boolean = false;
+export const TRANSPARENCY_STYLES: readonly TransparencyStyle[] = TRANSPARENCY_BLUR_AVAILABLE
+  ? ["clear", "blur"]
+  : ["clear"];
 
 /** Jazyk UI: podle systému, nebo napevno (viz i18n/index.ts). */
 export type LanguagePreference = "system" | "en" | "cs";
@@ -98,6 +113,7 @@ export type Snapshot = {
   /** Průhledné okno (plocha za aplikací prosvítá); výchozí vypnuto. */
   windowTransparency: boolean;
   transparencyStrength: TransparencyStrength;
+  transparencyStyle: TransparencyStyle;
 };
 
 const EMPTY: Snapshot = {
@@ -118,6 +134,7 @@ const EMPTY: Snapshot = {
   commandUsage: {},
   windowTransparency: false,
   transparencyStrength: "medium",
+  transparencyStyle: "clear",
 };
 
 export const SPLIT_RATIO_MIN = 0.25;
@@ -327,6 +344,7 @@ export function init(): Promise<void> {
       usage,
       windowTransparency,
       transparencyStrength,
+      transparencyStyle,
     ] = await Promise.all([
       store.get<unknown>(KEY_FAVORITES),
       store.get<unknown>(KEY_RECENTS),
@@ -343,6 +361,7 @@ export function init(): Promise<void> {
       store.get<unknown>(KEY_COMMAND_USAGE),
       store.get<unknown>(KEY_WINDOW_TRANSPARENCY),
       store.get<unknown>(KEY_TRANSPARENCY_STRENGTH),
+      store.get<unknown>(KEY_TRANSPARENCY_STYLE),
     ]);
 
     commit({
@@ -363,12 +382,16 @@ export function init(): Promise<void> {
       commandUsage: sanitizeUsage(usage),
       windowTransparency: windowTransparency === true,
       transparencyStrength: TRANSPARENCY_STRENGTHS.find((s) => s === transparencyStrength) ?? "medium",
+      transparencyStyle: TRANSPARENCY_STYLES.find((s) => s === transparencyStyle) ?? "clear",
     });
     // Zrcadlo pro první render drží krok se souborem (i po smazání dat WebView2).
     writeThemeMirror(cache.theme);
-    // Úklid klíče z vývoje 1.5 nesmí shodit načtení zbytku nastavení.
+    // Úklid klíčů z vývoje 1.5 nesmí shodit načtení zbytku nastavení.
     if (await store.has(KEY_LEGACY_TRANSPARENCY).catch(() => false)) {
       await store.delete(KEY_LEGACY_TRANSPARENCY).catch(() => false);
+    }
+    if (transparencyStyle !== undefined && transparencyStyle !== cache.transparencyStyle) {
+      await store.set(KEY_TRANSPARENCY_STYLE, cache.transparencyStyle).catch(() => undefined);
     }
   })().catch((err: unknown) => {
     // Rozbité nastavení nesmí shodit aplikaci — pojede se s prázdným.
@@ -423,6 +446,11 @@ export async function setWindowTransparency(value: boolean): Promise<void> {
 export async function setTransparencyStrength(value: TransparencyStrength): Promise<void> {
   commit({ transparencyStrength: value });
   await persist(KEY_TRANSPARENCY_STRENGTH, value);
+}
+
+export async function setTransparencyStyle(value: TransparencyStyle): Promise<void> {
+  commit({ transparencyStyle: value });
+  await persist(KEY_TRANSPARENCY_STYLE, value);
 }
 
 /* --------------------------------- jazyk ------------------------------------ */

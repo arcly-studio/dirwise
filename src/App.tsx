@@ -80,7 +80,7 @@ import {
 } from "./lib/glass";
 import { applyMotion, motionEnabled, motionMs, smoothIfAllowed } from "./lib/motion";
 import * as storage from "./lib/storage";
-import type { TransparencyStrength } from "./lib/storage";
+import type { TransparencyStrength, TransparencyStyle } from "./lib/storage";
 import { TAG_COLORS, TAG_HEX, tagLabel } from "./lib/tags";
 import { useStableCallback } from "./lib/rowDnd";
 import { usePanel, type Panel } from "./panel";
@@ -181,6 +181,17 @@ function strengthCommand(strength: TransparencyStrength, checked: boolean) {
   };
 }
 
+/** Volba stylu průhlednost taky zapne. */
+function styleCommand(style: TransparencyStyle, checked: boolean) {
+  return {
+    checked,
+    run: () => {
+      void storage.setTransparencyStyle(style);
+      void storage.setWindowTransparency(true);
+    },
+  };
+}
+
 export default function App() {
   const [windowFocused, setWindowFocused] = useState(true);
   /** Fokus okna — panely si z něj odvodí vlastní (neaktivní panel je „bez fokusu"). */
@@ -256,6 +267,7 @@ export default function App() {
     terminal,
     windowTransparency,
     transparencyStrength,
+    transparencyStyle,
   } = useStorage();
   // Překreslení po přepnutí jazyka; texty se berou z `t`, které čte aktuální locale.
   const locale = useLocale();
@@ -580,8 +592,9 @@ export default function App() {
       // Průhlednost platí už pro první snímek okna — podklad i CSS před ukázáním.
       .then(([, , blur]) => {
         if (active) setBlurAllowed(blur);
-        const { windowTransparency: on, transparencyStrength: strength } = storage.getSnapshot();
-        return applyWindowBackdrop(windowBackdrop(on, blur), strength);
+        const { windowTransparency: on, transparencyStrength: strength, transparencyStyle: style } =
+          storage.getSnapshot();
+        return applyWindowBackdrop(windowBackdrop(on, style, blur), strength);
       })
       .catch(() => undefined)
       // Volba animací musí platit už pro rozsvícení okna.
@@ -617,8 +630,11 @@ export default function App() {
   // (chytí ji návrat do okna). Hlídá se jen se zapnutou volbou.
   useEffect(() => {
     if (!ready) return;
-    void applyWindowBackdrop(windowBackdrop(windowTransparency, blurAllowed), transparencyStrength);
-  }, [ready, windowTransparency, blurAllowed, transparencyStrength]);
+    void applyWindowBackdrop(
+      windowBackdrop(windowTransparency, transparencyStyle, blurAllowed),
+      transparencyStrength,
+    );
+  }, [ready, windowTransparency, transparencyStyle, blurAllowed, transparencyStrength]);
   useEffect(() => {
     if (!ready || !windowTransparency) return;
     let alive = true;
@@ -2380,6 +2396,8 @@ export default function App() {
       transparencySubtle: strengthCommand("subtle", windowTransparency && transparencyStrength === "subtle"),
       transparencyMedium: strengthCommand("medium", windowTransparency && transparencyStrength === "medium"),
       transparencyStrong: strengthCommand("strong", windowTransparency && transparencyStrength === "strong"),
+      transparencyClear: styleCommand("clear", windowTransparency && transparencyStyle === "clear"),
+      transparencyBlur: styleCommand("blur", windowTransparency && transparencyStyle === "blur"),
       terminalAuto: { run: () => void storage.setTerminal("auto"), checked: terminal === "auto" },
       terminalWindows: {
         run: () => void storage.setTerminal("windowsTerminal"),

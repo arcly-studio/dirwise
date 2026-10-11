@@ -1,15 +1,19 @@
 // Screenshoty do docs/screenshots (viz CLAUDE.md, sekce Screenshoty a demo).
-// node scripts/docs-media/shots.mjs [jméno …]   (bez argumentu všech pět)
-// --store: 1920×1080 do docs/store/ (Microsoft Store chce aspoň 1366×768).
+// node scripts/docs-media/shots.mjs [jméno …]   (bez argumentu všech šest)
+// Výchozí vzhled (Průhlednost vypnutá). Scéna transparency je skutečný snímek
+// obrazovky: okno s „čistou“ průhledností před testovací tapetou (wallpaper.mjs).
+// --store: 1920×1080 do docs/store/ (Microsoft Store chce aspoň 1366×768) – viewport 1280×720
+// se škálováním 1,5, ať rozložení odpovídá README a výpis jde odscrollovat pod sklo.
 import fs from "fs";
 import { fileURLToPath } from "url";
 import { setup, panel, TABS } from "./setup.mjs";
+import { announceFocus, screen, stage } from "./wallpaper.mjs";
 
-const ALL = ["hero-dark", "hero-light", "split-view", "command-palette", "previews"];
+const ALL = ["hero-dark", "hero-light", "split-view", "command-palette", "previews", "transparency"];
 const STORE = process.argv.includes("--store");
 const args = process.argv.slice(2).filter((a) => a !== "--store");
 const which = args.length > 0 ? args : ALL;
-const [W, H] = STORE ? [1920, 1080] : [1280, 800];
+const [W, H, SCALE] = STORE ? [1280, 720, 1.5] : [1280, 800, 1];
 const OUT = fileURLToPath(new URL(STORE ? "../../docs/store/" : "../../docs/screenshots/", import.meta.url));
 fs.mkdirSync(OUT, { recursive: true });
 
@@ -42,9 +46,16 @@ async function helpers(c) {
 }
 
 const ICON = (c, h) => h.clickEl("[data-path]", "harbor-lights.jpg");
+// Hero 1.5: výpis odjetý pod skleněnou lištu, ať je sklo vidět (posun kolečkem nad obsahem).
+const HERO = async (c, h) => {
+  await c.wheel(Math.round(W * 0.55), Math.round(H * 0.6), 150, 6);
+  await c.sleep(1200);
+  await ICON(c, h);
+  await c.sleep(1500);
+};
 const scenes = {
-  "hero-dark": { async run(c, h) { await ICON(c, h); await c.sleep(1500); } },
-  "hero-light": { opts: { theme: "light" }, async run(c, h) { await ICON(c, h); await c.sleep(1500); } },
+  "hero-dark": { run: HERO },
+  "hero-light": { opts: { theme: "light" }, run: HERO },
   "split-view": {
     opts: { tabs: { active: 2, items: [TABS.items[0], TABS.items[1], panel("Projects", "column")] } },
     async run(c, h) {
@@ -66,6 +77,15 @@ const scenes = {
     },
   },
   "command-palette": { async run(c, h) { await h.palette("dow"); await c.sleep(800); } },
+  transparency: {
+    opts: { theme: "dark", transparency: true, strength: "medium", style: "clear", emulate: false },
+    // README: okno 1280×800 přes celý snímek; Store: okno 1600×900 na tapetě přes
+    // celou obrazovku 1920×1080 (primární monitor, 100 %).
+    real: STORE
+      ? { win: { X: 160, Y: 90, W: 1600, H: 900 }, area: { X: 0, Y: 0, W: 1920, H: 1080 } }
+      : { win: { X: 200, Y: 120, W: 1280, H: 800 } },
+    async run(c) { await c.wheel(Math.round(W * 0.55), Math.round(H * 0.6), 150, 6); await c.sleep(1500); },
+  },
   previews: {
     opts: { tabs: { active: 0, items: [panel("Videos", "column"), TABS.items[1], TABS.items[2]] } },
     async run(c, h) { await h.clickEl("[data-path]", "city-drive.mp4"); await c.sleep(2500); },
@@ -74,11 +94,26 @@ const scenes = {
 
 for (const name of which) {
   const scene = scenes[name];
-  const c = await setup(W, H, scene.opts);
+  const c = await setup(W, H, { ...scene.opts, scale: SCALE });
   const h = await helpers(c);
-  await c.sleep(1500);
-  try { await scene.run(c, h); } catch (e) { console.error(e.message); }
-  await c.shot(`${OUT}${name}.png`);
+  if (scene.real) {
+    const unstage = await stage(scene.real.win, scene.real.area);
+    try {
+      await announceFocus(c);
+      await c.sleep(1500);
+      try { await scene.run(c, h); } catch (e) { console.error(e.message); }
+      // Kurzor myši CDP nehýbe — hover stavy bez kurzoru.
+      await c.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: 1, y: 1 });
+      await c.sleep(500);
+      screen("shot", { ...(scene.real.area ?? scene.real.win), Out: `${OUT}${name}.png` });
+    } finally {
+      unstage();
+    }
+  } else {
+    await c.sleep(1500);
+    try { await scene.run(c, h); } catch (e) { console.error(e.message); }
+    await c.shot(`${OUT}${name}.png`);
+  }
   console.log("ok", name);
   c.close();
 }

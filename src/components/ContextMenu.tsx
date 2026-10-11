@@ -18,6 +18,8 @@ type ActionItem = {
   dot?: string;
   /** Ikona před názvem (16 px) — menu Nový. */
   icon?: React.ReactNode;
+  /** Bublina s vysvětlením po najetí (Styl průhlednosti: rozmazaná). */
+  tooltip?: string;
   onSelect: () => void;
   /** Shift+klik (Shift+Enter) položku místo spuštění rozbalí na podmenu s těmito
    *  volbami — „Otevřít v terminálu" → všechny dostupné terminály. */
@@ -146,6 +148,7 @@ function ActionRow({
       role={item.checked === undefined ? "menuitem" : "menuitemcheckbox"}
       aria-checked={item.checked}
       disabled={item.disabled}
+      data-tooltip={item.tooltip}
       onMouseEnter={onHover}
       onClick={(event) => {
         if (event.shiftKey && item.shiftItems && onExpand) {

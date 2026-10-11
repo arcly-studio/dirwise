@@ -1,16 +1,21 @@
-// Nahraje demo scénář přes Page.startScreencast a složí docs/demo.gif (ffmpeg, 960 px, 15 fps).
-// Před spuštěním smaž C:\Demo\Projects\meeting-notes.md (F5 ho tam kopíruje) a ideas.txt (vytvoří ho + New).
+// Nahraje demo scénář skutečně z obrazovky (ffmpeg gdigrab, okno před testovací tapetou,
+// viz wallpaper.mjs) a složí docs/demo.gif (960 px, 15 fps).
+// Soubory, které scénář vytváří (F5 kopie, + New), maže skript sám před nahráváním.
 import fs from "fs";
 import os from "os";
 import path from "path";
-import { execFileSync } from "child_process";
+import { execFileSync, spawn } from "child_process";
 import { fileURLToPath } from "url";
 
 const DIR = path.join(os.tmpdir(), "finder-win-demo");
 const GIF = fileURLToPath(new URL("../../docs/demo.gif", import.meta.url));
 import { setup } from "./setup.mjs";
+import { announceFocus, stage } from "./wallpaper.mjs";
 
-// Kurzor a ukazatel kláves – screencast skutečný kurzor nezachytí.
+// F5 kopíruje meeting-notes.md do Projects, + New vytvoří ideas.txt v Documents (levý panel).
+for (const f of ["C:\\Demo\\Projects\\meeting-notes.md", "C:\\Demo\\Documents\\ideas.txt"]) fs.rmSync(f, { force: true });
+
+// Kurzor a ukazatel kláves – CDP skutečným kurzorem nehýbe (gdigrab ho nekreslí).
 const overlay = `(() => {
   const cur = document.createElement("div");
   cur.style.cssText = "position:fixed;left:0;top:0;width:22px;height:22px;z-index:2147483647;pointer-events:none;transform:translate(-100px,-100px);transition:none";
@@ -24,7 +29,17 @@ const overlay = `(() => {
   window.__hud = (text) => { hud.textContent = text; hud.style.opacity = "1"; clearTimeout(timer); timer = setTimeout(() => (hud.style.opacity = "0"), 1100); };
 })();`;
 
-const c = await setup(1280, 800);
+// Okno 1280×800 na primárním monitoru (100 %), za ním testovací tapeta.
+const WIN = { X: 200, Y: 120, W: 1280, H: 800 };
+const c = await setup(1280, 800, { emulate: false });
+const unstage = await stage(WIN);
+// Úklid i při chybě ve scénáři: okna zpět pod ostatní, tapeta pryč, nahrávání stop.
+let rec = null;
+process.on("exit", () => {
+  if (rec && rec.exitCode === null) rec.kill();
+  try { unstage(); } catch {}
+});
+await announceFocus(c);
 await c.sleep(1500);
 await c.evaluate(overlay);
 
@@ -55,21 +70,41 @@ const clickAt = async (sel, text) => {
 const hud = (s) => c.evaluate(`window.__hud(${JSON.stringify(s)})`);
 const PAUSE = 800;
 
-// Nahrávání
+// Nahrávání (bezztrátově do mp4, GIF až nakonec)
 fs.rmSync(DIR, { recursive: true, force: true });
 fs.mkdirSync(DIR, { recursive: true });
-const frames = [];
-c.listeners.push(async (m) => {
-  if (m.method !== "Page.screencastFrame") return;
-  const { data, metadata, sessionId } = m.params;
-  const file = path.join(DIR, `${String(frames.length).padStart(5, "0")}.png`);
-  frames.push({ file, t: metadata.timestamp });
-  fs.writeFileSync(file, Buffer.from(data, "base64"));
-  c.send("Page.screencastFrameAck", { sessionId }).catch(() => {});
+const MP4 = path.join(DIR, "demo.mp4");
+rec = spawn("ffmpeg", ["-v", "error", "-y", "-f", "gdigrab", "-framerate", "15", "-draw_mouse", "0",
+  "-offset_x", String(WIN.X), "-offset_y", String(WIN.Y), "-video_size", `${WIN.W}x${WIN.H}`, "-i", "desktop",
+  "-c:v", "libx264rgb", "-crf", "0", "-preset", "ultrafast", MP4], { stdio: ["pipe", "inherit", "inherit"] });
+const recDone = new Promise((resolve, reject) => {
+  rec.on("exit", resolve);
+  rec.on("error", reject);
 });
-await c.send("Page.startScreencast", { format: "png", maxWidth: 1280, maxHeight: 800, everyNthFrame: 1 });
-await c.sleep(1000);
+await c.sleep(1500);
 
+// 0) fotky odjedou pod skleněnou lištu; pak Více → Vzhled → Průhlednost: zapnuto
+await moveTo([700, 520]);
+await c.wheel(700, 520, 300, 8, 10);
+await c.sleep(700);
+await clickAt('[aria-label="More"]');
+await c.sleep(500);
+const appearance = await center(".fw-menu-item", "Appearance");
+await moveTo(appearance);
+await c.sleep(700);
+// Do podmenu nejdřív vodorovně — šikmo by kurzor otevřel „Animations“.
+const transparencyOn = await center(".fw-menu-item", "Transparency: On");
+if (!transparencyOn) throw new Error("nenalezeno: Transparency: On");
+await moveTo([transparencyOn[0], appearance[1]]);
+await c.sleep(200);
+await moveTo(transparencyOn);
+await c.sleep(150);
+await c.click(transparencyOn[0], transparencyOn[1]);
+await hud("Transparency: On");
+await c.sleep(600);
+await moveTo([700, 520]);
+await c.wheel(700, 520, 200, 8, 10);
+await c.sleep(1400);
 // 1) nová záložka tlačítkem +
 await clickAt('[aria-label="New Tab (Ctrl+T)"]');
 await c.sleep(PAUSE);
@@ -109,17 +144,11 @@ await c.sleep(PAUSE);
 await c.key("Enter", "Enter", 13, 0, "\r");
 await c.sleep(1600);
 
-await c.send("Page.stopScreencast");
-await c.sleep(300);
+if (rec.exitCode === null) rec.stdin.write("q");
+await recDone;
 c.close();
-console.log("snímků", frames.length, "délka", (frames.at(-1).t - frames[0].t).toFixed(2), "s");
 
-// Screencast posílá snímky jen při změně – délky z časových značek přes concat demuxer.
-const slash = (p) => p.replaceAll("\\", "/");
-const list = frames.map((f, i) => `file '${slash(f.file)}'\nduration ${(i < frames.length - 1 ? frames[i + 1].t - f.t : 0.6).toFixed(4)}`);
-list.push(`file '${slash(frames.at(-1).file)}'`);
-fs.writeFileSync(path.join(DIR, "concat.txt"), list.join("\n"));
-execFileSync("ffmpeg", ["-v", "error", "-y", "-f", "concat", "-safe", "0", "-i", path.join(DIR, "concat.txt"),
+execFileSync("ffmpeg", ["-v", "error", "-y", "-i", MP4,
   "-vf", "fps=15,scale=960:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=192:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=4:diff_mode=rectangle",
   "-loop", "0", GIF], { stdio: "inherit" });
 console.log("hotovo:", GIF, (fs.statSync(GIF).size / 1024).toFixed(0), "kB");

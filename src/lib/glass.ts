@@ -1,7 +1,7 @@
 import { createContext, useContext } from "react";
 import { invoke } from "@tauri-apps/api/core";
 
-import type { TransparencyStrength } from "./storage";
+import { TRANSPARENCY_BLUR_AVAILABLE, type TransparencyStrength, type TransparencyStyle } from "./storage";
 import { syncWindowBackground } from "../theme";
 
 /*
@@ -46,9 +46,13 @@ export function watchSystemTransparency(onChange: () => void): () => void {
   };
 }
 
-export function windowBackdrop(enabled: boolean, blurAllowed: boolean): WindowBackdrop {
+/**
+ * Rozmazaná (Acrylic) jen na přání, když ji Windows dovolí a je v této verzi
+ * zapnutá (TRANSPARENCY_BLUR_AVAILABLE); jinak čistá.
+ */
+export function windowBackdrop(enabled: boolean, style: TransparencyStyle, blurAllowed: boolean): WindowBackdrop {
   if (!enabled) return "off";
-  return blurAllowed ? "acrylic" : "clear";
+  return TRANSPARENCY_BLUR_AVAILABLE && style === "blur" && blurAllowed ? "acrylic" : "clear";
 }
 
 // null = nativní stav neznámý (start, reload stránky v dev) — první volání

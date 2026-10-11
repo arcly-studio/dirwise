@@ -6,7 +6,7 @@ Texty pro Partner Center (Store listing), anglicky a česky. Limity Partner Cent
 - **Privacy policy URL:** https://github.com/krystof2-ops/finder-win/blob/master/PRIVACY.md
 - **Website:** https://github.com/krystof2-ops/finder-win
 - **Support contact:** https://github.com/krystof2-ops/finder-win/issues
-- **Screenshots (1920×1080):** `docs/store/hero-dark.png`, `hero-light.png`, `split-view.png`, `command-palette.png`, `previews.png`
+- **Screenshots (1920×1080):** `docs/store/hero-dark.png`, `hero-light.png`, `split-view.png`, `command-palette.png`, `previews.png`, `transparency.png` (snímky Store = viewport 1280×720 se škálováním 1,5, `shots.mjs --store`)
 - **System requirements (Additional system requirements):** Windows 10 1809 or later, x64; Microsoft Edge WebView2 Runtime (part of Windows 11, on Windows 10 installed by Windows Update)
 - **Store logo:** `src-tauri/icons/Square310x310Logo.png` (nebo `app-icon.png` 1024×1024)
 
@@ -29,12 +29,19 @@ Press Ctrl+K to open the command palette: jump to favorites, recent folders and 
 
 Finder-Win works with the real Windows clipboard, so you can copy files to and from File Explorer, Outlook or your browser. Drag & drop works both ways: drag files in from File Explorer or the desktop, and drag them out to File Explorer, the desktop, a browser upload, Discord or an e-mail. The New button creates folders, text documents and every file type Windows offers in its New menu. Undo and redo cover the last 50 operations, including deletions (restored from the Recycle Bin).
 
+A translucent glass look is the default. Turn on Transparency in More → Appearance for a transparent window – the desktop and other windows show through the app. Choose the strength from three levels.
+
 Light and dark mode follow Windows. The interface is in English and Czech.
 
 Privacy: no telemetry, no account, no ads. The Microsoft Store version itself makes no network requests – updates come from the Store.
 
 ### What's new
-First Microsoft Store release.
+Version 1.5.0
+- New default look: glass – the title bar, toolbar, tabs, menus and command palette are translucent and blurred.
+- Window transparency (More → Appearance): a transparent window, the desktop and other windows show through the app; three strengths.
+- Smoother scrolling in long lists.
+- Fixed: the app stopped responding after pressing the Alt key on its own.
+- Fixed: the colour tag palette in the context menu was too narrow.
 
 ### Features (6–10)
 1. Column view with a preview pane, plus Icons and List views
@@ -46,10 +53,12 @@ First Microsoft Store release.
 7. Real Windows clipboard; drag & drop to and from File Explorer, browser, Discord and e-mail
 8. New button: folder, text document and the Windows New file types
 9. Undo / redo for the last 50 file operations
-10. Light and dark mode that follows Windows; English and Czech
+10. Glass look with optional window transparency; light and dark mode that follows Windows; English and Czech
 
 ### Keywords (max 7)
-file manager, mac-style, file explorer, column view, tabs, dual pane, explorer alternative
+> Pravidlo Store 10.1.3: klíčová slova nesmí obsahovat Mac, macOS, Finder ani Explorer (v žádném jazyce).
+
+file manager, tabbed file manager, file browser, column view, tabs, dual pane, split view
 
 ---
 
@@ -70,12 +79,19 @@ Ctrl+K otevře paletu příkazů: skok na oblíbené a nedávné složky či zá
 
 Finder-Win používá skutečnou schránku Windows, takže soubory kopíruješ z i do Průzkumníku, Outlooku nebo prohlížeče. Přetahování funguje oběma směry: soubory přetáhneš dovnitř z Průzkumníku nebo z plochy a ven do Průzkumníku, na plochu, do prohlížeče, Discordu nebo e-mailu. Tlačítko Nový vytvoří složku, textový dokument i jakýkoli typ souboru z nabídky Nový ve Windows. Zpět a Znovu fungují pro posledních 50 operací včetně mazání (obnoví z Koše).
 
+Výchozí je skleněný vzhled s poloprůhlednými panely. V Více → Vzhled zapneš Průhlednost: průhledné okno, za aplikací prosvítá plocha a okna. Vybereš sílu ze tří úrovní.
+
 Světlý a tmavý režim se řídí Windows. Rozhraní je česky a anglicky.
 
 Soukromí: žádná telemetrie, žádný účet, žádné reklamy. Verze z Microsoft Storu sama nedělá žádné síťové požadavky – aktualizace přicházejí ze Storu.
 
 ### Novinky
-První vydání v Microsoft Storu.
+Verze 1.5.0
+- Nový výchozí vzhled: sklo – titulek, toolbar, záložky, menu i paleta příkazů jsou poloprůhledné a rozmazané.
+- Průhlednost okna (Více → Vzhled): průhledné okno, za aplikací prosvítá plocha a okna; tři síly.
+- Plynulejší scroll v dlouhých seznamech.
+- Opraveno: aplikace přestala reagovat po stisku samotné klávesy Alt.
+- Opraveno: paleta barevných štítků v kontextovém menu byla příliš úzká.
 
 ### Funkce (6–10)
 1. Sloupcové zobrazení s náhledovým panelem, k tomu Ikony a Seznam
@@ -87,7 +103,9 @@ První vydání v Microsoft Storu.
 7. Skutečná schránka Windows; přetahování z i do Průzkumníku, prohlížeče, Discordu a e-mailu
 8. Tlačítko Nový: složka, textový dokument a typy souborů z nabídky Nový ve Windows
 9. Zpět / Znovu pro posledních 50 operací
-10. Světlý a tmavý režim podle Windows; čeština a angličtina
+10. Skleněný vzhled s volitelnou průhledností okna; světlý a tmavý režim podle Windows; čeština a angličtina
 
 ### Klíčová slova (max 7)
-správce souborů, styl macu, průzkumník, sloupcové zobrazení, záložky, dva panely, file manager
+> Pravidlo Store 10.1.3: klíčová slova nesmí obsahovat Mac, macOS, Finder ani Explorer (v žádném jazyce).
+
+správce souborů, záložky složek, prohlížeč souborů, sloupcové zobrazení, rozdělené okno, dva panely, file manager

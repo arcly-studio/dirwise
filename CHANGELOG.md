@@ -2,6 +2,15 @@
 
 Notable changes in each Finder-Win release. Installers are on the [Releases](https://github.com/krystof2-ops/finder-win/releases) page.
 
+## [1.5.0](https://github.com/krystof2-ops/finder-win/releases/tag/v1.5.0) – 2026-10-11
+
+- **New default look: glass** – title bar, toolbar and tabs sit on one translucent, blurred plate and the list shows through it as you scroll; the status bar, menus, context menus, command palette, tooltips and toasts are glass too, dialogs blur what is behind them. The sidebar reaches under the window buttons, with a soft gradient, grain and a grey selection like macOS Sonoma; blue is kept for selected files. The 1.4.2 look can no longer be switched on.
+- **Window transparency** – More → Appearance → **Transparency: On / Off** (default Off) and **Transparency strength: Subtle / Medium / Strong** (default Medium); picking a strength turns transparency on. The whole window is transparent – sidebar, list, top bar (title bar, toolbar, tabs) and status bar, all with the same opacity for the chosen strength – so the desktop and other windows show through the app. Content scrolling under the top bar stays blurred (glass). Also in the command palette.
+- **Smoother scrolling** in long lists – hover transitions pause while scrolling.
+- **Readability** – text contrast meets WCAG AA over white, green and busy wallpapers at every transparency strength.
+- **Fixed:** the app stopped responding after pressing the Alt key on its own (or F10).
+- **Fixed:** the colour tag palette in the context menu was too narrow; submenus are wider.
+
 ## [1.4.2](https://github.com/krystof2-ops/finder-win/releases/tag/v1.4.2) – 2026-10-09
 
 - **Drag out of the app** – drag files and folders from Finder-Win to File Explorer, the desktop, a browser upload, Discord or an e-mail. Copy by default, Shift moves. Drag & drop now works both ways.

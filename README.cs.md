@@ -40,6 +40,10 @@ nebo: `winget install krystof2-ops.FinderWin` *(brzy)*
 - Zobrazení **Ikony, Seznam a Sloupce**; náhledy obrázků, videí (s odznakem ▶) a PDF.
 - **Záložky** – zaoblené čipy, každá s vlastní historií, zobrazením, řazením a výběrem; přerovnání tažením, soubor puštěný na záložku se přesune do její složky.
 - **Světlý a tmavý režim** podle Windows, nebo nastavený v Více → Vzhled. Rozhraní česky a anglicky.
+- **Skleněný vzhled** – titulek, toolbar, záložky, menu i paleta příkazů jsou poloprůhledné a rozmazané, výpis při scrollu prosvítá.
+- **Průhlednost** (Více → Vzhled) – průhledné okno: za aplikací prosvítá plocha a okna. Vybereš sílu (jemná, střední, silná); ve výchozím stavu je vypnutá.
+
+![Okno se zapnutou průhledností nad testovací tapetou](docs/screenshots/transparency.png)
 
 ### Rozdělené okno
 

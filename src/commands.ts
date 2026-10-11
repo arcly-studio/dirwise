@@ -1,4 +1,5 @@
 import type { MessageKey } from "./i18n";
+import { TRANSPARENCY_BLUR_AVAILABLE } from "./lib/storage";
 
 /**
  * Registr příkazů aplikace — jediný zdroj pravdy pro klávesové zkratky,
@@ -43,6 +44,8 @@ export type CommandId =
   | "transparencySubtle"
   | "transparencyMedium"
   | "transparencyStrong"
+  | "transparencyClear"
+  | "transparencyBlur"
   | "terminalAuto"
   | "terminalWindows"
   | "terminalPwsh"
@@ -153,6 +156,9 @@ const DEFINITIONS: Record<CommandId, CommandDefinition> = {
   transparencySubtle: { title: "transparency.subtle" },
   transparencyMedium: { title: "transparency.medium" },
   transparencyStrong: { title: "transparency.strong" },
+  // Styl průhlednosti jen s rozmazanou (zatím vypnutá, lib/storage.ts).
+  transparencyClear: { title: "transparency.clear", palette: TRANSPARENCY_BLUR_AVAILABLE },
+  transparencyBlur: { title: "transparency.blur", palette: TRANSPARENCY_BLUR_AVAILABLE },
   terminalAuto: { title: "command.terminalAuto" },
   terminalWindows: { title: "command.terminalWindows" },
   terminalPwsh: { title: "command.terminalPwsh" },

@@ -304,33 +304,62 @@ fn system_transparency() -> bool {
 
 /// Průhlednost okna (1.5). Okno je vždy `transparent` (tauri.conf.json), tady
 /// se jen přepíná nativní podklad: "acrylic" rozmaže plochu a okna za aplikací,
-/// "off" a "clear" ho vypnou. Plné pozadí („vypnuto“) i poloprůhledné bez
-/// rozmazání kreslí CSS (data-transparency v lib/glass.ts).
+/// "clear" ho vypne (i výchozí podklad okna), "off" jen po dřívějším efektu.
+/// Plné pozadí („vypnuto“) i průhledné bez
+/// rozmazání („čistá“) kreslí CSS (data-transparency v lib/glass.ts).
 #[tauri::command(async)]
 fn set_window_backdrop(window: tauri::WebviewWindow, backdrop: String) {
+    use std::sync::atomic::Ordering;
     use tauri::window::{Effect, EffectsBuilder};
-    if backdrop == "acrylic" {
-        let acrylic = EffectsBuilder::new().effect(Effect::Acrylic).build();
-        if let Err(err) = window.set_effects(acrylic) {
-            eprintln!("set_window_backdrop({backdrop}): {err}");
-        }
-        return;
-    }
-    // „Vypnuto“ (plné CSS pozadí efekt zakryje): na Windows 11 jen DWM
-    // atributem. Tauri clear_effects volá i SetWindowCompositionAttribute
-    // (ACCENT_DISABLED) a po něm DWM Acrylic znovu nenaskočí — okno by po
-    // zapnutí zůstalo průhledné bez rozmazání až do restartu. Windows 10
-    // atribut nezná (Acrylic jede přes accent), tam zbývá clear_effects.
-    // Bez rozmazání („clear“) musí efekt opravdu zmizet: samotný DWM
-    // atribut se do překreslení okna neprojeví, clear_effects ano (Acrylic
-    // pak po zapnutí Efektů průhlednosti naskočí až po restartu aplikace).
+    // Stav se čte i mění až na hlavním vlákně — tam se volání řadí v pořadí,
+    // v jakém přišla.
     let w = window.clone();
     let _ = window.run_on_main_thread(move || {
-        if backdrop == "clear" || !clear_system_backdrop(&w) {
-            let _ = w.set_effects(None);
+        let state = BACKDROP_STATE.load(Ordering::Relaxed);
+        match backdrop.as_str() {
+            "acrylic" => {
+                // Po clear_effects DWM Acrylic do restartu nenaskočí, rozmazání
+                // přes accent (Effect::Blur) ano.
+                let effect = if state == BACKDROP_ACCENT {
+                    Effect::Blur
+                } else {
+                    Effect::Acrylic
+                };
+                match w.set_effects(EffectsBuilder::new().effect(effect).build()) {
+                    Ok(()) if state == BACKDROP_NONE => {
+                        BACKDROP_STATE.store(BACKDROP_DWM, Ordering::Relaxed);
+                    }
+                    Ok(()) => {}
+                    Err(err) => eprintln!("set_window_backdrop({backdrop}): {err}"),
+                }
+            }
+            // „Vypnuto“ bez dřívějšího efektu: plné CSS pozadí zakryje i výchozí
+            // podklad okna, není co vypínat. „Čistá“ ho ale vypnout musí —
+            // transparentní okno má od vytvoření vlastní podklad (na některých
+            // strojích plochá šedá výplň místo průhlednosti).
+            "off" if state == BACKDROP_NONE => {}
+            // „Vypnuto“: plné CSS pozadí efekt zakryje, na Windows 11 stačí DWM
+            // atribut a Acrylic pak jde znovu zapnout. Windows 10 ho nezná.
+            "off" if state == BACKDROP_DWM && clear_system_backdrop(&w) => {}
+            // Bez rozmazání musí efekt opravdu zmizet: samotný DWM atribut se do
+            // překreslení okna neprojeví, Tauri clear_effects ano. Volá ale i
+            // SetWindowCompositionAttribute(ACCENT_DISABLED), po kterém DWM
+            // Acrylic do restartu nenaskočí.
+            _ => {
+                BACKDROP_STATE.store(BACKDROP_ACCENT, Ordering::Relaxed);
+                let _ = w.set_effects(None);
+            }
         }
     });
 }
+
+/// Nativní podklad v této session: žádný zatím nebyl / DWM Acrylic / proběhlo
+/// clear_effects a rozmazává se přes accent (viz set_window_backdrop).
+static BACKDROP_STATE: std::sync::atomic::AtomicU8 =
+    std::sync::atomic::AtomicU8::new(BACKDROP_NONE);
+const BACKDROP_NONE: u8 = 0;
+const BACKDROP_DWM: u8 = 1;
+const BACKDROP_ACCENT: u8 = 2;
 
 /// DWMWA_SYSTEMBACKDROP_TYPE = žádný. False, když to Windows neumí (Windows 10).
 #[cfg(windows)]

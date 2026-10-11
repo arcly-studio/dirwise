@@ -36,6 +36,13 @@ export async function connect() {
     await send("Input.dispatchMouseEvent", { type: "mousePressed", x, y, button: "left", clickCount: 1 });
     await send("Input.dispatchMouseEvent", { type: "mouseReleased", x, y, button: "left", clickCount: 1 });
   };
+  // Kolečko myši: posun po krocích (kladné dy dolů), ať scroll vypadá plynule.
+  const wheel = async (x, y, dy, steps = 1, delay = 16) => {
+    for (let i = 0; i < steps; i++) {
+      await send("Input.dispatchMouseEvent", { type: "mouseWheel", x, y, deltaX: 0, deltaY: dy / steps });
+      await sleep(delay);
+    }
+  };
   const size = (width = 1280, height = 800, scale = 1) =>
     send("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: scale, mobile: false });
   const shot = async (file) => {
@@ -43,7 +50,7 @@ export async function connect() {
     const r = await send("Page.captureScreenshot", { format: "png" });
     fs.writeFileSync(file, Buffer.from(r.data, "base64"));
   };
-  return { send, evaluate, sleep, key, type, click, size, shot, listeners, close: () => ws.close() };
+  return { send, evaluate, sleep, key, type, click, wheel, size, shot, listeners, close: () => ws.close() };
 }
 
 // CLI: node cdp.mjs "<js výraz>"

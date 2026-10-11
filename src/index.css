@@ -1874,16 +1874,20 @@ body {
 /* ======================= skutečná průhlednost (1.5) ========================
    Menu Více → Vzhled → Průhlednost. Okno je vždy transparent; se zapnutou
    volbou je pod sidebarem, lištami a výpisem vidět plocha a okna za aplikací
-   (Acrylic je rozmaže, bez Efektů průhlednosti ve Windows prosvítají ostře).
+   (ostře; rozmazaná varianta přes Acrylic je v 1.5 vypnutá, lib/storage.ts).
    data-transparency = síla (lib/glass.ts); bez atributu kreslí CSS plné
    pozadí a vzhled je stejný jako dřív.
    Krytí drží WCAG AA i v nejhorším případě: tmavé téma nad bílou plochou,
    světlé nad černou. Proto je sekundární text, nadpisy sekcí i ikony
-   sidebaru o stupeň kontrastnější — s nimi stačí krytí kolem 0,7. */
+   sidebaru o stupeň kontrastnější — s nimi stačí krytí kolem 0,7.
+   Desky nad výpisem (titulek s toolbarem a záložkami, status bar, hlavička
+   seznamu) leží na hlavní ploše, krytí se sčítá: dohromady mají mít krytí
+   sidebaru, takže samy jen 1 − (1 − sidebar) / (1 − výpis). Obsah pod nimi
+   dál rozmazává backdrop-filter. */
 :root[data-transparency] {
   --see-sidebar: 0.8;
-  --see-bar: 0.82;
   --see-main: 0.75;
+  --see-bar: calc(1 - (1 - var(--see-sidebar)) / (1 - var(--see-main)));
   --bg-window: transparent;
   --bg-main: rgb(255 255 255 / var(--see-main));
   --bg-toolbar: rgb(246 246 246 / var(--see-main));
@@ -1908,20 +1912,17 @@ body {
 
 :root[data-transparency="subtle"] {
   --see-sidebar: 0.88;
-  --see-bar: 0.89;
   --see-main: 0.84;
 }
 
 :root[data-transparency="strong"] {
   --see-sidebar: 0.72;
-  --see-bar: 0.74;
   --see-main: 0.66;
 }
 
-/* Tmavé téma nad světlou plochou: Acrylic ji ještě zesvětlí — o kus víc. */
+/* Tmavé téma nad světlou plochou potřebuje u silné o kus víc krytí. */
 :root.dark[data-transparency="strong"] {
   --see-sidebar: 0.78;
-  --see-bar: 0.8;
   --see-main: 0.72;
 }
 

@@ -40,6 +40,10 @@ or: `winget install krystof2-ops.FinderWin` *(coming soon)*
 - **Icons, List and Columns** views; thumbnails for images, videos (with a ▶ badge) and PDFs.
 - **Tabs** – rounded chips, each with its own history, view, sorting and selection; drag to reorder, drop files on a tab to move them there.
 - **Light and dark mode** following Windows, or set it in More → Appearance. English and Czech UI.
+- **Glass look** – title bar, toolbar, tabs, menus and the command palette are translucent and blurred, the list shows through as you scroll.
+- **Transparency** (More → Appearance) – a transparent window: the desktop and other windows show through the app. Pick the strength (Subtle, Medium, Strong); it is off by default.
+
+![Window with transparency turned on over a test wallpaper](docs/screenshots/transparency.png)
 
 ### Split view
 
