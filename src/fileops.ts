@@ -8,7 +8,7 @@ import type { FileEntry, FileProperties, FolderStats, OpResult, StatResult } fro
 /* ------------------------------ chyby backendu ------------------------------ */
 
 /** Chyba z Rustu (AppError): klíč do slovníku a parametry, i vnořené chyby. */
-type BackendError = { key: string; args?: Record<string, string | number | BackendError> };
+export type BackendError = { key: string; args?: Record<string, string | number | BackendError> };
 
 function isBackendError(value: unknown): value is BackendError {
   return (
@@ -34,15 +34,64 @@ export function localizeError(err: unknown): string {
   return [err.key, ...Object.values(params)].join(" ");
 }
 
+/** Najde v chybě (i vnořené) první klíč z `keys`. */
+function findKey(err: BackendError, keys: string[]): BackendError | null {
+  if (keys.includes(err.key)) return err;
+  for (const value of Object.values(err.args ?? {})) {
+    if (isBackendError(value)) {
+      const found = findKey(value, keys);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+/**
+ * Chyba z backendu: `message` je přeložený text (volající dál dělají jen
+ * `errorText(err)`), `backend` původní `{ key, args }`.
+ */
+export class BackendFailure extends Error {
+  constructor(readonly backend: BackendError) {
+    super(localizeError(backend));
+  }
+}
+
+function backendOf(err: unknown): BackendError | null {
+  if (err instanceof BackendFailure) return err.backend;
+  return isBackendError(err) ? err : null;
+}
+
+/** Technický detail neznámé chyby (kód a text Windows) — patří do rozbalení. */
+export function errorDetail(err: unknown): string | undefined {
+  const backend = backendOf(err);
+  const unknown = backend && findKey(backend, ["error.unknown"]);
+  const detail = unknown?.args?.detail;
+  return typeof detail === "string" && detail.trim() !== "" ? detail : undefined;
+}
+
+/** Odepřený přístup přímo u položky (ne vnořený důvod) — pomohlo by „Pokračovat jako správce". */
+export function needsAdmin(err: unknown): boolean {
+  const backend = backendOf(err);
+  if (!backend) return false;
+  const direct = backend.key === "error.atPath" ? backend.args?.reason : backend;
+  return isBackendError(direct) && direct.key === "error.permissionDenied";
+}
+
+/** Uživatel operaci zrušil (odmítnutá výzva UAC). */
+export function isCancelled(err: unknown): boolean {
+  const backend = backendOf(err);
+  return backend !== null && findKey(backend, ["error.cancelled"]) !== null;
+}
+
 /**
  * invoke() se srozumitelnou chybou: místo objektu `{ key, args }` odmítne
- * přeloženým textem, takže volající dál dělají jen `String(err)`.
+ * BackendFailure s přeloženým textem.
  */
 export async function invoke<T>(command: string, args?: InvokeArgs): Promise<T> {
   try {
     return await tauriInvoke<T>(command, args);
   } catch (err: unknown) {
-    throw localizeError(err);
+    throw isBackendError(err) ? new BackendFailure(err) : err;
   }
 }
 
@@ -53,9 +102,57 @@ export function renamePath(from: string, toName: string): Promise<string> {
   return invoke<string>("rename_path", { from, toName });
 }
 
-/** Celý výběr do koše jedním voláním. */
-export function moveToTrash(paths: string[]): Promise<void> {
-  return invoke<void>("move_to_trash", { paths });
+/**
+ * Položka, kterou se nepodařilo zpracovat: `path` = kde to selhalo (u složky
+ * i soubor uvnitř), `item` = vybraná položka, `admin` = pomohlo by oprávnění správce.
+ */
+export type ItemFailure = { path: string; item: string; error: BackendError; admin: boolean };
+export type DeleteReport = { deleted: string[]; failed: ItemFailure[] };
+
+/** Celý výběr jednou operací shellu — do Koše, nebo trvale; `elevate` = jako správce (UAC). */
+export function deletePaths(paths: string[], permanent: boolean, elevate = false): Promise<DeleteReport> {
+  return invoke<DeleteReport>("delete_paths", { paths, permanent, elevate });
+}
+
+/** Do Koše, nebo chyba u první položky, která neprošla (Zpět / Znovu). */
+export async function moveToTrash(paths: string[]): Promise<void> {
+  const { failed } = await deletePaths(paths, false);
+  if (failed.length > 0) throw new BackendFailure({ key: "error.atPath", args: { path: failed[0].path, reason: failed[0].error } });
+}
+
+/** Text selhání jedné položky („C:\x.txt: nemáte oprávnění"). */
+export function failureText(failure: ItemFailure): string {
+  return t("error.atPath", { path: failure.path, reason: localizeError(failure.error) });
+}
+
+/** Detail neznámé chyby u položky. */
+export function failureDetail(failure: ItemFailure): string | undefined {
+  return errorDetail(failure.error);
+}
+
+/** Výsledek položky z transferElevated: buď `result`, nebo `failure`. */
+export type ElevatedOutcome = { result: OpResult | null; failure: ItemFailure | null };
+
+/** Kopírování / přesun jako správce (UAC); kolize jako copyPath / movePath. */
+export function transferElevated(
+  items: { from: string; onConflict: OnConflict }[],
+  toDir: string,
+  mode: "copy" | "move",
+): Promise<ElevatedOutcome[]> {
+  return invoke<ElevatedOutcome[]>("transfer_elevated", {
+    items: items.map(({ from, onConflict }) => ({ from, on_conflict: onConflict })),
+    toDir,
+    mode,
+    copyLabel: t("name.copySuffix"),
+  });
+}
+
+export function renameElevated(from: string, toName: string): Promise<string> {
+  return invoke<string>("rename_elevated", { from, toName });
+}
+
+export function createFolderElevated(dir: string, name: string): Promise<string> {
+  return invoke<string>("create_folder_elevated", { dir, name });
 }
 
 /** Zpět u smazání: vrátí položky z Koše (smazané v `deletedSince` a později). */

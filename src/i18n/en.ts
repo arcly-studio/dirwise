@@ -9,6 +9,8 @@ type Dictionary = { [K in keyof typeof cs]: (typeof cs)[K] extends string ? stri
 export const en = {
   /* ---------------------------------- common ---------------------------------- */
   "common.close": "Close",
+  "common.details": "Details",
+  "common.hideDetails": "Hide details",
   "common.cancel": "Cancel",
   "common.open": "Open",
   "common.loading": "Loading…",
@@ -172,6 +174,7 @@ export const en = {
   "menu.copyFiles": "Copy Files to Clipboard",
   "menu.editPath": "Edit Path",
   "menu.delete": "Delete",
+  "menu.deletePermanently": "Delete Permanently",
   "menu.deleteCount": { one: "Delete {count} Item", other: "Delete {count} Items" },
   "menu.tags": "Tags",
   "menu.removeTags": "Remove Tags",
@@ -251,6 +254,14 @@ export const en = {
   "confirm.deleteMessage":
     "This drive has no Recycle Bin (USB flash drive or network folder). The items will be deleted permanently and can't be restored.",
   "confirm.deleteConfirm": "Delete Permanently",
+  "confirm.deletePermanentMessage": "The items will bypass the Recycle Bin and can't be restored.",
+  "admin.title": "Administrator permission required",
+  "admin.messageOne": "This operation on “{name}” requires administrator permission. Windows will ask you to confirm (UAC).",
+  "admin.messageMany": {
+    one: "This operation on {count} item requires administrator permission. Windows will ask you to confirm (UAC).",
+    other: "This operation on {count} items requires administrator permission. Windows will ask you to confirm (UAC).",
+  },
+  "admin.continue": "Continue as Administrator",
   "confirm.clearRecentsTitle": "Clear recents?",
   "confirm.clearRecentsMessage":
     "The list of recently opened items will be emptied. The files themselves stay.",
@@ -263,6 +274,7 @@ export const en = {
   "confirm.removeTagConfirm": "Remove",
 
   /* ---------------------------------- toasts ---------------------------------- */
+  "toast.cancelled": "The operation was cancelled",
   "toast.skippedLinks": {
     one: "Skipped {count} link (symlinks and junctions).",
     other: "Skipped {count} links (symlinks and junctions).",
@@ -416,7 +428,11 @@ export const en = {
 
   /* ------------------------------ backend errors ------------------------------ */
   "error.atPath": "{path}: {reason}",
-  "error.raw": "{message}",
+  "error.unknown": "the operation couldn't be completed",
+  "error.cancelled": "the operation was cancelled",
+  "error.readOnly": "the item is read-only",
+  "error.dirNotEmpty": "the folder isn't empty",
+  "error.writeProtected": "the disk is write-protected",
   "error.permissionDenied": "permission denied",
   "error.inUse": "the item is being used by another app",
   "error.diskFull": "there isn't enough space on the disk",

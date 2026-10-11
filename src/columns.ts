@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { invoke } from "./fileops";
 import { sortEntries, type SortDirection, type SortKey } from "./format";
-import { failure } from "./i18n";
+import { errorText, failure } from "./i18n";
 import { samePath } from "./lib/storage";
 import type { FileEntry, SelectMods } from "./types";
 
@@ -231,7 +231,7 @@ export function useColumns(
           entries: [],
           loading: false,
           version: column.version + 1,
-          error: String(err),
+          error: errorText(err),
         }));
       }
     },
@@ -278,7 +278,7 @@ export function useColumns(
 
     invoke<FileEntry[]>("list_dir", { path: rootPath, showHidden: showHiddenRef.current })
       .then((entries) => finish(entries, null))
-      .catch((err: unknown) => finish([], String(err)));
+      .catch((err: unknown) => finish([], errorText(err)));
   }, [enabled, rootPath]);
 
   const restore = useCallback((chain: ColumnSnapshot[], focus: number) => {
@@ -292,7 +292,7 @@ export function useColumns(
       chain.map((column) =>
         invoke<FileEntry[]>("list_dir", { path: column.path, showHidden: showHiddenRef.current }).then(
           (entries) => ({ entries, error: null as string | null }),
-          (err: unknown) => ({ entries: [] as FileEntry[], error: String(err) as string | null }),
+          (err: unknown) => ({ entries: [] as FileEntry[], error: errorText(err) as string | null }),
         ),
       ),
     ).then((results) => {
@@ -460,7 +460,7 @@ export function useColumns(
           showHidden: showHiddenRef.current,
         })
           .then((entries) => ({ entries, error: null }))
-          .catch((err: unknown) => ({ entries: null, error: String(err) })),
+          .catch((err: unknown) => ({ entries: null, error: errorText(err) })),
       ),
     ).then((results) => {
       // První sloupec, jehož složka zmizela (smazaná, odpojený disk) — od něj

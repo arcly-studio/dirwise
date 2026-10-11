@@ -11,6 +11,7 @@ use walkdir::WalkDir;
 
 mod clipboard;
 mod external_drop;
+mod fileop;
 mod native_drag;
 mod shellnew;
 
@@ -80,9 +81,10 @@ impl AppError {
         AppError::new("error.atPath").arg("path", path.as_ref()).arg("reason", reason)
     }
 
-    /// Text, který nemáme v čem přeložit (systémová hláška, chyba knihovny).
+    /// Chyba, kterou neumíme pojmenovat (systémová hláška, chyba knihovny):
+    /// frontend ukáže obecnou větu, text jen jako technický detail.
     fn raw(message: impl ToString) -> Self {
-        AppError::new("error.raw").arg("message", message.to_string())
+        AppError::new("error.unknown").arg("detail", message.to_string())
     }
 }
 
@@ -1255,7 +1257,10 @@ fn describe_io(err: &std::io::Error) -> AppError {
     // Kódy, které ErrorKind na Windows nerozliší.
     let key = match err.raw_os_error() {
         Some(5) => Some("error.permissionDenied"),
-        Some(32) => Some("error.inUse"),
+        Some(32) | Some(33) => Some("error.inUse"),
+        Some(19) => Some("error.writeProtected"),
+        Some(145) => Some("error.dirNotEmpty"),
+        Some(1223) => Some("error.cancelled"),
         Some(112) => Some("error.diskFull"),
         Some(206) => Some("error.pathTooLong"),
         Some(21) => Some("error.notReady"),
@@ -1540,13 +1545,6 @@ fn rename_path(from: String, to_name: String) -> CmdResult<String> {
     }
 
     Ok(target.to_string_lossy().to_string())
-}
-
-/// Celý výběr do koše jedním voláním — shell operaci provede najednou místo
-/// N samostatných (a N dialogů, kdyby nějaký vyskočil).
-#[tauri::command(async)]
-fn move_to_trash(paths: Vec<String>) -> CmdResult<()> {
-    trash::delete_all(&paths).map_err(|err| describe_trash(&err))
 }
 
 /// Zpět u smazání: vrátí z Koše položky s danými původními cestami, smazané
@@ -2958,7 +2956,10 @@ fn main() {
             get_disk_free_space,
             read_text_file,
             rename_path,
-            move_to_trash,
+            fileop::delete_paths,
+            fileop::transfer_elevated,
+            fileop::rename_elevated,
+            fileop::create_folder_elevated,
             restore_from_trash,
             copy_path,
             move_path,

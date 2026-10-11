@@ -3,7 +3,7 @@ import { Dialog } from "./Dialog";
 import { LargeEntryIcon } from "./icons";
 import { cancelFolderStats, folderStats, getFileProperties, parentPath } from "../fileops";
 import { formatItemCount, formatModified, formatSize, kindLabel } from "../format";
-import { t as translate, useT } from "../i18n";
+import { errorText, t as translate, useT } from "../i18n";
 import { tagsOf } from "../lib/storage";
 import { TAG_HEX, tagLabel } from "../lib/tags";
 import { useStorage } from "../lib/useStorage";
@@ -50,7 +50,7 @@ export function PropertiesDialog({ entry, onClose }: PropertiesDialogProps) {
         if (!cancelled) setProperties(result);
       })
       .catch((err: unknown) => {
-        if (!cancelled) setError(String(err));
+        if (!cancelled) setError(errorText(err));
       });
 
     return () => {

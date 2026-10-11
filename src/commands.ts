@@ -67,6 +67,7 @@ export type CommandId =
   | "selectAll"
   | "rename"
   | "delete"
+  | "deletePermanently"
   | "copyPath"
   | "openTerminal"
   | "checkUpdates"
@@ -196,6 +197,7 @@ const DEFINITIONS: Record<CommandId, CommandDefinition> = {
   selectAll: { title: "menu.selectAll", shortcut: "Ctrl+A", keys: [{ key: "a", ctrl: true }] },
   rename: { title: "menu.rename", shortcut: "F2", keys: [{ key: "F2" }] },
   delete: { title: "menu.delete", shortcut: "Delete", keys: [{ key: "Delete" }] },
+  deletePermanently: { title: "menu.deletePermanently", shortcut: "Shift+Delete", keys: [{ key: "Delete", shift: true }] },
   copyPath: { title: "menu.copyPath", scope: "overlay" },
   openTerminal: { title: "menu.openInTerminal", scope: "overlay" },
   // Ve Store buildu se nenabízí (ani v menu Více, viz Toolbar).

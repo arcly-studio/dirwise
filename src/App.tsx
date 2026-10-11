@@ -45,7 +45,16 @@ import {
   duplicatePath,
   invoke,
   movePath,
-  moveToTrash,
+  deletePaths,
+  errorDetail,
+  failureDetail,
+  failureText,
+  isCancelled,
+  needsAdmin,
+  renameElevated,
+  createFolderElevated,
+  transferElevated,
+  type ItemFailure,
   openInExplorer,
   availableTerminals,
   openTerminal,
@@ -99,6 +108,7 @@ import type {
   Clipboard,
   FavoriteSection,
   FileEntry,
+  OpResult,
   StatResult,
   TagColor,
   Theme,
@@ -215,12 +225,15 @@ export default function App() {
 
   /** `sticky` = chyba, visí do kliknutí / Escape. Informace mizí sama — ale
    *  "nemáte oprávnění" by se za dvě sekundy nedalo dočíst. */
-  const [notice, setNoticeState] = useState<{ text: string; sticky: boolean } | null>(null);
+  const [notice, setNoticeState] = useState<{ text: string; sticky: boolean; detail?: string } | null>(null);
+  /** Rozbalený technický detail hlášky. */
+  const [noticeExpanded, setNoticeExpanded] = useState(false);
   /** Hláška ještě visí, ale už odjíždí dolů. */
   const [noticeClosing, setNoticeClosing] = useState(false);
   /** Chybová hláška (zůstává). Stabilní identita — předává se i do useColumns. */
-  const setNotice = useCallback((text: string | null) => {
-    setNoticeState(text === null ? null : { text, sticky: true });
+  const setNotice = useCallback((text: string | null, detail?: string) => {
+    setNoticeExpanded(false);
+    setNoticeState(text === null ? null : { text, sticky: true, detail });
   }, []);
   /** Informativní hláška, sama zmizí. */
   const showInfo = useCallback((text: string) => setNoticeState({ text, sticky: false }), []);
@@ -870,7 +883,7 @@ export default function App() {
     const paths = watchedKey === "" ? [] : watchedKey.split("\n");
     watchGeneration.current += 1;
     invoke("watch_dirs", { paths, generation: watchGeneration.current }).catch(
-      (err: unknown) => setNotice(failure("op.watch", err)),
+      (err: unknown) => setNotice(failure("op.watch", err), errorDetail(err)),
     );
   }, [watchedKey]);
 
@@ -902,7 +915,7 @@ export default function App() {
       // Zapisuje se až po úspěchu — jinak by se do nedávných dostaly i soubory,
       // které se otevřít nepodařilo.
       .then(() => storage.addRecent(entry.path, entry.name, "file"))
-      .catch((err: unknown) => setNotice(failure("op.openFile", err)));
+      .catch((err: unknown) => setNotice(failure("op.openFile", err), errorDetail(err)));
   }, []);
 
   const open = useCallback(
@@ -979,14 +992,16 @@ export default function App() {
       try {
         await action();
       } catch (err: unknown) {
-        setNotice(failure(label, err));
+        // Odmítnutá výzva UAC chybou není.
+        if (isCancelled(err)) showInfo(t("toast.cancelled"));
+        else setNotice(failure(label, err), errorDetail(err));
       } finally {
         // Refresh patří i k neúspěchu. Operace mohla část práce stihnout a
         // zastaralý výpis, který ukazuje smazané soubory, je horší než chyba.
         refresh();
       }
     },
-    [refresh],
+    [refresh, setNotice, showInfo],
   );
 
   /**
@@ -1000,6 +1015,7 @@ export default function App() {
       setNotice(null);
 
       let first: string | null = null;
+      let firstDetail: string | undefined;
       let failed = 0;
 
       for (const item of items) {
@@ -1007,14 +1023,18 @@ export default function App() {
           await action(item);
         } catch (err: unknown) {
           failed += 1;
-          if (first === null) first = errorText(err);
+          if (first === null) {
+            first = errorText(err);
+            firstDetail = errorDetail(err);
+          }
         }
       }
 
-      if (failed === 1) setNotice(failure(label, first));
+      if (failed === 1) setNotice(failure(label, first), firstDetail);
       else if (failed > 1) {
         setNotice(
           t("error.batch", { action: t(label), failed, count: items.length, detail: first ?? "" }),
+          firstDetail,
         );
       }
 
@@ -1022,6 +1042,45 @@ export default function App() {
       return { ok: items.length - failed, failed };
     },
     [refresh],
+  );
+
+  /** „Pokračovat jako správce": dialog nad položkami, kterým chybí oprávnění. */
+  const askAdmin = useCallback((paths: string[], retry: () => void) => {
+    setConfirm({
+      title: t("admin.title"),
+      message:
+        paths.length === 1
+          ? t("admin.messageOne", { name: storage.lastSegment(paths[0]) })
+          : t("admin.messageMany", { count: paths.length }),
+      confirmLabel: t("admin.continue"),
+      onConfirm: retry,
+    });
+  }, []);
+
+  /** Hláška o položkách, které operace nezvládla: první v textu, všechny v podrobnostech. */
+  const reportFailures = useCallback(
+    (label: MessageKey, failed: ItemFailure[], count: number) => {
+      if (failed.length === 0) return;
+      // Zrušená výzva UAC chybou není.
+      if (failed.every((item) => isCancelled(item.error))) {
+        showInfo(t("toast.cancelled"));
+        return;
+      }
+      const first = failureText(failed[0]);
+      const lines = failed.flatMap((item) => {
+        const detail = failureDetail(item);
+        return detail ? [failureText(item), `  ${detail}`] : [failureText(item)];
+      });
+      // Jedna položka bez technického detailu: v rozbalení by nebylo nic nového.
+      const detail = failed.length > 1 || lines.length > 1 ? lines.join("\n") : undefined;
+      setNotice(
+        failed.length === 1
+          ? failure(label, first)
+          : t("error.batch", { action: t(label), failed: failed.length, count, detail: first }),
+        detail,
+      );
+    },
+    [setNotice, showInfo],
   );
 
   /* ------------------------------ zpět / znovu ----------------------------- */
@@ -1056,7 +1115,7 @@ export default function App() {
           setHistory((current) => ({ ...current, undo: [...current.undo, again].slice(-UNDO_LIMIT) }));
         }
       } catch (err: unknown) {
-        setNotice(failure(direction === "undo" ? "op.undo" : "op.redo", err));
+        setNotice(failure(direction === "undo" ? "op.undo" : "op.redo", err), errorDetail(err));
       } finally {
         historyBusy.current = false;
         refresh();
@@ -1079,7 +1138,7 @@ export default function App() {
           // Klik, který nic nezměnil, nemá být krok Zpět.
           if (JSON.stringify(before) !== JSON.stringify(after)) record({ kind: "tags", before, after });
         })
-        .catch((err: unknown) => setNotice(failure("op.saveSettings", err)));
+        .catch((err: unknown) => setNotice(failure("op.saveSettings", err), errorDetail(err)));
     },
     [record, setNotice],
   );
@@ -1093,7 +1152,21 @@ export default function App() {
       const dir = parentPath(entry.path);
 
       void runOperation("op.rename", async () => {
-        const renamed = await renamePath(entry.path, next);
+        let renamed: string;
+        try {
+          renamed = await renamePath(entry.path, next);
+        } catch (err: unknown) {
+          if (!needsAdmin(err)) throw err;
+          // Jako správce: bez Zpět — vrácení by oprávnění potřebovalo znovu.
+          askAdmin([entry.path], () =>
+            void runOperation("op.rename", async () => {
+              const elevated = await renameElevated(entry.path, next);
+              await storage.remapPath(entry.path, elevated);
+              if (dir !== null) requestSelect(dir, elevated);
+            }),
+          );
+          return;
+        }
         // Tagy, oblíbené a nedávné jsou klíčované cestou — musí jít s položkou.
         await storage.remapPath(entry.path, renamed);
         record({ kind: "rename", from: entry.path, to: renamed });
@@ -1102,44 +1175,64 @@ export default function App() {
         if (dir !== null) requestSelect(dir, renamed);
       });
     },
-    [runOperation, requestSelect, record],
+    [runOperation, requestSelect, record, askAdmin],
   );
 
+  /** `permanent` = mimo Koš (Shift+Delete). */
   const deleteEntries = useCallback(
-    (items: FileEntry[]) => {
+    (items: FileEntry[], permanent = false) => {
       const paths = items.map((entry) => entry.path);
       if (paths.length === 0) return;
 
-      // Zpět jde jen u Koše — trvale smazané se vrátit nedá.
-      const run = (undoable: boolean) =>
+      // Zpět jde jen u Koše — trvale smazané se vrátit nedá. Ani to, co se
+      // mazalo jako správce: obnovení z Koše by oprávnění potřebovalo znovu.
+      const run = (targets: string[], toTrash: boolean, elevate: boolean) =>
         void runOperation("op.delete", async () => {
           const since = trashTimestamp();
-          await moveToTrash(paths);
-          if (undoable) record({ kind: "trash", paths, since });
+          const report = await deletePaths(targets, !toTrash, elevate);
+          if (toTrash && !elevate && report.deleted.length > 0) {
+            record({ kind: "trash", paths: report.deleted, since });
+          }
+          const admin = report.failed.filter((item) => item.admin);
+          const other = report.failed.filter((item) => !item.admin);
+          reportFailures("op.delete", other, targets.length);
+          if (admin.length > 0) {
+            const items = [...new Set(admin.map((item) => item.item))];
+            askAdmin(items, () => run(items, toTrash, true));
+          }
         });
+
+      const confirmPermanent = (message: string) =>
+        setConfirm({
+          title:
+            paths.length === 1
+              ? t("confirm.deleteOne", { name: items[0].name })
+              : t("confirm.deleteMany", { count: paths.length }),
+          message,
+          confirmLabel: t("confirm.deleteConfirm"),
+          danger: true,
+          onConfirm: () => run(paths, false, false),
+        });
+
+      if (permanent) {
+        confirmPermanent(t("confirm.deletePermanentMessage"));
+        return;
+      }
 
       // Flashka (FAT32 / exFAT) ani síťová cesta Koš nemají — "do koše" by tam
       // smazalo trvale a bez varování. Když se to nedá zjistit, radši se ptát.
       trashIsPermanent(paths)
         .catch(() => true)
-        .then((permanent) => {
-          if (!permanent) return run(true);
-          setConfirm({
-            title:
-              paths.length === 1
-                ? t("confirm.deleteOne", { name: items[0].name })
-                : t("confirm.deleteMany", { count: paths.length }),
-            message: t("confirm.deleteMessage"),
-            confirmLabel: t("confirm.deleteConfirm"),
-            danger: true,
-            onConfirm: () => run(false),
-          });
+        .then((noTrash) => {
+          if (!noTrash) return run(paths, true, false);
+          confirmPermanent(t("confirm.deleteMessage"));
         });
     },
-    [runOperation, record],
+    [runOperation, record, reportFailures, askAdmin],
   );
 
   const deleteTargets = useCallback(() => deleteEntries(targetEntries), [deleteEntries, targetEntries]);
+  const deleteTargetsPermanently = useCallback(() => deleteEntries(targetEntries, true), [deleteEntries, targetEntries]);
 
   /** `select` = kopii rovnou označit. Ve výsledcích hledání se nesmí — označení
    *  by čekalo na výpis složky, ve které uživatel vůbec není. */
@@ -1148,14 +1241,30 @@ export default function App() {
       const dir = parentPath(entry.path);
 
       void runOperation("op.duplicate", async () => {
-        const copy = await duplicatePath(entry.path);
+        let copy: OpResult;
+        try {
+          copy = await duplicatePath(entry.path);
+        } catch (err: unknown) {
+          if (!needsAdmin(err) || dir === null) throw err;
+          askAdmin([entry.path], () =>
+            void runOperation("op.duplicate", async () => {
+              const [outcome] = await transferElevated([{ from: entry.path, onConflict: "rename" }], dir, "copy");
+              if (outcome?.failure) reportFailures("op.duplicate", [outcome.failure], 1);
+              else if (outcome?.result) {
+                await storage.copyTags(entry.path, outcome.result.path);
+                if (select) requestSelect(dir, outcome.result.path);
+              }
+            }),
+          );
+          return;
+        }
         await storage.copyTags(entry.path, copy.path);
         record({ kind: "copy", items: [{ from: entry.path, to: copy.path }] });
         if (select && dir !== null) requestSelect(dir, copy.path);
         noteSkippedLinks(copy.skipped_links);
       });
     },
-    [runOperation, requestSelect, noteSkippedLinks, record],
+    [runOperation, requestSelect, noteSkippedLinks, record, askAdmin, reportFailures],
   );
 
   const duplicateActive = useCallback(() => {
@@ -1171,12 +1280,25 @@ export default function App() {
     if (dir === null) return;
 
     void runOperation("op.newFolder", async () => {
-      const created = await createFolder(dir, t("name.newFolder"));
+      let created: string;
+      try {
+        created = await createFolder(dir, t("name.newFolder"));
+      } catch (err: unknown) {
+        if (!needsAdmin(err)) throw err;
+        askAdmin([dir], () =>
+          void runOperation("op.newFolder", async () => {
+            const elevated = await createFolderElevated(dir, t("name.newFolder"));
+            requestSelect(dir, elevated);
+            setRenamingPath(elevated);
+          }),
+        );
+        return;
+      }
       record({ kind: "create", path: created, folder: true });
       requestSelect(dir, created);
       setRenamingPath(created);
     });
-  }, [currentDir, runOperation, requestSelect, record]);
+  }, [currentDir, runOperation, requestSelect, record, askAdmin]);
 
   /** Prázdný textový soubor, rovnou v přejmenování — stejně jako Nová složka. */
   const newFile = useCallback(
@@ -1230,7 +1352,7 @@ export default function App() {
 
   /** `failed` = hláška pro případ, že schránka zápis odmítne. */
   const copyText = useCallback((text: string, failed: MessageKey) => {
-    writeText(text).catch((err: unknown) => setNotice(failure(failed, err)));
+    writeText(text).catch((err: unknown) => setNotice(failure(failed, err), errorDetail(err)));
   }, []);
 
   /** Cesty jako soubory do schránky Windows — vloží je Průzkumník, Outlook
@@ -1241,7 +1363,7 @@ export default function App() {
       setClipboard({ paths, mode });
       clipboardWriteFiles(paths, mode === "cut").catch((err: unknown) => {
         setClipboard(null);
-        setNotice(failure("op.clipboard", err));
+        setNotice(failure("op.clipboard", err), errorDetail(err));
       });
     },
     [setNotice],
@@ -1313,7 +1435,7 @@ export default function App() {
           statPaths(paths.map(destination)),
         ]);
       } catch (err: unknown) {
-        setNotice(failure("op.checkTarget", err));
+        setNotice(failure("op.checkTarget", err), errorDetail(err));
         return 0;
       }
       const collides = paths.map((path, index) => {
@@ -1348,15 +1470,26 @@ export default function App() {
 
       let skipped = 0;
       const done: { from: string; to: string }[] = [];
+      /** Položky, kterým chybí oprávnění — nabídnou se jako správce. */
+      const needAdmin: typeof plan = [];
+      const label = mode === "copy" ? "op.copy" : "op.move";
 
       const { ok } = await runBatch(
-        mode === "copy" ? "op.copy" : "op.move",
+        label,
         plan,
-        async ({ path, onConflict }) => {
-          const result =
-            mode === "copy"
-              ? await copyPath(path, target, onConflict)
-              : await movePath(path, target, onConflict);
+        async (item) => {
+          const { path, onConflict } = item;
+          let result: OpResult;
+          try {
+            result =
+              mode === "copy"
+                ? await copyPath(path, target, onConflict)
+                : await movePath(path, target, onConflict);
+          } catch (err: unknown) {
+            if (!needsAdmin(err)) throw err;
+            needAdmin.push(item);
+            return;
+          }
           if (result.skipped) return;
 
           if (mode === "copy") await storage.copyTags(path, result.path);
@@ -1372,9 +1505,33 @@ export default function App() {
 
       if (done.length > 0) record({ kind: mode === "copy" ? "copy" : "move", items: done });
       noteSkippedLinks(skipped);
-      return ok;
+      // Jako správce bez Zpět — vrácení by oprávnění potřebovalo znovu.
+      if (needAdmin.length > 0) {
+        askAdmin(
+          needAdmin.map((item) => item.path),
+          () =>
+            void runOperation(label, async () => {
+              const outcomes = await transferElevated(
+                needAdmin.map(({ path, onConflict }) => ({ from: path, onConflict })),
+                target,
+                mode === "copy" ? "copy" : "move",
+              );
+              const failed: ItemFailure[] = [];
+              for (const [index, outcome] of outcomes.entries()) {
+                const from = needAdmin[index].path;
+                if (outcome.failure) failed.push(outcome.failure);
+                else if (outcome.result && !outcome.result.skipped) {
+                  if (mode === "copy") await storage.copyTags(from, outcome.result.path);
+                  else await storage.remapPath(from, outcome.result.path);
+                }
+              }
+              reportFailures(label, failed, needAdmin.length);
+            }),
+        );
+      }
+      return ok - needAdmin.length;
     },
-    [runBatch, noteSkippedLinks, askConflict, setNotice, record],
+    [runBatch, noteSkippedLinks, askConflict, setNotice, record, askAdmin, runOperation, reportFailures],
   );
 
   /** Vloží do `into`, bez něj do složky, ve které uživatel stojí. */
@@ -1412,7 +1569,7 @@ export default function App() {
             }
           });
         })
-        .catch((err: unknown) => setNotice(failure("op.paste", err)));
+        .catch((err: unknown) => setNotice(failure("op.paste", err), errorDetail(err)));
     },
     [clipboard, currentDir, transfer, setNotice],
   );
@@ -1435,7 +1592,7 @@ export default function App() {
         items.map((entry) => entry.path),
         otherDir,
         mode,
-      ).catch((err: unknown) => setNotice(failure(mode === "copy" ? "op.copy" : "op.move", err)));
+      ).catch((err: unknown) => setNotice(failure(mode === "copy" ? "op.copy" : "op.move", err), errorDetail(err)));
     },
     [otherDir, targetEntries, transfer, setNotice],
   );
@@ -1444,7 +1601,7 @@ export default function App() {
   const dropInto = useCallback(
     (folder: string, paths: string[], copy: boolean) => {
       transfer(paths, folder, copy ? "copy" : "cut").catch((err: unknown) =>
-        setNotice(failure(copy ? "op.copy" : "op.move", err)),
+        setNotice(failure(copy ? "op.copy" : "op.move", err), errorDetail(err)),
       );
     },
     [transfer, setNotice],
@@ -2456,6 +2613,7 @@ export default function App() {
         enabled: activeEntry !== null,
       },
       delete: { run: deleteTargets, enabled: targetEntries.length > 0 },
+      deletePermanently: { run: deleteTargetsPermanently, enabled: targetEntries.length > 0 },
       copyPath: {
         run: () => {
           const path = activeEntry?.path ?? currentDir;
@@ -2509,7 +2667,7 @@ export default function App() {
         // Soubor: otevře se složka, ve které leží, a označí se v ní.
         const [stat] = await statPaths([path]).catch(() => [] as StatResult[]);
         if (stat?.entry && !stat.entry.is_dir) reveal(stat.entry.path);
-        else setNotice(failure("op.openFolder", err));
+        else setNotice(failure("op.openFolder", err), errorDetail(err));
       }
     },
     [navigate, reveal, setNotice],
@@ -3014,7 +3172,7 @@ export default function App() {
             className="fw-update-link"
             onClick={() =>
               invoke("open_release_page", { url: update.url }).catch((err: unknown) =>
-                setNotice(failure("op.openRelease", err)),
+                setNotice(failure("op.openRelease", err), errorDetail(err)),
               )
             }
           >
@@ -3057,7 +3215,7 @@ export default function App() {
         >
           <div
             role={notice.sticky ? "alert" : "status"}
-            className={`fw-popover pointer-events-auto flex max-w-[70%] items-center gap-2.5 rounded-[8px] px-3 py-2 text-[13px] ${
+            className={`fw-popover pointer-events-auto flex max-w-[70%] flex-wrap items-center gap-x-2.5 gap-y-1.5 rounded-[8px] px-3 py-2 text-[13px] ${
               noticeClosing ? "fw-toast-out" : "fw-toast-in"
             }`}
           >
@@ -3068,6 +3226,17 @@ export default function App() {
               <CircleCheck size={16} strokeWidth={2} className="shrink-0" color="var(--success)" aria-hidden />
             )}
             <span className="min-w-0 flex-1 text-primary">{notice.text}</span>
+            {/* Technický detail (kód a text Windows, seznam položek) až na požádání. */}
+            {notice.detail && (
+              <button
+                type="button"
+                aria-expanded={noticeExpanded}
+                onClick={() => setNoticeExpanded((open) => !open)}
+                className="shrink-0 text-[12px] text-secondary underline-offset-2 hover:text-primary hover:underline"
+              >
+                {noticeExpanded ? t("common.hideDetails") : t("common.details")}
+              </button>
+            )}
             <button
               type="button"
               aria-label={t("common.close")}
@@ -3076,6 +3245,11 @@ export default function App() {
             >
               <X size={12} strokeWidth={2.5} />
             </button>
+            {notice.detail && noticeExpanded && (
+              <pre className="max-h-40 w-full overflow-auto whitespace-pre-wrap break-words font-mono text-[11px] text-secondary select-text">
+                {notice.detail}
+              </pre>
+            )}
           </div>
         </div>
       )}

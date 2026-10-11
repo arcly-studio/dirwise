@@ -6,6 +6,8 @@
 export const cs = {
   /* ---------------------------------- obecné --------------------------------- */
   "common.close": "Zavřít",
+  "common.details": "Podrobnosti",
+  "common.hideDetails": "Skrýt podrobnosti",
   "common.cancel": "Zrušit",
   "common.open": "Otevřít",
   "common.loading": "Načítám…",
@@ -179,6 +181,7 @@ export const cs = {
   "menu.copyFiles": "Kopírovat soubory do schránky",
   "menu.editPath": "Upravit cestu",
   "menu.delete": "Smazat",
+  "menu.deletePermanently": "Smazat trvale",
   "menu.deleteCount": {
     one: "Smazat {count} položku",
     few: "Smazat {count} položky",
@@ -267,6 +270,15 @@ export const cs = {
   "confirm.deleteMessage":
     "Tento disk nemá Koš (flashka nebo síťová složka). Položky budou smazány trvale a nepůjde je obnovit.",
   "confirm.deleteConfirm": "Smazat trvale",
+  "confirm.deletePermanentMessage": "Položky se smažou mimo Koš a nepůjde je obnovit.",
+  "admin.title": "Vyžaduje oprávnění správce",
+  "admin.messageOne": "Operace s „{name}“ vyžaduje oprávnění správce. Windows si řekne o potvrzení (UAC).",
+  "admin.messageMany": {
+    one: "Operace s {count} položkou vyžaduje oprávnění správce. Windows si řekne o potvrzení (UAC).",
+    few: "Operace se {count} položkami vyžaduje oprávnění správce. Windows si řekne o potvrzení (UAC).",
+    other: "Operace s {count} položkami vyžaduje oprávnění správce. Windows si řekne o potvrzení (UAC).",
+  },
+  "admin.continue": "Pokračovat jako správce",
   "confirm.clearRecentsTitle": "Vymazat nedávné?",
   "confirm.clearRecentsMessage":
     "Seznam naposledy otevřených položek se vyprázdní. Soubory samotné zůstanou.",
@@ -280,6 +292,7 @@ export const cs = {
   "confirm.removeTagConfirm": "Odebrat",
 
   /* --------------------------------- hlášky ----------------------------------- */
+  "toast.cancelled": "Operace byla zrušena",
   "toast.skippedLinks": {
     one: "Přeskočen {count} odkaz (symlinky a junctions).",
     few: "Přeskočeny {count} odkazy (symlinky a junctions).",
@@ -436,7 +449,11 @@ export const cs = {
 
   /* ----------------------------- chyby z backendu ----------------------------- */
   "error.atPath": "{path}: {reason}",
-  "error.raw": "{message}",
+  "error.unknown": "operaci se nepodařilo dokončit",
+  "error.cancelled": "operace byla zrušena",
+  "error.readOnly": "položka je jen pro čtení",
+  "error.dirNotEmpty": "složka není prázdná",
+  "error.writeProtected": "disk je chráněný proti zápisu",
   "error.permissionDenied": "nemáte oprávnění",
   "error.inUse": "položku používá jiná aplikace",
   "error.diskFull": "na disku není dost místa",
