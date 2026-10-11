@@ -18,10 +18,10 @@ Texty pro Partner Center (Store listing), anglicky a česky. Limity Partner Cent
 Finder-Win
 
 ### Short description (≤ 100)
-A Mac-style file manager for Windows: column view, tabs, split view, quick preview and Ctrl+K.
+A clean file manager for Windows: column view, tabs, split view, quick preview and Ctrl+K.
 
 ### Description
-Finder-Win is a Mac-style file manager for Windows, inspired by macOS.
+Finder-Win is a clean, keyboard-friendly file manager for Windows.
 
 Browse deep folder trees in Column view with a preview pane, or switch to Icons and List. Open folders in tabs, each with its own history, view and sorting. Split the window into two panels and copy or move files between them with F5 / F6.
 
@@ -68,10 +68,10 @@ file manager, tabbed file manager, file browser, column view, tabs, dual pane, s
 Finder-Win
 
 ### Krátký popis (≤ 100)
-Správce souborů ve stylu Macu pro Windows: sloupce, záložky, rozdělené okno, rychlý náhled a Ctrl+K.
+Přehledný správce souborů pro Windows: sloupce, záložky, rozdělené okno, rychlý náhled a Ctrl+K.
 
 ### Popis
-Finder-Win je správce souborů pro Windows ve stylu Macu, inspirovaný macOS.
+Finder-Win je přehledný správce souborů pro Windows, ovladatelný i klávesnicí.
 
 Hluboké stromy složek procházíš ve sloupcovém zobrazení s náhledovým panelem, nebo přepneš na Ikony a Seznam. Složky otevíráš v záložkách, každá má vlastní historii, zobrazení a řazení. Okno rozdělíš na dva panely a soubory mezi nimi kopíruješ nebo přesouváš klávesami F5 / F6.
 
