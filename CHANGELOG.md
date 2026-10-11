@@ -2,6 +2,14 @@
 
 Notable changes in each Finder-Win release. Installers are on the [Releases](https://github.com/krystof2-ops/finder-win/releases) page.
 
+## [1.5.2](https://github.com/krystof2-ops/finder-win/releases/tag/v1.5.2) – 2026-10-11
+
+- **Recycle Bin** in the sidebar (last row under Locations; the icon shows empty / full) – list of deleted items with Original Location, Date Deleted and Size (sortable), **Restore** (button, context menu), **Delete Permanently** (Delete key, with confirmation) and **Empty Recycle Bin** (with confirmation). Restore never overwrites an existing item. Also in the command palette (“Recycle Bin”, “Empty Recycle Bin”). Uses the Windows Shell, not the `$Recycle.Bin` folder.
+- **Continue as Administrator** – deleting, moving, copying/pasting, renaming, duplicating and creating folders in protected places (e.g. the root of C:\) now offers “Continue as Administrator” and Windows asks for confirmation (UAC), like File Explorer; the app itself does not run as administrator. Restoring from the Recycle Bin into a protected place works too. Operations done as administrator are not added to Undo.
+- **Shift+Delete** deletes permanently (with confirmation).
+- **Fixed:** deleting in protected places failed with a bare “Some operations were aborted”.
+- **Clearer error messages** – each failed item is named with the reason (permission denied, used by another app, doesn't exist, disk full, read-only …); unknown errors show a general sentence and the technical detail under **Details**.
+
 ## [1.5.1](https://github.com/krystof2-ops/finder-win/releases/tag/v1.5.1) – 2026-10-11
 
 - **Fixed:** with Transparency on, files scrolled under the top bar and the status bar showed through almost sharp and mixed with the buttons – content no longer shows under the bars; the desktop still shows through.

@@ -82,6 +82,8 @@ or: `winget install krystof2-ops.FinderWin` *(coming soon)*
 - **+ New button** in the toolbar – Folder, Text Document and every file type from Windows' New menu (Word, Excel, ZIP …); also in the context menu (New ▸) and the command palette. Name collisions get “(2)” like in Explorer.
 - **Terminals** – PowerShell 7 and Windows PowerShell are listed separately in More → Terminal; `Shift`+click Open in Terminal picks any installed terminal.
 - **Undo / Redo** (Ctrl+Z / Ctrl+Y) for the last 50 renames, moves, copies, new items, deletions and tag changes.
+- **Recycle Bin** in the sidebar – browse deleted items (original location, date, size), Restore without overwriting anything, Delete Permanently, Empty Recycle Bin.
+- **Continue as Administrator** – in protected places (e.g. the root of C:\) delete, move, paste, rename and new folder offer it and Windows asks for confirmation (UAC), like Explorer; the app itself never runs as administrator.
 - **Sidebar** with standard folders, all drives (updates when a USB drive is plugged in), custom favorites, recents and Finder-style color tags.
 
 ## Keyboard shortcuts
@@ -121,7 +123,8 @@ or: `winget install krystof2-ops.FinderWin` *(coming soon)*
 | `Ctrl+A` | Select all (not in Column view) |
 | `Ctrl+Shift+N` | New folder |
 | `F2` | Rename |
-| `Delete` | Move to Recycle Bin |
+| `Delete` | Move to Recycle Bin (in the Recycle Bin: delete permanently) |
+| `Shift+Delete` | Delete permanently (with confirmation) |
 | `Ctrl+R` / `F5` | Refresh (`F5` outside split view) |
 | `Ctrl+Shift+.` | Show / hide hidden files |
 | `Esc` | Clear selection; close search results; close menus and dialogs |

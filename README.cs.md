@@ -82,6 +82,8 @@ nebo: `winget install krystof2-ops.FinderWin` *(brzy)*
 - **Tlačítko + Nový** v toolbaru – Složka, Textový dokument a všechny typy z nabídky Nový ve Windows (Word, Excel, ZIP …); také v kontextovém menu (Nový ▸) a v paletě příkazů. Kolize názvů dostanou „(2)“ jako v Průzkumníku.
 - **Terminály** – PowerShell 7 a Windows PowerShell jsou v Více → Terminál zvlášť; `Shift`+klik na Otevřít v terminálu nabídne libovolný nainstalovaný terminál.
 - **Zpět / Znovu** (Ctrl+Z / Ctrl+Y) pro posledních 50 přejmenování, přesunů, kopií, nových položek, smazání a změn štítků.
+- **Koš** v postranním panelu – seznam smazaných položek (původní umístění, datum, velikost), Obnovit bez přepsání čehokoli, Smazat trvale, Vysypat koš.
+- **Pokračovat jako správce** – v chráněných místech (např. kořen C:\) to nabídne mazání, přesun, vkládání, přejmenování i nová složka a Windows požádá o potvrzení (UAC), jako Průzkumník; aplikace sama jako správce nikdy neběží.
 - **Postranní panel** se standardními složkami, všemi disky (aktualizuje se po připojení USB), vlastními oblíbenými, nedávnými a barevnými štítky jako ve Finderu.
 
 ## Klávesové zkratky
@@ -121,7 +123,8 @@ nebo: `winget install krystof2-ops.FinderWin` *(brzy)*
 | `Ctrl+A` | Vybrat vše (ne ve sloupcovém zobrazení) |
 | `Ctrl+Shift+N` | Nová složka |
 | `F2` | Přejmenovat |
-| `Delete` | Přesunout do koše |
+| `Delete` | Přesunout do koše (v Koši: smazat trvale) |
+| `Shift+Delete` | Smazat trvale (s potvrzením) |
 | `Ctrl+R` / `F5` | Obnovit (`F5` mimo rozdělené okno) |
 | `Ctrl+Shift+.` | Zobrazit / skrýt skryté soubory |
 | `Esc` | Zrušit výběr; zavřít výsledky hledání; zavřít menu a dialogy |
