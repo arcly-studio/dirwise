@@ -17,7 +17,7 @@
 
 or: `winget install krystof2-ops.FinderWin` *(coming soon)*
 
-<img src="docs/demo.gif" width="960" alt="Finder-Win demo: new tab, split view, F5 copy to the other panel, command palette">
+<img src="docs/demo.gif" width="960" alt="Finder-Win 1.5 demo: files scrolling under the glass toolbar, transparency turned on and its strength changed from the Ctrl+K command palette">
 
 </div>
 
@@ -40,10 +40,14 @@ or: `winget install krystof2-ops.FinderWin` *(coming soon)*
 - **Icons, List and Columns** views; thumbnails for images, videos (with a ▶ badge) and PDFs.
 - **Tabs** – rounded chips, each with its own history, view, sorting and selection; drag to reorder, drop files on a tab to move them there.
 - **Light and dark mode** following Windows, or set it in More → Appearance. English and Czech UI.
-- **Glass look** – title bar, toolbar, tabs, menus and the command palette are translucent and blurred, the list shows through as you scroll.
-- **Transparency** (More → Appearance) – a transparent window: the desktop and other windows show through the app. Pick the strength (Subtle, Medium, Strong); it is off by default.
 
-![Window with transparency turned on over a test wallpaper](docs/screenshots/transparency.png)
+### Glass look & transparency
+
+![Finder-Win with transparency turned on over a colorful wallpaper](docs/screenshots/transparency.png)
+
+- **Glass look by default** – the title bar, toolbar and tabs sit on one translucent, blurred plate and the list shows through as you scroll; menus, the command palette and tooltips are glass too.
+- **Transparent window** – the desktop and other windows show through the app, in three strengths: Subtle, Medium and Strong. Off by default.
+- **Turn it on** in More → Appearance → Transparency, or from the command palette (Ctrl+K, type “transparency”).
 
 ### Split view
 

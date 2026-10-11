@@ -17,7 +17,7 @@
 
 nebo: `winget install krystof2-ops.FinderWin` *(brzy)*
 
-<img src="docs/demo.gif" width="960" alt="Ukázka Finder-Win: nová záložka, rozdělené okno, F5 kopie do druhého panelu, paleta příkazů">
+<img src="docs/demo.gif" width="960" alt="Ukázka Finder-Win 1.5: soubory zajíždějí pod skleněný toolbar, zapnutí průhlednosti a změna její síly z palety Ctrl+K">
 
 </div>
 
@@ -40,10 +40,14 @@ nebo: `winget install krystof2-ops.FinderWin` *(brzy)*
 - Zobrazení **Ikony, Seznam a Sloupce**; náhledy obrázků, videí (s odznakem ▶) a PDF.
 - **Záložky** – zaoblené čipy, každá s vlastní historií, zobrazením, řazením a výběrem; přerovnání tažením, soubor puštěný na záložku se přesune do její složky.
 - **Světlý a tmavý režim** podle Windows, nebo nastavený v Více → Vzhled. Rozhraní česky a anglicky.
-- **Skleněný vzhled** – titulek, toolbar, záložky, menu i paleta příkazů jsou poloprůhledné a rozmazané, výpis při scrollu prosvítá.
-- **Průhlednost** (Více → Vzhled) – průhledné okno: za aplikací prosvítá plocha a okna. Vybereš sílu (jemná, střední, silná); ve výchozím stavu je vypnutá.
 
-![Okno se zapnutou průhledností nad testovací tapetou](docs/screenshots/transparency.png)
+### Skleněný vzhled a průhlednost
+
+![Finder-Win se zapnutou průhledností nad barevnou tapetou](docs/screenshots/transparency.png)
+
+- **Skleněný vzhled jako výchozí** – titulek, toolbar a záložky leží na jedné poloprůhledné rozmazané desce a výpis pod ní při scrollu prosvítá; skleněná jsou i menu, paleta příkazů a tooltipy.
+- **Průhledné okno** – za aplikací prosvítá plocha a ostatní okna, ve třech silách: jemná, střední a silná. Ve výchozím stavu vypnuté.
+- **Zapnutí** v Více → Vzhled → Průhlednost, nebo z palety příkazů (Ctrl+K, napiš „průhlednost“).
 
 ### Rozdělené okno
 
