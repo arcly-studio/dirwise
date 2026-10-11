@@ -476,7 +476,7 @@ function EntryIcon({
         size={16}
         strokeWidth={1.75}
         className="fw-sidebar-icon shrink-0"
-        color={iconColor(muted ? "var(--text-secondary)" : "var(--accent)", active)}
+        color={iconColor(muted ? "var(--text-secondary)" : "var(--sidebar-accent)", active)}
       />
     );
   }

@@ -226,7 +226,7 @@ export function IconView({
   }, [scrollRef]);
 
   const rowCount = Math.ceil(entries.length / columns);
-  // Se sklem začíná mřížka pod lištou (padding scrolleru) a končí nad status barem.
+  // Sklo: mřížka začíná pod lištou (padding scrolleru) a končí nad status barem.
   const glass = useGlassInsets();
   const virtualizer = useVirtualizer({
     // Bez flushSync v obsluze scrollu: React 19 posun nových řádků slije do

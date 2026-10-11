@@ -355,5 +355,5 @@ export function sidebarIcon(iconName: string): LucideIcon {
  * Finder Sonoma: ikony Oblíbených jsou modré (akcent), ostatní sekce tlumené.
  */
 export function sidebarIconColor(section: SectionId): string {
-  return section === "favorites" ? "var(--accent)" : "var(--text-secondary)";
+  return section === "favorites" ? "var(--sidebar-accent)" : "var(--text-secondary)";
 }

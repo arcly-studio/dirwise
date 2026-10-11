@@ -39,6 +39,8 @@
   --text-section: #636366;
   /* Akcent pro ikony, prstence a rámečky (grafika, WCAG 3 : 1). */
   --accent: #0a84ff;
+  /* Ikony v sidebaru; s průhledností o stupeň kontrastnější (viz níž). */
+  --sidebar-accent: var(--accent);
   /* Akcent jako plocha pod bílým textem (tlačítko, zvýraznění v menu,
      pilulka názvu) — #0a84ff by dal s bílou jen 3,65 : 1. */
   --accent-fill: #0068da;
@@ -1533,8 +1535,8 @@ body {
 
 /* ================================ sklo (1.5) ================================
    Titulek, toolbar, záložky a status bar leží přes výpis a obsah pod nimi
-   rozmazaně prosvítá (backdrop-filter). Všechno visí pod :root[data-glass="on"]
-   (lib/glass.ts) — bez atributu se tu nic neuplatní a vzhled je jako v 1.4.2.
+   rozmazaně prosvítá (backdrop-filter). Od 1.5 základní vzhled: všechno visí
+   pod :root[data-glass="on"], atribut je napevno v index.html (lib/glass.ts).
    Rozložení stojí na záporných okrajích: tělo okna vyjede pod titulek i pod
    status bar, výpis pod toolbar se záložkami; scrollery dostanou odsazení
    stejně velké jako lišty (--glass-top / --glass-bottom, hodnoty zná i
@@ -1661,7 +1663,7 @@ body {
 }
 
 /* Toolbar a záložky jsou na desce bez vlastního podkladu; okraje zůstávají
-   (průhledné), aby lišty měly stejnou výšku jako bez skla. */
+   (průhledné), aby lišty držely původní výšku (--glass-top). */
 :root[data-glass="on"] .fw-main > .fw-toolbar,
 :root[data-glass="on"] .fw-main > .fw-tabbar {
   position: relative;
@@ -1849,8 +1851,8 @@ body {
   animation: fw-fade-out var(--dur-slow) var(--ease-out) forwards;
 }
 
-/* Paleta: výška podle obsahu (bez skla ji backdrop natáhne na max-height
-   a pod výsledky zůstává prázdná deska). Seznam má vlastní max-height.
+/* Paleta: výška podle obsahu (jinak by ji backdrop natáhl na max-height
+   a pod výsledky by zůstala prázdná deska). Seznam má vlastní max-height.
    Sklo nese sama: overflow: hidden se zaoblenými rohy z ní dělá backdrop
    root, takže ::before uvnitř by nic za paletou nerozmazal. Podmenu nemá. */
 :root[data-glass="on"] .fw-palette {
@@ -1867,4 +1869,68 @@ body {
 /* Dialogy mají plné pozadí; zbytek aplikace pod nimi ztmavne a rozmaže se. */
 :root[data-glass="on"] .fw-dialog-overlay {
   backdrop-filter: blur(8px) saturate(120%);
+}
+
+/* ======================= skutečná průhlednost (1.5) ========================
+   Menu Více → Vzhled → Průhlednost. Okno je vždy transparent; se zapnutou
+   volbou je pod sidebarem, lištami a výpisem vidět plocha a okna za aplikací
+   (Acrylic je rozmaže, bez Efektů průhlednosti ve Windows prosvítají ostře).
+   data-transparency = síla (lib/glass.ts); bez atributu kreslí CSS plné
+   pozadí a vzhled je stejný jako dřív.
+   Krytí drží WCAG AA i v nejhorším případě: tmavé téma nad bílou plochou,
+   světlé nad černou. Proto je sekundární text, nadpisy sekcí i ikony
+   sidebaru o stupeň kontrastnější — s nimi stačí krytí kolem 0,7. */
+:root[data-transparency] {
+  --see-sidebar: 0.8;
+  --see-bar: 0.82;
+  --see-main: 0.75;
+  --bg-window: transparent;
+  --bg-main: rgb(255 255 255 / var(--see-main));
+  --bg-toolbar: rgb(246 246 246 / var(--see-main));
+  --glass-bar: rgb(246 246 248 / var(--see-bar));
+  --glass-sidebar: linear-gradient(180deg, rgb(243 243 246 / var(--see-sidebar)) 0%, rgb(232 232 236 / var(--see-sidebar)) 100%);
+  --text-secondary: #2c2c2e;
+  --glass-text-secondary: #2c2c2e;
+  --text-section: #2c2c2e;
+  --sidebar-accent: #004fae;
+}
+
+:root.dark[data-transparency] {
+  --bg-main: rgb(16 16 18 / var(--see-main));
+  --bg-toolbar: rgb(50 50 50 / var(--see-main));
+  --glass-bar: rgb(36 36 38 / var(--see-bar));
+  --glass-sidebar: linear-gradient(180deg, rgb(44 44 47 / var(--see-sidebar)) 0%, rgb(35 35 37 / var(--see-sidebar)) 100%);
+  --text-secondary: #e5e5ea;
+  --glass-text-secondary: #e5e5ea;
+  --text-section: #e5e5ea;
+  --sidebar-accent: #9fd0ff;
+}
+
+:root[data-transparency="subtle"] {
+  --see-sidebar: 0.88;
+  --see-bar: 0.89;
+  --see-main: 0.84;
+}
+
+:root[data-transparency="strong"] {
+  --see-sidebar: 0.72;
+  --see-bar: 0.74;
+  --see-main: 0.66;
+}
+
+/* Tmavé téma nad světlou plochou: Acrylic ji ještě zesvětlí — o kus víc. */
+:root.dark[data-transparency="strong"] {
+  --see-sidebar: 0.78;
+  --see-bar: 0.8;
+  --see-main: 0.72;
+}
+
+/* Vnořené plochy (sloupce, panel informací) by krytí sčítaly s plochou
+   pod nimi — průhlednost nese jen hlavní plocha. */
+:root[data-transparency] :is(.fw-column-pane, .fw-info-panel) {
+  background-color: transparent !important;
+}
+
+:root[data-transparency] .fw-column-pane.is-focused {
+  background-color: var(--hover) !important;
 }

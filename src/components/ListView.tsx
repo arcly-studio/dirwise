@@ -217,7 +217,7 @@ export function ListView({
   const t = useT();
   const SortArrow = sortDirection === "asc" ? ChevronUp : ChevronDown;
   const { dropTarget, handlers: drop } = useFolderDrop(onDropInto);
-  // Se sklem začíná výpis pod lištou (padding scrolleru) a končí nad status barem.
+  // Sklo: výpis začíná pod lištou (padding scrolleru) a končí nad status barem.
   const glass = useGlassInsets();
   const rowsTop = HEADER_HEIGHT + glass.top;
 
@@ -269,7 +269,7 @@ export function ListView({
         if (!element) return [];
         const rect = element.getBoundingClientRect();
         if (box.right < rect.left || box.left > rect.right) return [];
-        // Souřadnice obsahu: řádek i začíná v (sklo +) HEADER + i * ROW.
+        // Souřadnice obsahu: řádek i začíná v (horní lišta +) HEADER + i * ROW.
         const top = box.top - rect.top + element.scrollTop - rowsTop;
         const bottom = box.bottom - rect.top + element.scrollTop - rowsTop;
         const first = Math.max(0, Math.floor(top / ROW_HEIGHT));

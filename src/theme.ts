@@ -48,9 +48,19 @@ export function watchSystemTheme(onChange: () => void): () => void {
 
 export function applyTheme(theme: Theme): void {
   document.documentElement.classList.toggle("dark", theme === "dark");
+  syncWindowBackground();
+}
 
-  // Nativní podklad okna (vidět při změně velikosti a v rozích) jde s tématem —
-  // jinak by v tmavém režimu problikl světle šedý z tauri.conf.json.
+/**
+ * Nativní podklad okna (vidět při změně velikosti a v rozích) jde s tématem —
+ * jinak by v tmavém režimu problikl světlý. Se zapnutou Průhledností je
+ * --bg-window `transparent` a podklad musí být průhledný taky: neprůhledná
+ * barva by překryla Acrylic i plochu za oknem (lib/glass.ts).
+ */
+export function syncWindowBackground(): void {
   const color = getComputedStyle(document.documentElement).getPropertyValue("--bg-window").trim();
-  if (color) void getCurrentWindow().setBackgroundColor(color).catch(() => undefined);
+  if (!color) return;
+  void getCurrentWindow()
+    .setBackgroundColor(color === "transparent" ? "#00000000" : color)
+    .catch(() => undefined);
 }

@@ -36,8 +36,8 @@ export async function connect() {
     await send("Input.dispatchMouseEvent", { type: "mousePressed", x, y, button: "left", clickCount: 1 });
     await send("Input.dispatchMouseEvent", { type: "mouseReleased", x, y, button: "left", clickCount: 1 });
   };
-  const size = (width = 1280, height = 800) =>
-    send("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: false });
+  const size = (width = 1280, height = 800, scale = 1) =>
+    send("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: scale, mobile: false });
   const shot = async (file) => {
     const fs = await import("fs");
     const r = await send("Page.captureScreenshot", { format: "png" });

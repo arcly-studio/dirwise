@@ -1,19 +1,32 @@
 import { createContext, useContext } from "react";
 import { invoke } from "@tauri-apps/api/core";
 
-/**
+import type { TransparencyStrength } from "./storage";
+import { syncWindowBackground } from "../theme";
+
+/*
  * Vzhled „sklo" (od 1.5 základní): titulek, toolbar, záložky a status bar
  * leží přes výpis a obsah pod nimi rozmazaně prosvítá. CSS visí pod
  * :root[data-glass="on"], atribut je napevno v index.html.
+ *
+ * Volba Průhlednost (1.5) navíc zprůhlední samotné okno: za sidebarem,
+ * lištami a výpisem je vidět plocha a okna za aplikací.
  */
+
+/**
+ * Co okno kreslí pod obsahem: plné pozadí (vypnuto), Acrylic (rozmazaná
+ * plocha), nebo průhlednost bez rozmazání — když Windows efekty nedovolí.
+ */
+export type WindowBackdrop = "off" | "acrylic" | "clear";
 
 const REDUCED_QUERY = "(prefers-reduced-transparency: reduce)";
 
 /**
- * Výchozí stav bez volby uživatele: sklo, pokud Windows nemá vypnuté Efekty
- * průhlednosti (registr) a prohlížeč nehlásí prefers-reduced-transparency.
+ * Smí okno rozmazávat? Ne, když má Windows vypnuté Efekty průhlednosti
+ * (registr) nebo prohlížeč hlásí prefers-reduced-transparency — pak zapnutá
+ * Průhlednost jede bez rozmazání.
  */
-export async function systemGlass(): Promise<boolean> {
+export async function systemTransparency(): Promise<boolean> {
   if (window.matchMedia(REDUCED_QUERY).matches) return false;
   return invoke<boolean>("system_transparency").catch(() => true);
 }
@@ -23,7 +36,7 @@ export async function systemGlass(): Promise<boolean> {
  * prefers-reduced-transparency, nebo návrat do okna — Efekty průhlednosti
  * se přepínají v Nastavení Windows a registr žádnou událost nepošle.
  */
-export function watchSystemGlass(onChange: () => void): () => void {
+export function watchSystemTransparency(onChange: () => void): () => void {
   const query = window.matchMedia(REDUCED_QUERY);
   query.addEventListener("change", onChange);
   window.addEventListener("focus", onChange);
@@ -31,6 +44,41 @@ export function watchSystemGlass(onChange: () => void): () => void {
     query.removeEventListener("change", onChange);
     window.removeEventListener("focus", onChange);
   };
+}
+
+export function windowBackdrop(enabled: boolean, blurAllowed: boolean): WindowBackdrop {
+  if (!enabled) return "off";
+  return blurAllowed ? "acrylic" : "clear";
+}
+
+// null = nativní stav neznámý (start, reload stránky v dev) — první volání
+// podklad nastaví vždy.
+let appliedBackdrop: WindowBackdrop | null = null;
+let backdropQueue: Promise<void> = Promise.resolve();
+
+/**
+ * Přepne podklad okna a CSS (data-transparency = síla). Pořadí hlídá, aby
+ * nikdy nebylo vidět průhledné CSS bez podkladu nebo naopak: při vypínání
+ * nejdřív plné CSS, pak nativní efekt; při zapínání obráceně. Volání se
+ * řadí za sebe, rychlé přepínání se nepředbíhá.
+ */
+export function applyWindowBackdrop(next: WindowBackdrop, strength: TransparencyStrength): Promise<void> {
+  backdropQueue = backdropQueue.then(async () => {
+    const root = document.documentElement;
+    if (next === "off") {
+      delete root.dataset.transparency;
+      syncWindowBackground();
+    }
+    if (next !== appliedBackdrop) {
+      await invoke("set_window_backdrop", { backdrop: next }).catch(() => undefined);
+      appliedBackdrop = next;
+    }
+    if (next !== "off") {
+      root.dataset.transparency = strength;
+      syncWindowBackground();
+    }
+  });
+  return backdropQueue;
 }
 
 /**
@@ -45,10 +93,8 @@ export const GLASS_UPDATE_BAR = 26;
 /** O kolik posouvaný obsah začíná pod lištou nahoře a končí nad status barem. */
 export type GlassInsets = { top: number; bottom: number };
 
-export const NO_GLASS_INSETS: GlassInsets = { top: 0, bottom: 0 };
-
 /** Views ho potřebují do virtualizace (scrollMargin, hit test, stránkování). */
-export const GlassInsetsContext = createContext<GlassInsets>(NO_GLASS_INSETS);
+export const GlassInsetsContext = createContext<GlassInsets>({ top: GLASS_TOP, bottom: GLASS_STATUS });
 
 export function useGlassInsets(): GlassInsets {
   return useContext(GlassInsetsContext);

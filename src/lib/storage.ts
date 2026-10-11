@@ -32,9 +32,19 @@ const KEY_TABS = "tabs";
 const KEY_UPDATES = "updates";
 const KEY_SPLIT_RATIO = "splitRatio";
 const KEY_COMMAND_USAGE = "commandUsage";
+// Průhlednost okna (1.5). Nový klíč: dřívější „transparency“ z vývoje 1.5
+// znamenalo CSS sklo (teď základní vzhled) — při načtení se maže, takže
+// všichni (i z 1.4.x) začínají s vypnutou průhledností.
+const KEY_WINDOW_TRANSPARENCY = "windowTransparency";
+const KEY_TRANSPARENCY_STRENGTH = "transparencyStrength";
+const KEY_LEGACY_TRANSPARENCY = "transparency";
 
 /** Animace: podle systému (omezit animace ve Windows), vždy, nebo nikdy. */
 export type MotionPreference = "system" | "on" | "off";
+
+/** Síla průhlednosti okna (menu Více → Vzhled, paleta). */
+export type TransparencyStrength = "subtle" | "medium" | "strong";
+export const TRANSPARENCY_STRENGTHS: readonly TransparencyStrength[] = ["subtle", "medium", "strong"];
 
 /** Jazyk UI: podle systému, nebo napevno (viz i18n/index.ts). */
 export type LanguagePreference = "system" | "en" | "cs";
@@ -85,6 +95,9 @@ export type Snapshot = {
   splitRatio: number;
   /** Kolikrát se který příkaz spustil — paleta z toho ukazuje nejpoužívanější. */
   commandUsage: Record<string, number>;
+  /** Průhledné okno (plocha za aplikací prosvítá); výchozí vypnuto. */
+  windowTransparency: boolean;
+  transparencyStrength: TransparencyStrength;
 };
 
 const EMPTY: Snapshot = {
@@ -103,6 +116,8 @@ const EMPTY: Snapshot = {
   updates: { check: true, lastCheck: 0, latest: null },
   splitRatio: 0.5,
   commandUsage: {},
+  windowTransparency: false,
+  transparencyStrength: "medium",
 };
 
 export const SPLIT_RATIO_MIN = 0.25;
@@ -310,6 +325,8 @@ export function init(): Promise<void> {
       updates,
       splitRatio,
       usage,
+      windowTransparency,
+      transparencyStrength,
     ] = await Promise.all([
       store.get<unknown>(KEY_FAVORITES),
       store.get<unknown>(KEY_RECENTS),
@@ -324,6 +341,8 @@ export function init(): Promise<void> {
       store.get<unknown>(KEY_UPDATES),
       store.get<unknown>(KEY_SPLIT_RATIO),
       store.get<unknown>(KEY_COMMAND_USAGE),
+      store.get<unknown>(KEY_WINDOW_TRANSPARENCY),
+      store.get<unknown>(KEY_TRANSPARENCY_STRENGTH),
     ]);
 
     commit({
@@ -342,9 +361,15 @@ export function init(): Promise<void> {
       updates: sanitizeUpdates(updates),
       splitRatio: typeof splitRatio === "number" ? clampSplitRatio(splitRatio) : 0.5,
       commandUsage: sanitizeUsage(usage),
+      windowTransparency: windowTransparency === true,
+      transparencyStrength: TRANSPARENCY_STRENGTHS.find((s) => s === transparencyStrength) ?? "medium",
     });
     // Zrcadlo pro první render drží krok se souborem (i po smazání dat WebView2).
     writeThemeMirror(cache.theme);
+    // Úklid klíče z vývoje 1.5 nesmí shodit načtení zbytku nastavení.
+    if (await store.has(KEY_LEGACY_TRANSPARENCY).catch(() => false)) {
+      await store.delete(KEY_LEGACY_TRANSPARENCY).catch(() => false);
+    }
   })().catch((err: unknown) => {
     // Rozbité nastavení nesmí shodit aplikaci — pojede se s prázdným.
     reportError("load", err);
@@ -386,6 +411,18 @@ export async function setSidebarWidth(width: number, persistNow = true): Promise
 export async function setMotion(value: MotionPreference): Promise<void> {
   commit({ motion: value });
   await persist(KEY_MOTION, value);
+}
+
+/* ------------------------------ průhlednost --------------------------------- */
+
+export async function setWindowTransparency(value: boolean): Promise<void> {
+  commit({ windowTransparency: value });
+  await persist(KEY_WINDOW_TRANSPARENCY, value);
+}
+
+export async function setTransparencyStrength(value: TransparencyStrength): Promise<void> {
+  commit({ transparencyStrength: value });
+  await persist(KEY_TRANSPARENCY_STRENGTH, value);
 }
 
 /* --------------------------------- jazyk ------------------------------------ */

@@ -192,7 +192,7 @@ function ColumnPane({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const { dropTarget, handlers: drop } = useFolderDrop(onDropInto);
-  // Se sklem začínají řádky sloupce pod lištou (padding sloupce v index.css).
+  // Sklo: řádky sloupce začínají pod lištou (padding sloupce v index.css).
   const rowsTop = PANE_PADDING + useGlassInsets().top;
 
   // Každý sloupec má vlastní virtualizaci — posouvá se nezávisle.
@@ -279,7 +279,7 @@ function ColumnPane({
       }}
       className={`fw-scroll fw-column-pane flex w-[240px] shrink-0 flex-col overflow-x-hidden overflow-y-auto border-r border-line py-1 ${
         exiting ? "fw-column-out" : "fw-column-in"
-      }`}
+      }${isFocused ? " is-focused" : ""}`}
       style={{ backgroundColor: isFocused ? "var(--bg-toolbar)" : "var(--bg-main)" }}
     >
       {column.loading && (
@@ -629,7 +629,7 @@ export function ColumnView({
       case "PageDown":
       case "PageUp": {
         event.preventDefault();
-        // Se sklem je horní část sloupce pod lištou — stránka je jen to, co je vidět.
+        // Sklo: horní část sloupce je pod lištou — stránka je jen to, co je vidět.
         const height = ((liveRef.current?.firstElementChild as HTMLElement | null)?.clientHeight ?? 0) - glass.top;
         const page = Math.max(1, Math.floor(height / ROW_HEIGHT) - 1);
         scrollBehavior.current = smoothIfAllowed();

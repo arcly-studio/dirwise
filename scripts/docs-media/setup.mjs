@@ -36,19 +36,21 @@ const patch = `(() => {
 export const panel = (v, view) => ({ path: "C:\\Demo\\" + v, view, sortKey: "name", sortDirection: "asc" });
 export const TABS = { active: 0, items: [panel("Photos\\Summer 2026", "icon"), panel("Documents", "list"), panel("Projects", "column")] };
 
-export async function setup(width = 1280, height = 800, { theme = "dark", language = "en", tabs = TABS } = {}) {
+export async function setup(width = 1280, height = 800, { theme = "dark", language = "en", tabs = TABS, transparency = false, strength = "medium", scale = 1 } = {}) {
   const c = await connect();
   await c.send("Page.enable");
-  // Výchozí stav (záložky, téma, jazyk) přes modul storage z vite dev serveru.
+  // Výchozí stav (záložky, téma, jazyk, průhlednost) přes modul storage z vite dev serveru.
   await c.evaluate(`import("/src/lib/storage.ts").then(async (s) => {
     await s.setSavedTabs(${JSON.stringify(tabs)});
     await s.setTheme(${JSON.stringify(theme)});
     await s.setLanguage(${JSON.stringify(language)});
+    await s.setTransparencyStrength(${JSON.stringify(strength)});
+    await s.setWindowTransparency(${JSON.stringify(transparency)});
     window.onbeforeunload = null;
     return true;
   })`);
   await c.send("Page.addScriptToEvaluateOnNewDocument", { source: patch });
-  await c.size(width, height);
+  await c.size(width, height, scale);
   await c.send("Page.reload", { ignoreCache: false });
   await c.sleep(4000);
   return c;

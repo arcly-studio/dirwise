@@ -270,7 +270,7 @@ fn explorer_shows_hidden() -> bool {
 }
 
 /// Má Windows zapnuté „Efekty průhlednosti" (Nastavení → Přizpůsobení →
-/// Barvy)? Podle toho je výchozí vzhled sklo, dokud si ho uživatel nepřepne.
+/// Barvy)? Bez nich zapnutá Průhlednost okno nerozmazává (varianta bez efektu).
 #[cfg(windows)]
 #[tauri::command(async)]
 fn system_transparency() -> bool {
@@ -300,6 +300,60 @@ fn system_transparency() -> bool {
 #[tauri::command(async)]
 fn system_transparency() -> bool {
     true
+}
+
+/// Průhlednost okna (1.5). Okno je vždy `transparent` (tauri.conf.json), tady
+/// se jen přepíná nativní podklad: "acrylic" rozmaže plochu a okna za aplikací,
+/// "off" a "clear" ho vypnou. Plné pozadí („vypnuto“) i poloprůhledné bez
+/// rozmazání kreslí CSS (data-transparency v lib/glass.ts).
+#[tauri::command(async)]
+fn set_window_backdrop(window: tauri::WebviewWindow, backdrop: String) {
+    use tauri::window::{Effect, EffectsBuilder};
+    if backdrop == "acrylic" {
+        let acrylic = EffectsBuilder::new().effect(Effect::Acrylic).build();
+        if let Err(err) = window.set_effects(acrylic) {
+            eprintln!("set_window_backdrop({backdrop}): {err}");
+        }
+        return;
+    }
+    // „Vypnuto“ (plné CSS pozadí efekt zakryje): na Windows 11 jen DWM
+    // atributem. Tauri clear_effects volá i SetWindowCompositionAttribute
+    // (ACCENT_DISABLED) a po něm DWM Acrylic znovu nenaskočí — okno by po
+    // zapnutí zůstalo průhledné bez rozmazání až do restartu. Windows 10
+    // atribut nezná (Acrylic jede přes accent), tam zbývá clear_effects.
+    // Bez rozmazání („clear“) musí efekt opravdu zmizet: samotný DWM
+    // atribut se do překreslení okna neprojeví, clear_effects ano (Acrylic
+    // pak po zapnutí Efektů průhlednosti naskočí až po restartu aplikace).
+    let w = window.clone();
+    let _ = window.run_on_main_thread(move || {
+        if backdrop == "clear" || !clear_system_backdrop(&w) {
+            let _ = w.set_effects(None);
+        }
+    });
+}
+
+/// DWMWA_SYSTEMBACKDROP_TYPE = žádný. False, když to Windows neumí (Windows 10).
+#[cfg(windows)]
+fn clear_system_backdrop(window: &tauri::WebviewWindow) -> bool {
+    use windows::Win32::Graphics::Dwm::{
+        DwmSetWindowAttribute, DWMSBT_NONE, DWMWA_SYSTEMBACKDROP_TYPE, DWM_SYSTEMBACKDROP_TYPE,
+    };
+    let Ok(hwnd) = window.hwnd() else { return false };
+    let none = DWMSBT_NONE;
+    let r = unsafe {
+        DwmSetWindowAttribute(
+            hwnd,
+            DWMWA_SYSTEMBACKDROP_TYPE,
+            &none as *const DWM_SYSTEMBACKDROP_TYPE as *const _,
+            std::mem::size_of::<DWM_SYSTEMBACKDROP_TYPE>() as u32,
+        )
+    };
+    r.is_ok()
+}
+
+#[cfg(not(windows))]
+fn clear_system_backdrop(_window: &tauri::WebviewWindow) -> bool {
+    false
 }
 
 /// SystemTime → unix sekundy. Nedostupný čas (nebo čas před rokem 1970) dává 0.
@@ -2897,6 +2951,7 @@ fn main() {
             open_device,
             explorer_shows_hidden,
             system_transparency,
+            set_window_backdrop,
             trash_is_permanent,
             cancel_search,
             folder_stats,

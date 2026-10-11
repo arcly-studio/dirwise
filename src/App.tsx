@@ -68,14 +68,19 @@ import { homeDir } from "@tauri-apps/api/path";
 import { canDropInto, droppedPaths, endDrag, getDrag, isExternalFileDrag } from "./lib/dnd";
 import { isTypingTarget } from "./lib/dom";
 import {
+  applyWindowBackdrop,
   GLASS_STATUS,
   GLASS_TOP,
   GLASS_UPDATE_BAR,
   GlassInsetsContext,
+  systemTransparency,
+  watchSystemTransparency,
+  windowBackdrop,
   type GlassInsets,
 } from "./lib/glass";
 import { applyMotion, motionEnabled, motionMs, smoothIfAllowed } from "./lib/motion";
 import * as storage from "./lib/storage";
+import type { TransparencyStrength } from "./lib/storage";
 import { TAG_COLORS, TAG_HEX, tagLabel } from "./lib/tags";
 import { useStableCallback } from "./lib/rowDnd";
 import { usePanel, type Panel } from "./panel";
@@ -165,6 +170,17 @@ const TERMINAL_LABELS: Record<TerminalId, MessageKey> = {
   cmd: "terminal.cmd",
 };
 
+/** Volba síly průhlednost rovnou zapne — jinak by nebylo nic vidět. */
+function strengthCommand(strength: TransparencyStrength, checked: boolean) {
+  return {
+    checked,
+    run: () => {
+      void storage.setTransparencyStrength(strength);
+      void storage.setWindowTransparency(true);
+    },
+  };
+}
+
 export default function App() {
   const [windowFocused, setWindowFocused] = useState(true);
   /** Fokus okna — panely si z něj odvodí vlastní (neaktivní panel je „bez fokusu"). */
@@ -238,6 +254,8 @@ export default function App() {
     commandUsage,
     theme: themePreference,
     terminal,
+    windowTransparency,
+    transparencyStrength,
   } = useStorage();
   // Překreslení po přepnutí jazyka; texty se berou z `t`, které čte aktuální locale.
   const locale = useLocale();
@@ -554,9 +572,17 @@ export default function App() {
   // bílého záblesku a bez přeskočení fontu. Když JS spadne, ukáže ho Rust
   // sám po 1,5 s.
   const [ready, setReady] = useState(false);
+  // Smí zapnutá Průhlednost rozmazávat (Efekty průhlednosti ve Windows)?
+  const [blurAllowed, setBlurAllowed] = useState(true);
   useEffect(() => {
     let active = true;
-    Promise.all([storage.init(), document.fonts?.ready])
+    Promise.all([storage.init(), document.fonts?.ready, systemTransparency()])
+      // Průhlednost platí už pro první snímek okna — podklad i CSS před ukázáním.
+      .then(([, , blur]) => {
+        if (active) setBlurAllowed(blur);
+        const { windowTransparency: on, transparencyStrength: strength } = storage.getSnapshot();
+        return applyWindowBackdrop(windowBackdrop(on, blur), strength);
+      })
       .catch(() => undefined)
       // Volba animací musí platit už pro rozsvícení okna.
       .then(() => applyMotion(storage.getSnapshot().motion))
@@ -586,6 +612,29 @@ export default function App() {
     };
   }, [ready, updates.check]);
   const updateBarShown = update !== null && updates.check;
+
+  // Průhlednost za běhu: menu, paleta, změna Efektů průhlednosti ve Windows
+  // (chytí ji návrat do okna). Hlídá se jen se zapnutou volbou.
+  useEffect(() => {
+    if (!ready) return;
+    void applyWindowBackdrop(windowBackdrop(windowTransparency, blurAllowed), transparencyStrength);
+  }, [ready, windowTransparency, blurAllowed, transparencyStrength]);
+  useEffect(() => {
+    if (!ready || !windowTransparency) return;
+    let alive = true;
+    const check = () =>
+      void systemTransparency().then((blur) => {
+        if (alive) setBlurAllowed(blur);
+      });
+    const stop = watchSystemTransparency(check);
+    // Efekty průhlednosti se mohly změnit, zatímco byla volba vypnutá — okno
+    // je už zaostřené, focus nepřijde.
+    check();
+    return () => {
+      alive = false;
+      stop();
+    };
+  }, [ready, windowTransparency]);
 
   // Sklo: lišty leží přes výpis, views o tom vědí kvůli virtualizaci.
   const glassInsets = useMemo<GlassInsets>(
@@ -2322,6 +2371,15 @@ export default function App() {
       motionSystem: { run: () => void storage.setMotion("system"), checked: motion === "system" },
       motionOn: { run: () => void storage.setMotion("on"), checked: motion === "on" },
       motionOff: { run: () => void storage.setMotion("off"), checked: motion === "off" },
+      transparencyOn: { run: () => void storage.setWindowTransparency(true), checked: windowTransparency },
+      transparencyOff: { run: () => void storage.setWindowTransparency(false), checked: !windowTransparency },
+      toggleTransparency: {
+        run: () => void storage.setWindowTransparency(!windowTransparency),
+        title: windowTransparency ? t("command.transparencyOff") : t("command.transparencyOn"),
+      },
+      transparencySubtle: strengthCommand("subtle", windowTransparency && transparencyStrength === "subtle"),
+      transparencyMedium: strengthCommand("medium", windowTransparency && transparencyStrength === "medium"),
+      transparencyStrong: strengthCommand("strong", windowTransparency && transparencyStrength === "strong"),
       terminalAuto: { run: () => void storage.setTerminal("auto"), checked: terminal === "auto" },
       terminalWindows: {
         run: () => void storage.setTerminal("windowsTerminal"),
