@@ -15,6 +15,8 @@
 
 <p align="center"><a href="https://github.com/krystof2-ops/finder-win/releases/latest"><img src="docs/buttons/download-cs.svg" alt="Stáhnout pro Windows" height="68"></a></p>
 
+<p align="center"><a href="https://apps.microsoft.com/detail/9MZ67726S65X?hl=cs-cz&gl=CZ&mode=direct"><img src="https://get.microsoft.com/images/cs%20dark.svg" alt="Získat od Microsoftu" width="200"></a></p>
+
 nebo: `winget install krystof2-ops.FinderWin` *(brzy)*
 
 <img src="docs/demo.gif" width="960" alt="Ukázka Finder-Win 1.5: soubory zajíždějí pod skleněný toolbar, zapnutí průhlednosti a změna její síly z palety Ctrl+K">
@@ -134,7 +136,9 @@ nebo: `winget install krystof2-ops.FinderWin` *(brzy)*
 1. Stáhni `Finder-Win_…_x64-setup.exe` z [poslední verze](https://github.com/krystof2-ops/finder-win/releases/latest) a spusť ho. Instaluje se jen pro aktuálního uživatele, práva správce nejsou potřeba.
 2. Instalátor není digitálně podepsaný, takže Windows SmartScreen ukáže „Systém Windows ochránil váš počítač“. Klikni na **Další informace** → **Přesto spustit**.
 
-Připravujeme: **winget** (`winget install krystof2-ops.FinderWin`; manifest je ve složce [`winget/`](winget)) a **Microsoft Store**.
+Nebo si aplikaci nainstaluj z [Microsoft Storu](https://apps.microsoft.com/detail/9MZ67726S65X?hl=cs-cz&gl=CZ) – bez varování SmartScreen, aktualizace přicházejí přes Store.
+
+Připravujeme: **winget** (`winget install krystof2-ops.FinderWin`; manifest je ve složce [`winget/`](winget)).
 
 <details>
 <summary>Známá omezení</summary>

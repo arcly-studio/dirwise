@@ -15,6 +15,8 @@
 
 <p align="center"><a href="https://github.com/krystof2-ops/finder-win/releases/latest"><img src="docs/buttons/download.svg" alt="Download for Windows" height="68"></a></p>
 
+<p align="center"><a href="https://apps.microsoft.com/detail/9MZ67726S65X?mode=direct"><img src="https://get.microsoft.com/images/en-us%20dark.svg" alt="Get it from Microsoft" width="200"></a></p>
+
 or: `winget install krystof2-ops.FinderWin` *(coming soon)*
 
 <img src="docs/demo.gif" width="960" alt="Finder-Win 1.5 demo: files scrolling under the glass toolbar, transparency turned on and its strength changed from the Ctrl+K command palette">
@@ -134,7 +136,9 @@ or: `winget install krystof2-ops.FinderWin` *(coming soon)*
 1. Download `Finder-Win_…_x64-setup.exe` from the [latest release](https://github.com/krystof2-ops/finder-win/releases/latest) and run it. It installs for the current user only; no administrator rights needed.
 2. The installer is not code-signed, so Windows SmartScreen shows *"Windows protected your PC"*. Click **More info** → **Run anyway**.
 
-Also coming: **winget** (`winget install krystof2-ops.FinderWin`; the manifest is in [`winget/`](winget)) and **Microsoft Store**.
+Or get it from the [Microsoft Store](https://apps.microsoft.com/detail/9MZ67726S65X) – no SmartScreen warning, updates come through the Store.
+
+Also coming: **winget** (`winget install krystof2-ops.FinderWin`; the manifest is in [`winget/`](winget)).
 
 <details>
 <summary>Known limitations</summary>
