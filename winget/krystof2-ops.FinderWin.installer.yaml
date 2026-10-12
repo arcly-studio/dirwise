@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.6.0.schema.json
 PackageIdentifier: krystof2-ops.FinderWin
-PackageVersion: 1.5.1
+PackageVersion: 1.5.2
 InstallerType: nullsoft
 Scope: user
 InstallModes:
@@ -9,7 +9,7 @@ InstallModes:
 UpgradeBehavior: install
 Installers:
   - Architecture: x64
-    InstallerUrl: https://github.com/krystof2-ops/finder-win/releases/download/v1.5.1/Finder-Win_1.5.1_x64-setup.exe
-    InstallerSha256: 5FF7A242061BB45C5A45FFE921AC2CC34F619470D2E44E5D640AD542AE87D7AE
+    InstallerUrl: https://github.com/krystof2-ops/finder-win/releases/download/v1.5.2/Finder-Win_1.5.2_x64-setup.exe
+    InstallerSha256: 6F4559E3EB0920F3A88C2733CAF7E3A8E59ABAFE2212A3A2DF7C0EE44E020946
 ManifestType: installer
 ManifestVersion: 1.6.0
