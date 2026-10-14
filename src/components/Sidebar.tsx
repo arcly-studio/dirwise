@@ -72,11 +72,6 @@ const SECTION_TITLES: Record<SectionId, MessageKey> = {
   devices: "sidebar.devices",
 };
 
-/** Velká písmena v JS, ne přes text-transform — ať nadpis sedí i ve čtečce. */
-function sectionHeading(label: string): string {
-  return label.toUpperCase();
-}
-
 /** Sbalené sekce přežijí restart. Jde o pohodlí jednoho uživatele, ne o data,
  *  takže stačí localStorage stejně jako u tématu. */
 const COLLAPSED_KEY = "finder-sidebar-collapsed";
@@ -346,7 +341,7 @@ function CustomFavorites({
       }}
       onDrop={handleDrop}
     >
-      <SectionHeading control={heading}>{sectionHeading(t("sidebar.custom"))}</SectionHeading>
+      <SectionHeading control={heading}>{t("sidebar.custom")}</SectionHeading>
 
       {/* Sbalená sekce se během tažení otevře — jinak by nebylo kam pustit. */}
       {(!heading.collapsed || accepts) && (
@@ -533,7 +528,7 @@ function Recents({
 
   return (
     <div className="fw-sidebar-section">
-      <SectionHeading control={heading}>{sectionHeading(t("sidebar.recents"))}</SectionHeading>
+      <SectionHeading control={heading}>{t("sidebar.recents")}</SectionHeading>
 
       {!heading.collapsed && (
         <nav className="flex flex-col pb-0.5">
@@ -607,7 +602,7 @@ function TagsSection({
 
   return (
     <div className="fw-sidebar-section">
-      <SectionHeading control={heading}>{sectionHeading(t("sidebar.tags"))}</SectionHeading>
+      <SectionHeading control={heading}>{t("sidebar.tags")}</SectionHeading>
 
       {!heading.collapsed && (
         <nav className="flex flex-col pb-0.5">
@@ -1028,7 +1023,7 @@ export function Sidebar({
 
     return (
       <div key={section.id}>
-        <SectionHeading control={heading}>{sectionHeading(t(SECTION_TITLES[section.id]))}</SectionHeading>
+        <SectionHeading control={heading}>{t(SECTION_TITLES[section.id])}</SectionHeading>
 
         {!heading.collapsed && (
           <nav className="flex flex-col pb-0.5">
@@ -1093,8 +1088,8 @@ export function Sidebar({
     );
   }
 
-  // Pořadí jako Finder: Oblíbené (a hned pod nimi vlastní), Cloud, Zařízení,
-  // pak Nedávné a Štítky.
+  // Pořadí jako v Průzkumníku: Rychlý přístup (připnuté), Tento počítač
+  // (známé složky), Cloud, Disky (s Košem), pak Nedávné a Štítky.
   const favoritesSection = sections.find((section) => section.id === "favorites");
   const otherSections = sections.filter((section) => section !== favoritesSection);
 
@@ -1153,8 +1148,6 @@ export function Sidebar({
         data-wide={sidebarWidth > 240}
         className="fw-sidebar fw-scroll flex w-full flex-col overflow-y-auto pt-1"
       >
-        {favoritesSection && renderSystemSection(favoritesSection)}
-
         <CustomFavorites
           items={favorites}
           currentPath={currentPath}
@@ -1169,6 +1162,8 @@ export function Sidebar({
           onRenameCancel={() => setRenamingPath(null)}
           heading={headingFor(CUSTOM_ID)}
         />
+
+        {favoritesSection && renderSystemSection(favoritesSection)}
 
         {otherSections.map(renderSystemSection)}
 

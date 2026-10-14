@@ -25,7 +25,7 @@ $NOSIZE = 0x1; $NOMOVE = 0x2; $NOACTIVATE = 0x10
 # Pozor: MainWindowHandle u minimalizovaného okna Tauri vrací skryté okno
 # „Tao Thread Event Target“ — hledá se třída „Tauri Window“ dev procesu.
 function Get-AppWindow {
-  $ids = @((Get-Process finder-win -ErrorAction SilentlyContinue | Where-Object { $_.Path -like "*finder-win\src-tauri\target\*" }).Id)
+  $ids = @((Get-Process dirwise -ErrorAction SilentlyContinue | Where-Object { $_.Path -like "*\src-tauri\target\*" }).Id)
   $hwnd = [IntPtr]::Zero
   while (($hwnd = [FwScreen]::FindWindowEx([IntPtr]::Zero, $hwnd, "Tauri Window", [NullString]::Value)) -ne [IntPtr]::Zero) {
     $p = 0; [FwScreen]::GetWindowThreadProcessId($hwnd, [ref]$p) | Out-Null

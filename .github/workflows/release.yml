@@ -36,9 +36,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: ${{ github.ref_name }}
-          releaseName: Finder-Win ${{ github.ref_name }}
+          releaseName: Dirwise ${{ github.ref_name }}
           releaseBody: |
-            Download `Finder-Win_x.y.z_x64-setup.exe` below. It installs for the current user only — no admin rights needed.
+            Download `Dirwise_x.y.z_x64-setup.exe` below. It installs for the current user only — no admin rights needed.
 
             The installer is not code-signed, so Windows SmartScreen will warn you.
             Click **More info → Run anyway** to continue.

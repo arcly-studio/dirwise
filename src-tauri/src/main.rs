@@ -1058,7 +1058,12 @@ fn open_file(path: String) -> CmdResult<()> {
 
 /// Stránka release v prohlížeči (proužek „Je k dispozici nová verze").
 /// Jen stránka vydání tohohle repozitáře — command nesmí otevírat cokoli.
-const RELEASE_TAG_URL: &str = "https://github.com/krystof2-ops/finder-win/releases/tag/";
+/// Repo se přejmenovává z finder-win na dirwise: API pak vrací novou adresu,
+/// starou GitHub přesměruje — platí obě.
+const RELEASE_TAG_URLS: [&str; 2] = [
+    "https://github.com/krystof2-ops/dirwise/releases/tag/",
+    "https://github.com/krystof2-ops/finder-win/releases/tag/",
+];
 
 /// `…/releases/tag/<tag>`, kde tag je jen z písmen, číslic, teček a pomlček.
 /// Prefix sám nestačí: `…/releases/../../jiny/repo` by prohlížeč dot-segmenty
@@ -1066,7 +1071,7 @@ const RELEASE_TAG_URL: &str = "https://github.com/krystof2-ops/finder-win/releas
 // Ve Store buildu ho používají už jen testy.
 #[cfg_attr(feature = "store", allow(dead_code))]
 fn is_release_page(url: &str) -> bool {
-    let Some(tag) = url.strip_prefix(RELEASE_TAG_URL) else { return false };
+    let Some(tag) = RELEASE_TAG_URLS.iter().find_map(|prefix| url.strip_prefix(prefix)) else { return false };
     !tag.is_empty()
         && !tag.contains("..")
         && tag.chars().all(|c| c.is_ascii_alphanumeric() || c == '.' || c == '-')
@@ -2445,7 +2450,16 @@ fn on_com_thread<T: Send + 'static>(
 
 /// Složka cache v %LOCALAPPDATA%. Store verze má vlastní, ať se s NSIS verzí
 /// nesdílí a odinstalace MSIX ji smaže (MSIX přesměruje jen složky, které ještě neexistují).
-const CACHE_DIR: &str = if cfg!(feature = "store") { "finder-win-store" } else { "finder-win" };
+const CACHE_DIR: &str = if cfg!(feature = "store") { "dirwise-store" } else { "dirwise" };
+
+/// Cache Store verze 1.5.x (Finder-Win) — uklidí se při startu. Starou cache
+/// NSIS verze maže instalátor (nsis/hooks.nsh), může ležet ve složce staré instalace.
+#[cfg(feature = "store")]
+fn remove_legacy_cache() {
+    if let Some(dir) = dirs::data_local_dir() {
+        let _ = fs::remove_dir_all(dir.join("finder-win-store"));
+    }
+}
 
 /// Soubor cache obrázků: %LOCALAPPDATA%\<CACHE_DIR>\<kind>\<hash>.png.
 fn image_cache_file(kind: &str, key: &str) -> Option<PathBuf> {
@@ -2946,7 +2960,11 @@ fn main() {
             });
             spawn_change_emitter(app.handle().clone(), receiver);
             spawn_drive_watcher(app.handle().clone());
-            std::thread::spawn(prune_thumbnail_cache);
+            std::thread::spawn(|| {
+                #[cfg(feature = "store")]
+                remove_legacy_cache();
+                prune_thumbnail_cache();
+            });
             shellnew::preload();
             Ok(())
         })
@@ -3020,6 +3038,9 @@ mod release_url_tests {
     #[test]
     fn accepts_only_release_tag_pages() {
         assert!(is_release_page("https://github.com/krystof2-ops/finder-win/releases/tag/v1.3.0"));
+        assert!(is_release_page("https://github.com/krystof2-ops/dirwise/releases/tag/v1.6.0"));
+        assert!(!is_release_page("https://github.com/krystof2-ops/dirwise/releases/tag/../../x"));
+        assert!(!is_release_page("https://github.com/krystof2-ops/dirwise-evil/releases/tag/v1"));
         assert!(!is_release_page("https://github.com/krystof2-ops/finder-win/releases/tag/"));
         assert!(!is_release_page("https://github.com/krystof2-ops/finder-win/releases/../../evil/repo"));
         assert!(!is_release_page("https://github.com/krystof2-ops/finder-win/releases/tag/../../x"));

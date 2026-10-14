@@ -1,9 +1,9 @@
 {
-  "name": "finder-win",
-  "productName": "Finder-Win",
+  "name": "dirwise",
+  "productName": "Dirwise",
   "private": true,
-  "version": "1.5.2",
-  "description": "A macOS Finder-like file explorer for Windows",
+  "version": "1.6.0",
+  "description": "A fast, keyboard-friendly file manager for Windows",
   "author": "krystof2-ops",
   "license": "MIT",
   "repository": {

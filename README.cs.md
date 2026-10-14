@@ -1,10 +1,10 @@
 <div align="center">
 
-<img src="src-tauri/icons/128x128.png" width="96" height="96" alt="Ikona Finder-Win">
+<img src="src-tauri/icons/128x128.png" width="96" height="96" alt="Ikona Dirwise">
 
-# Finder-Win
+# Dirwise
 
-**Zážitek z macOS Finderu, ve Windows.**
+**Rychlý správce souborů pro Windows ovladatelný klávesnicí – sloupcové zobrazení, záložky, rozdělené okno, rychlý náhled a Ctrl+K.**
 
 [English](README.md) · **Čeština**
 
@@ -17,22 +17,24 @@
 
 <p align="center"><a href="https://apps.microsoft.com/detail/9MZ67726S65X?hl=cs-cz&gl=CZ&mode=direct"><img src="https://get.microsoft.com/images/cs%20dark.svg" alt="Získat od Microsoftu" width="200"></a></p>
 
-nebo: `winget install krystof2-ops.FinderWin` *(brzy)*
+nebo: `winget install krystof2-ops.Dirwise` *(brzy)*
 
-<img src="docs/demo.gif" width="960" alt="Ukázka Finder-Win 1.5: soubory zajíždějí pod skleněný toolbar, zapnutí průhlednosti a změna její síly z palety Ctrl+K">
+<img src="docs/demo.gif" width="960" alt="Ukázka Dirwise: soubory zajíždějí pod skleněný toolbar, zapnutí průhlednosti a změna její síly z palety Ctrl+K">
 
 </div>
 
-## Proč Finder-Win?
+Dirwise (dříve Finder-Win) je inspirován macOS Finderem, vytvořený pro Windows.
 
-- **Sloupcové zobrazení** – Miller columns s náhledovým panelem, jak Finder prochází hluboké stromy složek. Průzkumník nic takového nemá.
-- **Klávesnice na prvním místě** – Ctrl+K otevře paletu příkazů se složkami, akcemi a štítky; mezerník otevře Quick Look.
+## Proč Dirwise?
+
+- **Sloupcové zobrazení** – Miller columns s náhledovým panelem, pro procházení hlubokých stromů složek. Průzkumník nic takového nemá.
+- **Klávesnice na prvním místě** – Ctrl+K otevře paletu příkazů se složkami, akcemi a štítky; mezerník otevře náhled.
 - **Dva panely v jednom okně** – rozdělené okno s kopírováním a přesunem přes F5 / F6, bez druhého okna Průzkumníku.
 - **Malý a lokální** – instalátor pod 3 MB (Tauri: Rust + WebView2), instaluje se pro uživatele bez práv správce, bez účtu a bez telemetrie.
 
 ## Funkce
 
-### Procházení jako ve Finderu
+### Procházení po svém
 
 <picture>
   <source media="(prefers-color-scheme: light)" srcset="docs/screenshots/hero-light.png">
@@ -45,7 +47,7 @@ nebo: `winget install krystof2-ops.FinderWin` *(brzy)*
 
 ### Skleněný vzhled a průhlednost
 
-![Finder-Win se zapnutou průhledností nad barevnou tapetou](docs/screenshots/transparency.png)
+![Dirwise se zapnutou průhledností nad barevnou tapetou](docs/screenshots/transparency.png)
 
 - **Skleněný vzhled jako výchozí** – titulek, toolbar a záložky leží na jedné poloprůhledné rozmazané desce a výpis pod ní při scrollu prosvítá; skleněná jsou i menu, paleta příkazů a tooltipy.
 - **Průhledné okno** – za aplikací prosvítá plocha a ostatní okna, ve třech silách: jemná, střední a silná. Ve výchozím stavu vypnuté.
@@ -63,17 +65,17 @@ nebo: `winget install krystof2-ops.FinderWin` *(brzy)*
 
 ![Paleta příkazů s napsaným „dow“](docs/screenshots/command-palette.png)
 
-- **Ctrl+K** hledá složky (oblíbené, nedávné, záložky, podsložky), akce a štítky.
+- **Ctrl+K** hledá složky (Rychlý přístup, nedávné, záložky, podsložky), akce a štítky.
 - `~` nebo cestu můžeš zadat přímo; **Ctrl+Enter** hledá soubory v aktuální složce.
 - U akcí je vidět klávesová zkratka a nejpoužívanější příkazy jsou nahoře.
 
-### Náhledy a Quick Look
+### Náhledy
 
 ![Sloupcové zobrazení s náhledem videa, délkou a rozlišením](docs/screenshots/previews.png)
 
 - Náhledový sloupec ukáže náhled a u videí **délku a rozlišení**, u obrázků rozměry, u PDF počet stran.
-- **Mezerník** otevře Quick Look pro obrázky, PDF, video, zvuk, text a zdrojáky i vykreslený Markdown; ←/→ přepíná soubory.
-- Náhledy a ikony se cachují lokálně v `%LOCALAPPDATA%\finder-win`.
+- **Mezerník** otevře náhled pro obrázky, PDF, video, zvuk, text a zdrojáky i vykreslený Markdown; ←/→ přepíná soubory.
+- Náhledy a ikony se cachují lokálně v `%LOCALAPPDATA%\dirwise`.
 
 ### Běžná práce se soubory
 
@@ -84,7 +86,9 @@ nebo: `winget install krystof2-ops.FinderWin` *(brzy)*
 - **Zpět / Znovu** (Ctrl+Z / Ctrl+Y) pro posledních 50 přejmenování, přesunů, kopií, nových položek, smazání a změn štítků.
 - **Koš** v postranním panelu – seznam smazaných položek (původní umístění, datum, velikost), Obnovit bez přepsání čehokoli, Smazat trvale, Vysypat koš.
 - **Pokračovat jako správce** – v chráněných místech (např. kořen C:\) to nabídne mazání, přesun, vkládání, přejmenování i nová složka a Windows požádá o potvrzení (UAC), jako Průzkumník; aplikace sama jako správce nikdy neběží.
-- **Postranní panel** se standardními složkami, všemi disky (aktualizuje se po připojení USB), vlastními oblíbenými, nedávnými a barevnými štítky jako ve Finderu.
+- **Titulková lišta jako ve Windows 11** – vlevo malá ikona a název, vpravo standardní tlačítka Minimalizovat / Maximalizovat / Zavřít včetně Snap Layouts při najetí na Maximalizovat.
+- **Postranní panel** s Rychlým přístupem (připnuté složky; v kontextovém menu „Připnout do Rychlého přístupu“), Tento počítač (Plocha, Stažené, Dokumenty …), Cloudem, Disky (s Košem), Nedávnými a Štítky. Disky se aktualizují po připojení USB. V zobrazení Ikony se při výběru podbarví celá dlaždice.
+- **Stavový řádek** ukazuje výběr a volné místo, např. „1 z 52 vybráno · volno 120,7 GB“.
 
 ## Klávesové zkratky
 
@@ -95,7 +99,7 @@ nebo: `winget install krystof2-ops.FinderWin` *(brzy)*
 | `Ctrl+K` | Paleta příkazů (`Ctrl+Enter` = hledat soubory) |
 | `Ctrl+Shift+D` | Rozdělit okno na dva panely |
 | `F5` / `F6` | Kopírovat / přesunout výběr do druhého panelu (rozdělené okno) |
-| `Mezerník` | Quick Look |
+| `Mezerník` | Náhled |
 | `Ctrl+Z` / `Ctrl+Y` | Zpět / znovu |
 
 <details>
@@ -128,7 +132,7 @@ nebo: `winget install krystof2-ops.FinderWin` *(brzy)*
 | `Ctrl+R` / `F5` | Obnovit (`F5` mimo rozdělené okno) |
 | `Ctrl+Shift+.` | Zobrazit / skrýt skryté soubory |
 | `Esc` | Zrušit výběr; zavřít výsledky hledání; zavřít menu a dialogy |
-| `←` / `→`, `Esc` | Předchozí / další soubor, zavřít (v Quick Look) |
+| `←` / `→`, `Esc` | Předchozí / další soubor, zavřít (v náhledu) |
 | Tlačítko myši 4 / 5 | Zpět / vpřed |
 | Prostřední klik na složku / záložku | Otevřít v nové záložce / zavřít záložku |
 
@@ -136,12 +140,14 @@ nebo: `winget install krystof2-ops.FinderWin` *(brzy)*
 
 ## Instalace
 
-1. Stáhni `Finder-Win_…_x64-setup.exe` z [poslední verze](https://github.com/krystof2-ops/finder-win/releases/latest) a spusť ho. Instaluje se jen pro aktuálního uživatele, práva správce nejsou potřeba.
+1. Stáhni `Dirwise_…_x64-setup.exe` z [poslední verze](https://github.com/krystof2-ops/finder-win/releases/latest) a spusť ho. Instaluje se jen pro aktuálního uživatele, práva správce nejsou potřeba.
 2. Instalátor není digitálně podepsaný, takže Windows SmartScreen ukáže „Systém Windows ochránil váš počítač“. Klikni na **Další informace** → **Přesto spustit**.
+
+Aktualizace z Finder-Win 1.5.x: instalátor Dirwise starou verzi sám tiše odinstaluje (žádná druhá instalace vedle) a nastavení zůstane. Připnutí na hlavním panelu je potřeba udělat znovu.
 
 Nebo si aplikaci nainstaluj z [Microsoft Storu](https://apps.microsoft.com/detail/9MZ67726S65X?hl=cs-cz&gl=CZ) – bez varování SmartScreen, aktualizace přicházejí přes Store.
 
-Připravujeme: **winget** (`winget install krystof2-ops.FinderWin`; manifest je ve složce [`winget/`](winget)).
+Připravujeme: **winget** (`winget install krystof2-ops.Dirwise`; manifest je ve složce [`winget/`](winget)).
 
 <details>
 <summary>Známá omezení</summary>
@@ -156,7 +162,7 @@ Připravujeme: **winget** (`winget install krystof2-ops.FinderWin`; manifest je 
 
 ## Soukromí
 
-Finder-Win dělá jediný druh síťového požadavku: nejvýš jednou denně se zeptá GitHub API (`api.github.com/repos/krystof2-ops/finder-win/releases/latest`), jestli existuje novější verze, a pokud ano, ukáže proužek s odkazem na stránku vydání. Žádná telemetrie, nic o tobě ani o tvých souborech se neodesílá. Vypnout jde v Více → Kontrolovat aktualizace.
+Dirwise dělá jediný druh síťového požadavku: nejvýš jednou denně se zeptá GitHub API (`api.github.com/repos/krystof2-ops/finder-win/releases/latest`), jestli existuje novější verze, a pokud ano, ukáže proužek s odkazem na stránku vydání. Žádná telemetrie, nic o tobě ani o tvých souborech se neodesílá. Vypnout jde v Více → Kontrolovat aktualizace.
 
 ## Sestavení ze zdrojáků
 

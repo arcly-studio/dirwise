@@ -26,7 +26,7 @@ export function AboutDialog({ onClose }: { onClose: () => void }) {
           style={{ width: 96, height: 96 }}
         />
 
-        <h2 className="mt-4 text-[20px] leading-tight font-semibold">Finder-Win</h2>
+        <h2 className="mt-4 text-[20px] leading-tight font-semibold">Dirwise</h2>
         <p className="mt-1 text-secondary tabular-nums">{t("about.version", { version })}</p>
 
         <p className="mt-4 leading-relaxed">{t("about.tagline")}</p>

@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useId, useRef, useState } from "react";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import {
   AppWindow,
@@ -41,26 +41,33 @@ import { t, useT } from "../i18n";
 import type { FavoriteEntry, FileEntry, SectionId } from "../types";
 
 /**
- * Složka ve stylu macOS Sonoma: světlejší zadní deska se záložkou, sytější
- * přední deska, zaoblení 3 px. V 64px boxu je 64×52. Speciální složky
- * (Plocha, Dokumenty…) mají uprostřed bílý glyf jako ve Finderu.
+ * Jantarová složka (blízko složky Windows 11): tmavší zadní deska se
+ * záložkou, přední deska s přechodem a světlou horní hranou. V 64px boxu je
+ * 58×48. Speciální složky (Plocha, Dokumenty…) mají uprostřed tmavý glyf.
  */
 export function FolderIcon({ size = 64, glyph }: { size?: number; glyph?: string | null }) {
   // Glyf má smysl jen tam, kde je vidět — v 16px řádku by byl šum.
   const Glyph = glyph && size >= 32 ? sidebarIcon(glyph) : null;
+  // Gradient potřebuje id; v dokumentu je složek stovky a odmontovaná by
+  // vzala definici s sebou — každá má proto vlastní.
+  const gradient = useId();
 
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" className="shrink-0" aria-hidden>
+      <defs>
+        <linearGradient id={gradient} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="var(--folder-front-top)" />
+          <stop offset="1" stopColor="var(--folder-front)" />
+        </linearGradient>
+      </defs>
       <path
-        d="M5 6h17.6a3 3 0 0 1 2.3 1.1l3.3 3.9H59a3 3 0 0 1 3 3V55a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V9a3 3 0 0 1 3-3z"
+        d="M6 8h16.2a3 3 0 0 1 2.1.9l3.4 3.4H58a3 3 0 0 1 3 3V52a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V11a3 3 0 0 1 3-3z"
         fill="var(--folder-back)"
       />
-      <path
-        d="M5 17h54a3 3 0 0 1 3 3v35a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V20a3 3 0 0 1 3-3z"
-        fill="var(--folder-front)"
-      />
+      <path d="M3 21.5a3 3 0 0 1 3-3h52a3 3 0 0 1 3 3V53a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3z" fill={`url(#${gradient})`} />
+      <path d="M6 18.5h52a3 3 0 0 1 3 3v1H3v-1a3 3 0 0 1 3-3z" fill="#fff" opacity="0.35" />
       {Glyph && (
-        <Glyph x={21} y={26.5} width={22} height={22} strokeWidth={2} color="var(--folder-glyph)" />
+        <Glyph x={22} y={28} width={20} height={20} strokeWidth={2.2} color="var(--folder-glyph)" />
       )}
     </svg>
   );

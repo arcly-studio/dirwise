@@ -2886,7 +2886,7 @@ export default function App() {
         ? t("toolbar.searchResults")
         : crumbs.length > 0
           ? folderDisplayName(crumbs[crumbs.length - 1].path, crumbs[crumbs.length - 1].label)
-          : "Finder";
+          : "Dirwise";
 
   // Status bar i Quick Look musí počítat s tím, co je opravdu vidět —
   // v column view tedy se zaměřeným sloupcem, ne s obsahem nav.current.

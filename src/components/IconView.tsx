@@ -74,15 +74,9 @@ const IconCell = memo(
   }: CellProps) {
     // Během přejmenování výběr nekreslíme — podbarvení pod inputem ruší.
     const showSelection = selected && !renaming;
-    // Finder: za ikonou neutrální zaoblený obdélník, název na pilulce —
-    // modré s bílým textem jen v aktivním okně, jinak šedé.
-    const tileBg = showSelection ? "var(--icon-selection)" : "transparent";
-    const nameBg = showSelection
-      ? windowFocused
-        ? "var(--accent-fill)"
-        : "var(--name-pill-inactive)"
-      : "transparent";
-    const nameColor = showSelection && windowFocused ? "var(--on-accent)" : "var(--text-primary)";
+    // Jako ve Windows 11: výběr podbarví celou dlaždici (ikonu i název),
+    // v neaktivním okně šedě.
+    const selectionClass = showSelection ? (windowFocused ? "is-selected" : "is-selected-dim") : "";
 
     return (
       <div
@@ -107,13 +101,13 @@ const IconCell = memo(
           event.stopPropagation();
           handlers.contextMenu(entry, event.clientX, event.clientY);
         }}
-        className={`fw-row flex shrink-0 flex-col items-center gap-1 rounded-[8px] ${
+        className={`fw-row fw-icon-cell flex shrink-0 flex-col items-center gap-1 rounded-[8px] ${selectionClass} ${
           dropTarget ? "fw-drop-target" : ""
         }`}
         style={{ width: CELL_WIDTH, height: CELL_HEIGHT, opacity: entryOpacity(entry, cut) }}
       >
-        {/* Ikona stojí volně v 64px boxu; výběr je obdélník za ní. */}
-        <div className="fw-icon-tile p-1" style={{ backgroundColor: tileBg }}>
+        {/* Ikona stojí volně v 64px boxu. */}
+        <div className="fw-icon-tile p-1">
           {/* Náhled obrázku — vykreslují se jen viditelné buňky, takže
               se nedekódují tisíce fotek naráz a strop není potřeba. */}
           <LargeEntryIcon entry={entry} thumbnail shellPreview={shellPreview} />
@@ -131,7 +125,7 @@ const IconCell = memo(
         ) : (
           <span
             className="fw-icon-name line-clamp-2 max-w-full text-center"
-            style={{ backgroundColor: nameBg, color: nameColor, overflowWrap: "anywhere" }}
+            style={{ overflowWrap: "anywhere" }}
           >
             {entry.name}
           </span>

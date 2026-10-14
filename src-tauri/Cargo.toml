@@ -1,7 +1,7 @@
 [package]
-name = "finder-win"
-version = "1.5.2"
-description = "A macOS Finder-like file explorer for Windows"
+name = "dirwise"
+version = "1.6.0"
+description = "A fast, keyboard-friendly file manager for Windows"
 authors = ["krystof2-ops"]
 license = "MIT"
 repository = "https://github.com/krystof2-ops/finder-win"

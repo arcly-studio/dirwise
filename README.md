@@ -1,10 +1,10 @@
 <div align="center">
 
-<img src="src-tauri/icons/128x128.png" width="96" height="96" alt="Finder-Win icon">
+<img src="src-tauri/icons/128x128.png" width="96" height="96" alt="Dirwise icon">
 
-# Finder-Win
+# Dirwise
 
-**The macOS Finder experience, on Windows.**
+**A fast, keyboard-friendly file manager for Windows — column view, tabs, split view, instant preview and Ctrl+K.**
 
 **English** · [Čeština](README.cs.md)
 
@@ -17,22 +17,24 @@
 
 <p align="center"><a href="https://apps.microsoft.com/detail/9MZ67726S65X?mode=direct"><img src="https://get.microsoft.com/images/en-us%20dark.svg" alt="Get it from Microsoft" width="200"></a></p>
 
-or: `winget install krystof2-ops.FinderWin` *(coming soon)*
+or: `winget install krystof2-ops.Dirwise` *(coming soon)*
 
-<img src="docs/demo.gif" width="960" alt="Finder-Win 1.5 demo: files scrolling under the glass toolbar, transparency turned on and its strength changed from the Ctrl+K command palette">
+<img src="docs/demo.gif" width="960" alt="Dirwise demo: files scrolling under the glass toolbar, transparency turned on and its strength changed from the Ctrl+K command palette">
 
 </div>
 
-## Why Finder-Win?
+Dirwise (formerly Finder-Win) is inspired by the macOS Finder, built for Windows.
 
-- **Column view** – Miller columns with a preview pane, the way Finder browses deep folder trees. File Explorer has nothing like it.
-- **Keyboard first** – Ctrl+K opens a command palette for folders, actions and tags; Space opens Quick Look.
+## Why Dirwise?
+
+- **Column view** – Miller columns with a preview pane, for browsing deep folder trees. File Explorer has nothing like it.
+- **Keyboard first** – Ctrl+K opens a command palette for folders, actions and tags; Space opens a preview.
 - **Two panels in one window** – split view with F5 / F6 copy and move, without a second Explorer window.
 - **Small and local** – an installer under 3 MB (Tauri: Rust + WebView2), installs per user without admin rights, no account and no telemetry.
 
 ## Features
 
-### Browse like in Finder
+### Browse your way
 
 <picture>
   <source media="(prefers-color-scheme: light)" srcset="docs/screenshots/hero-light.png">
@@ -45,7 +47,7 @@ or: `winget install krystof2-ops.FinderWin` *(coming soon)*
 
 ### Glass look & transparency
 
-![Finder-Win with transparency turned on over a colorful wallpaper](docs/screenshots/transparency.png)
+![Dirwise with transparency turned on over a colorful wallpaper](docs/screenshots/transparency.png)
 
 - **Glass look by default** – the title bar, toolbar and tabs sit on one translucent, blurred plate and the list shows through as you scroll; menus, the command palette and tooltips are glass too.
 - **Transparent window** – the desktop and other windows show through the app, in three strengths: Subtle, Medium and Strong. Off by default.
@@ -63,17 +65,17 @@ or: `winget install krystof2-ops.FinderWin` *(coming soon)*
 
 ![Command palette with "dow" typed](docs/screenshots/command-palette.png)
 
-- **Ctrl+K** searches folders (favorites, recents, tabs, subfolders), actions and tags.
+- **Ctrl+K** searches folders (Quick access, recent, tabs, subfolders), actions and tags.
 - Type `~` or a path to go there directly; **Ctrl+Enter** searches files in the current folder.
 - Actions show their keyboard shortcut, and the commands you use most come first.
 
-### Previews and Quick Look
+### Previews
 
 ![Column view with a video preview, duration and resolution](docs/screenshots/previews.png)
 
 - The preview column shows a thumbnail plus **duration and resolution** for videos, dimensions for images and page count for PDFs.
-- **Space** opens Quick Look for images, PDF, video, audio, text and source code, and rendered Markdown; ←/→ steps through files.
-- Thumbnails and icons are cached locally in `%LOCALAPPDATA%\finder-win`.
+- **Space** opens a preview for images, PDF, video, audio, text and source code, and rendered Markdown; ←/→ steps through files.
+- Thumbnails and icons are cached locally in `%LOCALAPPDATA%\dirwise`.
 
 ### Everyday file work
 
@@ -84,7 +86,9 @@ or: `winget install krystof2-ops.FinderWin` *(coming soon)*
 - **Undo / Redo** (Ctrl+Z / Ctrl+Y) for the last 50 renames, moves, copies, new items, deletions and tag changes.
 - **Recycle Bin** in the sidebar – browse deleted items (original location, date, size), Restore without overwriting anything, Delete Permanently, Empty Recycle Bin.
 - **Continue as Administrator** – in protected places (e.g. the root of C:\) delete, move, paste, rename and new folder offer it and Windows asks for confirmation (UAC), like Explorer; the app itself never runs as administrator.
-- **Sidebar** with standard folders, all drives (updates when a USB drive is plugged in), custom favorites, recents and Finder-style color tags.
+- **Windows 11 title bar** – small icon and name on the left, the standard Minimize / Maximize / Close buttons on the right, including Snap Layouts when you hover Maximize.
+- **Sidebar** with Quick access (pinned folders; “Pin to Quick Access” in the context menu), This PC (Desktop, Downloads, Documents …), Cloud, Drives (with the Recycle Bin), Recent and Tags. Drives update when a USB drive is plugged in. In Icons view the whole tile is highlighted when selected.
+- **Status bar** shows the selection and free space, e.g. “1 of 52 selected · 120.7 GB free”.
 
 ## Keyboard shortcuts
 
@@ -95,7 +99,7 @@ or: `winget install krystof2-ops.FinderWin` *(coming soon)*
 | `Ctrl+K` | Command palette (`Ctrl+Enter` = search files) |
 | `Ctrl+Shift+D` | Split window into two panels |
 | `F5` / `F6` | Copy / move selection to the other panel (split view) |
-| `Space` | Quick Look |
+| `Space` | Preview |
 | `Ctrl+Z` / `Ctrl+Y` | Undo / redo |
 
 <details>
@@ -128,7 +132,7 @@ or: `winget install krystof2-ops.FinderWin` *(coming soon)*
 | `Ctrl+R` / `F5` | Refresh (`F5` outside split view) |
 | `Ctrl+Shift+.` | Show / hide hidden files |
 | `Esc` | Clear selection; close search results; close menus and dialogs |
-| `←` / `→`, `Esc` | Previous / next file, close (in Quick Look) |
+| `←` / `→`, `Esc` | Previous / next file, close (in Preview) |
 | Mouse button 4 / 5 | Back / forward |
 | Middle click on a folder / tab | Open in a new tab / close the tab |
 
@@ -136,12 +140,14 @@ or: `winget install krystof2-ops.FinderWin` *(coming soon)*
 
 ## Install
 
-1. Download `Finder-Win_…_x64-setup.exe` from the [latest release](https://github.com/krystof2-ops/finder-win/releases/latest) and run it. It installs for the current user only; no administrator rights needed.
+1. Download `Dirwise_…_x64-setup.exe` from the [latest release](https://github.com/krystof2-ops/finder-win/releases/latest) and run it. It installs for the current user only; no administrator rights needed.
 2. The installer is not code-signed, so Windows SmartScreen shows *"Windows protected your PC"*. Click **More info** → **Run anyway**.
+
+Upgrading from Finder-Win 1.5.x: the Dirwise installer silently uninstalls the old version itself (no second copy side by side) and your settings are kept. Pin it to the taskbar again.
 
 Or get it from the [Microsoft Store](https://apps.microsoft.com/detail/9MZ67726S65X) – no SmartScreen warning, updates come through the Store.
 
-Also coming: **winget** (`winget install krystof2-ops.FinderWin`; the manifest is in [`winget/`](winget)).
+Also coming: **winget** (`winget install krystof2-ops.Dirwise`; the manifest is in [`winget/`](winget)).
 
 <details>
 <summary>Known limitations</summary>
@@ -156,7 +162,7 @@ Also coming: **winget** (`winget install krystof2-ops.FinderWin`; the manifest i
 
 ## Privacy
 
-Finder-Win makes exactly one kind of network request: at most once a day it asks the GitHub API (`api.github.com/repos/krystof2-ops/finder-win/releases/latest`) whether a newer version exists and, if so, shows a small bar with a link to the release page. No telemetry, nothing about you or your files is sent. Turn the check off in More → Check for Updates.
+Dirwise makes exactly one kind of network request: at most once a day it asks the GitHub API (`api.github.com/repos/krystof2-ops/finder-win/releases/latest`) whether a newer version exists and, if so, shows a small bar with a link to the release page. No telemetry, nothing about you or your files is sent. Turn the check off in More → Check for Updates.
 
 ## Build from source
 

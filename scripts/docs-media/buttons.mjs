@@ -1,6 +1,6 @@
 // Tlačítka „Download for Windows“ do docs/buttons/ (download.svg, download-cs.svg).
 // Text je převedený na křivky z Inter (OFL, @fontsource/inter), takže GitHub vykreslí všude stejně.
-// Verze z package.json, velikost z instalátoru src-tauri/target/release/bundle/nsis/Finder-Win_<verze>_x64-setup.exe.
+// Verze z package.json, velikost z instalátoru src-tauri/target/release/bundle/nsis/Dirwise_<verze>_x64-setup.exe.
 // node scripts/docs-media/buttons.mjs   (po `npm run tauri build` vydávané verze)
 import fs from "fs";
 import { fileURLToPath } from "url";
@@ -8,7 +8,7 @@ import opentype from "opentype.js";
 
 const root = (p) => fileURLToPath(new URL(`../../${p}`, import.meta.url));
 const { version } = JSON.parse(fs.readFileSync(root("package.json"), "utf8"));
-const installer = root(`src-tauri/target/release/bundle/nsis/Finder-Win_${version}_x64-setup.exe`);
+const installer = root(`src-tauri/target/release/bundle/nsis/Dirwise_${version}_x64-setup.exe`);
 if (!fs.existsSync(installer)) {
   console.error(`Chybí instalátor ${installer} – nejdřív npm run tauri build.`);
   process.exit(1);

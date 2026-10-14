@@ -133,7 +133,7 @@ export function StatusBar({
           ? t("status.filtered", { shown: itemCount, count: totalCount })
           : formatItemCount(itemCount)
     : "";
-  const summary = path && freeSpace !== null ? `${counts}, ${formatFreeSpace(freeSpace)}` : counts;
+  const summary = path && freeSpace !== null ? `${counts} · ${formatFreeSpace(freeSpace)}` : counts;
 
   return (
     // 22 px, 11 px písmo; drobky s › a podtržením při najetí, vpravo počty.
@@ -170,7 +170,7 @@ export function StatusBar({
         </div>
       )}
 
-      {/* Pevná šířka: počty se při výběru mění ("Vybráno 1 z 2000") a pružný
+      {/* Pevná šířka: počty se při výběru mění ("1 z 2000 vybráno") a pružný
           blok by pokaždé posunul a přezkrátil drobky vlevo (layout shift).
           300 px unese i nejdelší anglickou variantu
           ("1,234 of 12,345 (filtered), 85.9 GB available"). */}

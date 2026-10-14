@@ -7,7 +7,7 @@ import path from "path";
 import { execFileSync, spawn } from "child_process";
 import { fileURLToPath } from "url";
 
-const DIR = path.join(os.tmpdir(), "finder-win-demo");
+const DIR = path.join(os.tmpdir(), "dirwise-demo");
 const GIF = fileURLToPath(new URL("../../docs/demo.gif", import.meta.url));
 import { setup } from "./setup.mjs";
 import { announceFocus, stage } from "./wallpaper.mjs";

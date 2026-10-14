@@ -7,9 +7,12 @@ import * as storage from "./storage";
  * (žádná telemetrie, nic se neodesílá). Vypíná se v menu Více.
  */
 
+// Repo se přejmenuje na dirwise (starou adresu API GitHub přesměruje) —
+// do té doby platí finder-win, nová adresa by vracela 404.
 const LATEST_RELEASE = "https://api.github.com/repos/krystof2-ops/finder-win/releases/latest";
-/** Stránka vydání — stejné pravidlo hlídá i backend (is_release_page). */
-const RELEASE_PAGE = /^https:\/\/github\.com\/krystof2-ops\/finder-win\/releases\/tag\/[A-Za-z0-9.-]+$/;
+/** Stránka vydání — stejné pravidlo hlídá i backend (is_release_page). Po přejmenování
+ *  repa vrací API novou adresu (dirwise), proto platí obě. */
+const RELEASE_PAGE = /^https:\/\/github\.com\/krystof2-ops\/(dirwise|finder-win)\/releases\/tag\/[A-Za-z0-9.-]+$/;
 
 function isReleasePage(url: string): boolean {
   return RELEASE_PAGE.test(url) && !url.includes("..");

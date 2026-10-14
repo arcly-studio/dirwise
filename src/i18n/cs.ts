@@ -68,7 +68,7 @@ export const cs = {
   "update.available": "Verze {version} je k dispozici",
   "update.download": "Stáhnout",
   "update.dismiss": "Skrýt",
-  "toolbar.about": "O aplikaci Finder-Win",
+  "toolbar.about": "O aplikaci Dirwise",
 
   "motion.system": "Podle systému",
 
@@ -121,7 +121,7 @@ export const cs = {
   "palette.goTo": "Přejít na {path}",
   "palette.searchFiles": "Hledat soubory „{query}“ v aktuální složce",
   "palette.tagDetail": "Zobrazit položky se štítkem",
-  "palette.sourceFavorite": "Oblíbené",
+  "palette.sourceFavorite": "Rychlý přístup",
   "palette.sourceRecent": "Nedávné",
   "palette.sourceTab": "Záložka",
   "palette.sourceSubfolder": "Podsložka",
@@ -195,8 +195,8 @@ export const cs = {
     few: "Smazat {count} položky",
     other: "Smazat {count} položek",
   },
-  "menu.tags": "Tagy",
-  "menu.removeTags": "Odebrat tagy",
+  "menu.tags": "Štítky",
+  "menu.removeTags": "Odebrat štítky",
   "menu.properties": "Vlastnosti",
   "menu.folderProperties": "Vlastnosti složky",
   "menu.view": "Zobrazit",
@@ -204,10 +204,10 @@ export const cs = {
   "menu.sortBy": "Seřadit podle",
   "menu.selectAll": "Vybrat vše",
   "menu.refresh": "Aktualizovat",
-  "menu.addToFavorites": "Přidat do oblíbených",
-  "menu.removeFromFavorites": "Odebrat z oblíbených",
-  "menu.addCurrentToFavorites": "Přidat aktuální složku do oblíbených",
-  "menu.currentAlreadyFavorite": "Aktuální složka už je v oblíbených",
+  "menu.addToFavorites": "Připnout do Rychlého přístupu",
+  "menu.removeFromFavorites": "Odepnout z Rychlého přístupu",
+  "menu.addCurrentToFavorites": "Připnout aktuální složku do Rychlého přístupu",
+  "menu.currentAlreadyFavorite": "Aktuální složka už je v Rychlém přístupu",
   "menu.expandSection": "Rozbalit sekci",
   "menu.collapseSection": "Sbalit sekci",
   "menu.clearRecents": "Vymazat nedávné",
@@ -217,14 +217,14 @@ export const cs = {
   "menu.showPath": "Zobrazit cestu",
 
   /* ---------------------------------- sidebar --------------------------------- */
-  "sidebar.favorites": "Oblíbené",
+  "sidebar.favorites": "Tento počítač",
   "sidebar.cloud": "Cloud",
-  "sidebar.devices": "Zařízení",
+  "sidebar.devices": "Disky",
   "sidebar.trash": "Koš",
   "sidebar.trashFull": "Koš ({count})",
-  "sidebar.custom": "Moje oblíbené",
+  "sidebar.custom": "Rychlý přístup",
   "sidebar.recents": "Nedávné",
-  "sidebar.tags": "Tagy",
+  "sidebar.tags": "Štítky",
   "sidebar.dropHere": "Přetáhni sem složku nebo soubor",
   "sidebar.nothingYet": "Zatím nic",
   "sidebar.opensInExplorer": "Otevře se v Průzkumníku",
@@ -259,9 +259,9 @@ export const cs = {
     few: "načítám… {count} položky",
     other: "načítám… {count} položek",
   },
-  "status.selected": "Vybráno {selected} z {count}",
+  "status.selected": "{selected} z {count} vybráno",
   "status.filtered": "{shown} z {count} (filtr)",
-  "status.freeSpace": "{size} volných",
+  "status.freeSpace": "volno {size}",
 
   /* ------------------------------ prázdné stavy ------------------------------- */
   "empty.start": "Začni výběrem složky vlevo.",
@@ -343,7 +343,7 @@ export const cs = {
   "op.copyPaths": "Cesty se nepodařilo zkopírovat",
   "op.copyName": "Název se nepodařilo zkopírovat",
   "op.copyNames": "Názvy se nepodařilo zkopírovat",
-  "op.loadSettings": "Nastavení se nepodařilo načíst, oblíbené a tagy jsou prázdné",
+  "op.loadSettings": "Nastavení se nepodařilo načíst, Rychlý přístup a štítky jsou prázdné",
   "op.saveSettings": "Nastavení se nepodařilo uložit",
 
   /* ------------------------------ výchozí názvy ------------------------------- */
@@ -394,7 +394,7 @@ export const cs = {
   "props.accessed": "Otevřeno",
   "props.where": "Kde",
   "props.attributes": "Atributy",
-  "props.tags": "Tagy",
+  "props.tags": "Štítky",
   "props.readOnly": "jen pro čtení",
   "props.hidden": "skrytý",
   "props.none": "žádné",
@@ -417,10 +417,10 @@ export const cs = {
 
   /* --------------------------------- O aplikaci ------------------------------- */
   "about.version": "Verze {version}",
-  "about.tagline": "Průzkumník souborů pro Windows s duší macOS Finderu.",
+  "about.tagline": "Rychlý správce souborů pro Windows ovladatelný klávesnicí – sloupcové zobrazení, záložky, rozdělené okno, rychlý náhled a Ctrl+K.",
   "about.builtWith": "Postaveno s Tauri + React",
 
-  /* --------------------------------- Quick Look ------------------------------- */
+  /* ---------------------------------- Náhled ---------------------------------- */
   "quicklook.label": "Náhled — {name}",
   "quicklook.position": "{index} z {count}",
   "quicklook.cannotLoad": "Nelze načíst obsah.",
@@ -440,7 +440,7 @@ export const cs = {
     other: "Zobrazeno prvních {count} výsledků.",
   },
   "tagView.empty": "Nic není označené barvou {tag}",
-  "tagView.hint": "Štítek přidáte pravým klikem na položku → Tagy.",
+  "tagView.hint": "Štítek přidáte pravým klikem na položku → Štítky.",
   "op.search": "Hledání se nepodařilo",
   "op.folderGone": "Složka zmizela",
 
@@ -529,7 +529,7 @@ export const cs = {
   "error.undoConflict": "na původním místě už je jiná položka",
   "error.undoNoTrash": "tenhle disk nemá Koš, položka by se smazala natrvalo",
   "error.notInTrash": "položka už v Koši není",
-  "error.notReleaseUrl": "odkaz nevede na stránku vydání Finder-Win",
+  "error.notReleaseUrl": "odkaz nevede na stránku vydání Dirwise",
   "error.noThumbnail": "soubor nemá náhled",
   "error.notText": "soubor není textový",
 } as const;

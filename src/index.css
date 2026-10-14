@@ -64,10 +64,6 @@
   --paper: #ffffff;
   --paper-border: rgba(0, 0, 0, 0.12);
 
-  /* Výběr v icon view: jeden neutrální tón pro dlaždici pod ikonou i pro
-     pilulku se jménem, aby to drželo pohromadě jako jeden celek. */
-  --icon-selection: rgba(0, 0, 0, 0.1);
-
   /* Text na akcentní barvě (pilulka vybraného názvu, zvýrazněná položka menu). */
   --on-accent: #ffffff;
   /* Aktivní segment přepínače zobrazení — vyzdvižený nad podkladem. */
@@ -75,14 +71,13 @@
   --segment-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
   /* Prstenec fokusu (pole hledání). */
   --focus-ring: rgba(10, 132, 255, 0.4);
-  /* Pilulka názvu vybrané položky v neaktivním okně (Finder ji zešedne). */
-  --name-pill-inactive: rgba(0, 0, 0, 0.1);
 
   /* Složka ve stylu macOS Sonoma — zadní záložka světlejší, přední deska
      sytější. Glyf speciálních složek (Plocha, Dokumenty…) je bílý. */
-  --folder-back: #60a5fa;
-  --folder-front: #3b82f6;
-  --folder-glyph: rgba(255, 255, 255, 0.85);
+  --folder-back: #e0a12a;
+  --folder-front-top: #ffd86b;
+  --folder-front: #f6b73c;
+  --folder-glyph: rgba(122, 72, 0, 0.75);
 
   /* Rámeček náhledu obrázku v icon view. */
   --thumb-border: rgba(0, 0, 0, 0.12);
@@ -192,17 +187,16 @@
   --paper: #f2f2f4;
   --paper-border: rgba(0, 0, 0, 0.2);
 
-  --icon-selection: rgba(255, 255, 255, 0.14);
 
   --on-accent: #ffffff;
-  --name-pill-inactive: rgba(255, 255, 255, 0.16);
   --segment-active: #636366;
   --segment-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
   --focus-ring: rgba(10, 132, 255, 0.5);
 
-  --folder-back: #60a5fa;
-  --folder-front: #3b82f6;
-  --folder-glyph: rgba(255, 255, 255, 0.85);
+  --folder-back: #e0a12a;
+  --folder-front-top: #ffd86b;
+  --folder-front: #f6b73c;
+  --folder-glyph: rgba(122, 72, 0, 0.75);
 
   --thumb-border: rgba(255, 255, 255, 0.16);
 
@@ -535,13 +529,12 @@ body {
   background-color: var(--row-selected-inactive);
 }
 
-/* Nadpis sekce: 11 px polotučně, barva --text-section (kontrast hlídá
-   token, ne průhlednost). */
+/* Nadpis sekce: 12 px polotučně normálním písmem, barva --text-section
+   (kontrast hlídá token, ne průhlednost). */
 .fw-section-heading {
   padding: 14px 12px 4px 16px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.02em;
   color: var(--text-section);
 }
 
@@ -948,8 +941,8 @@ body {
   animation: fw-fade-in var(--dur-quick) var(--ease-out);
 }
 
-/* Icon view jako ve Finderu: ikona stojí volně, bez rámečku a bez hover
-   efektu. Výběr = zaoblený obdélník za ikonou + název na pilulce. */
+/* Icon view jako ve Windows 11: dlaždice (ikona + název) se při najetí
+   jemně podbarví, výběr podbarví celou dlaždici barvou výběru řádků. */
 .fw-icon-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, 96px);
@@ -959,23 +952,36 @@ body {
   justify-content: start;
 }
 
+.fw-icon-cell {
+  padding-top: 4px;
+  transition:
+    background-color var(--dur-quick) var(--ease-out),
+    scale var(--dur-fade) var(--ease-out);
+}
+
+.fw-icon-cell:hover {
+  background-color: var(--hover);
+}
+
+.fw-icon-cell.is-selected {
+  background-color: var(--row-selected);
+}
+
+.fw-icon-cell.is-selected-dim {
+  background-color: var(--row-selected-inactive);
+}
+
 .fw-icon-tile {
   /* Flex, ne blok: ikona je inline-flex a v bloku by seděla na účaří řádku.
      Obecná ikona (svg) a ikona ze shellu (img) mají účaří jinde — příchod
      ikony by posunul název pod ní o 6 px. */
   display: flex;
-  border-radius: 8px;
-  transition: background-color var(--dur-quick) var(--ease-out);
 }
 
 .fw-icon-name {
   font-size: 12px;
   line-height: 15px;
-  border-radius: 4px;
   padding: 0 4px;
-  transition:
-    background-color var(--dur-quick) var(--ease-out),
-    color var(--dur-quick) var(--ease-out);
 }
 
 /* Řádky v list view. Pořadí pravidel je tu nosné: všechna mají stejnou
@@ -998,13 +1004,11 @@ body {
 .fw-kbd .fw-list-row,
 .fw-kbd .fw-col-row,
 .fw-kbd .fw-result-row,
-.fw-kbd .fw-icon-tile,
-.fw-kbd .fw-icon-name,
+.fw-kbd .fw-icon-cell,
 .is-scrolling .fw-list-row,
 .is-scrolling .fw-col-row,
 .is-scrolling .fw-result-row,
-.is-scrolling .fw-icon-tile,
-.is-scrolling .fw-icon-name {
+.is-scrolling .fw-icon-cell {
   transition: none;
 }
 

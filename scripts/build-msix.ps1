@@ -1,11 +1,11 @@
 <#
-  MSIX balíček Finder-Win pro Microsoft Store.
+  MSIX balíček Dirwise pro Microsoft Store.
 
   build (FINDERWIN_STORE=1, --features store, tauri.store.conf.json) → staging → AppxManifest.xml
   → assety z app-icon.png → makepri → makeappx pack.
 
   Výstup (NEpodepsaný, Store ho podepíše sám):
-    src-tauri/target/release/bundle/msix/Finder-Win_<verze>.0_x64.msix
+    src-tauri/target/release/bundle/msix/Dirwise_<verze>.0_x64.msix
 
   -TestSign  navíc vyrobí …_x64_TEST-SIGNED.msix podepsaný self-signed certifikátem
              v CurrentUser\My (jen pro lokální instalaci, NIKDY neodesílat do Storu).
@@ -21,7 +21,9 @@ param(
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
-# Identita z Partner Center (Product identity).
+# Identita z Partner Center (Product identity). Identity Name se po vydání
+# měnit nesmí — aplikace se do 1.5.x jmenovala Finder-Win, zobrazovaný název
+# (DisplayName níž) je Dirwise a musí být rezervovaný v Partner Center.
 $IdentityName = "krystof02.Finder-Win"
 $Publisher = "CN=7A230D16-A4F0-44D2-9725-8DF77823543E"
 $PublisherDisplayName = "krystof02"
@@ -33,7 +35,7 @@ $MsixVersion = "$Version.0"
 $StoreTarget = Join-Path $Root "src-tauri/target/store"
 $Staging = Join-Path $StoreTarget "msix-staging"
 $OutDir = Join-Path $Root "src-tauri/target/release/bundle/msix"
-$Msix = Join-Path $OutDir "Finder-Win_${MsixVersion}_x64.msix"
+$Msix = Join-Path $OutDir "Dirwise_${MsixVersion}_x64.msix"
 
 function Find-SdkTool([string]$Name) {
     $bin = "${env:ProgramFiles(x86)}\Windows Kits\10\bin"
@@ -68,10 +70,10 @@ if (-not $SkipBuild) {
         Pop-Location
     }
 }
-$Exe = Join-Path $StoreTarget "release/finder-win.exe"
+$Exe = Join-Path $StoreTarget "release/dirwise.exe"
 if (-not (Test-Path $Exe)) { throw "Chybí $Exe – spusť bez -SkipBuild." }
 
-# 2) Staging: stejné finder-win.exe jako v NSIS (žádné další resources Tauri nebalí).
+# 2) Staging: stejné dirwise.exe jako v NSIS (žádné další resources Tauri nebalí).
 if (Test-Path $Staging) { Remove-Item $Staging -Recurse -Force }
 $Assets = Join-Path $Staging "Assets"
 New-Item -ItemType Directory -Force $Assets | Out-Null
@@ -132,7 +134,7 @@ $Manifest = @"
   IgnorableNamespaces="uap rescap">
   <Identity Name="$IdentityName" Publisher="$Publisher" Version="$MsixVersion" ProcessorArchitecture="x64" />
   <Properties>
-    <DisplayName>Finder-Win</DisplayName>
+    <DisplayName>Dirwise</DisplayName>
     <PublisherDisplayName>$PublisherDisplayName</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -144,10 +146,11 @@ $Manifest = @"
     <Resource Language="cs-CZ" />
   </Resources>
   <Applications>
-    <Application Id="FinderWin" Executable="finder-win.exe" EntryPoint="Windows.FullTrustApplication">
+    <!-- Application Id zůstává z 1.5.x (změna by rozbila připnutí); není nikde vidět. -->
+    <Application Id="FinderWin" Executable="dirwise.exe" EntryPoint="Windows.FullTrustApplication">
       <uap:VisualElements
-        DisplayName="Finder-Win"
-        Description="A macOS Finder-like file explorer for Windows"
+        DisplayName="Dirwise"
+        Description="A fast, keyboard-friendly file manager for Windows"
         BackgroundColor="transparent"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png">
@@ -182,16 +185,16 @@ Write-Host "MSIX pro Store (nepodepsaný): $Msix"
 if ($TestSign) {
     $SignTool = Find-SdkTool "signtool.exe"
     $cert = Get-ChildItem Cert:\CurrentUser\My |
-        Where-Object { $_.Subject -eq $Publisher -and $_.FriendlyName -eq "Finder-Win MSIX test" -and $_.NotAfter -gt (Get-Date) } |
+        Where-Object { $_.Subject -eq $Publisher -and $_.FriendlyName -eq "Dirwise MSIX test" -and $_.NotAfter -gt (Get-Date) } |
         Select-Object -First 1
     if (-not $cert) {
         $cert = New-SelfSignedCertificate -Type Custom -Subject $Publisher -KeyUsage DigitalSignature `
-            -FriendlyName "Finder-Win MSIX test" -CertStoreLocation Cert:\CurrentUser\My `
+            -FriendlyName "Dirwise MSIX test" -CertStoreLocation Cert:\CurrentUser\My `
             -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.3", "2.5.29.19={text}") -NotAfter (Get-Date).AddMonths(3)
     }
-    $Cer = Join-Path $OutDir "Finder-Win-TEST.cer"
+    $Cer = Join-Path $OutDir "Dirwise-TEST.cer"
     Export-Certificate -Cert $cert -FilePath $Cer | Out-Null
-    $TestMsix = Join-Path $OutDir "Finder-Win_${MsixVersion}_x64_TEST-SIGNED.msix"
+    $TestMsix = Join-Path $OutDir "Dirwise_${MsixVersion}_x64_TEST-SIGNED.msix"
     Copy-Item $Msix $TestMsix -Force
     Invoke-Tool $SignTool @("sign", "/fd", "SHA256", "/sha1", $cert.Thumbprint, "/s", "My", $TestMsix)
     Write-Host "Testovací balíček (NEODESÍLAT do Storu): $TestMsix"

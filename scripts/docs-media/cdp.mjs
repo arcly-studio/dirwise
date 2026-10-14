@@ -1,4 +1,4 @@
-// Minimální CDP klient pro webview Finder-Win (port 9333).
+// Minimální CDP klient pro webview Dirwise (port 9333).
 export async function connect() {
   const list = await (await fetch("http://127.0.0.1:9333/json/list")).json();
   const page = list.find((t) => t.type === "page");

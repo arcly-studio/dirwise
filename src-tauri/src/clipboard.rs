@@ -1,6 +1,6 @@
 //! Systémová schránka se soubory — CF_HDROP a „Preferred DropEffect", tedy
 //! přesně to, co si mezi sebou posílá Průzkumník. Díky tomu jde Ctrl+C / Ctrl+X
-//! z Finder-Winu vložit v Průzkumníku (a naopak) i do přílohy v Outlooku nebo
+//! z Dirwise vložit v Průzkumníku (a naopak) i do přílohy v Outlooku nebo
 //! v prohlížeči.
 
 use serde::Serialize;

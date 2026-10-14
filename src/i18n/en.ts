@@ -71,7 +71,7 @@ export const en = {
   "update.available": "Version {version} is available",
   "update.download": "Download",
   "update.dismiss": "Dismiss",
-  "toolbar.about": "About Finder-Win",
+  "toolbar.about": "About Dirwise",
 
   "motion.system": "Match System",
 
@@ -122,7 +122,7 @@ export const en = {
   "palette.goTo": "Go to {path}",
   "palette.searchFiles": "Search files for “{query}” in the current folder",
   "palette.tagDetail": "Show items with this tag",
-  "palette.sourceFavorite": "Favorite",
+  "palette.sourceFavorite": "Quick access",
   "palette.sourceRecent": "Recent",
   "palette.sourceTab": "Tab",
   "palette.sourceSubfolder": "Subfolder",
@@ -150,7 +150,7 @@ export const en = {
   "menu.openInExplorer": "Open in File Explorer",
   "menu.openInTerminal": "Open in Terminal",
   "menu.showInFolder": "Show in Folder",
-  "menu.quickLook": "Quick Look",
+  "menu.quickLook": "Preview",
   "menu.newFolder": "New Folder",
   "menu.newFile": "New File",
   "menu.new": "New",
@@ -193,10 +193,10 @@ export const en = {
   "menu.sortBy": "Sort By",
   "menu.selectAll": "Select All",
   "menu.refresh": "Refresh",
-  "menu.addToFavorites": "Add to Favorites",
-  "menu.removeFromFavorites": "Remove from Favorites",
-  "menu.addCurrentToFavorites": "Add Current Folder to Favorites",
-  "menu.currentAlreadyFavorite": "Current Folder Is Already in Favorites",
+  "menu.addToFavorites": "Pin to Quick Access",
+  "menu.removeFromFavorites": "Unpin from Quick Access",
+  "menu.addCurrentToFavorites": "Pin Current Folder to Quick Access",
+  "menu.currentAlreadyFavorite": "Current Folder Is Already in Quick Access",
   "menu.expandSection": "Expand Section",
   "menu.collapseSection": "Collapse Section",
   "menu.clearRecents": "Clear Recents",
@@ -206,13 +206,13 @@ export const en = {
   "menu.showPath": "Show Path",
 
   /* ---------------------------------- sidebar --------------------------------- */
-  "sidebar.favorites": "Favorites",
+  "sidebar.favorites": "This PC",
   "sidebar.cloud": "Cloud",
-  "sidebar.devices": "Locations",
+  "sidebar.devices": "Drives",
   "sidebar.trash": "Recycle Bin",
   "sidebar.trashFull": "Recycle Bin ({count})",
-  "sidebar.custom": "My Favorites",
-  "sidebar.recents": "Recents",
+  "sidebar.custom": "Quick access",
+  "sidebar.recents": "Recent",
   "sidebar.tags": "Tags",
   "sidebar.dropHere": "Drag a folder or file here",
   "sidebar.nothingYet": "Nothing yet",
@@ -246,7 +246,7 @@ export const en = {
   "status.loading": { one: "loading… {count} item", other: "loading… {count} items" },
   "status.selected": "{selected} of {count} selected",
   "status.filtered": "{shown} of {count} (filtered)",
-  "status.freeSpace": "{size} available",
+  "status.freeSpace": "{size} free",
 
   /* ------------------------------- empty states ------------------------------- */
   "empty.start": "Start by choosing a folder on the left.",
@@ -323,7 +323,7 @@ export const en = {
   "op.copyPaths": "Couldn't copy the paths",
   "op.copyName": "Couldn't copy the name",
   "op.copyNames": "Couldn't copy the names",
-  "op.loadSettings": "Couldn't load settings; favorites and tags are empty",
+  "op.loadSettings": "Couldn't load settings; Quick access and tags are empty",
   "op.saveSettings": "Couldn't save settings",
 
   /* ------------------------------- default names ------------------------------ */
@@ -397,11 +397,11 @@ export const en = {
 
   /* ----------------------------------- about ---------------------------------- */
   "about.version": "Version {version}",
-  "about.tagline": "A file explorer for Windows with the soul of the macOS Finder.",
+  "about.tagline": "A fast, keyboard-friendly file manager for Windows — column view, tabs, split view, instant preview and Ctrl+K.",
   "about.builtWith": "Built with Tauri + React",
 
-  /* --------------------------------- Quick Look ------------------------------- */
-  "quicklook.label": "Quick Look — {name}",
+  /* ---------------------------------- Preview --------------------------------- */
+  "quicklook.label": "Preview — {name}",
   "quicklook.position": "{index} of {count}",
   "quicklook.cannotLoad": "Can't load the content.",
   "quicklook.unavailable": "No preview available — click Open above to open it in an app.",
@@ -506,7 +506,7 @@ export const en = {
   "error.undoConflict": "another item is already in the original location",
   "error.undoNoTrash": "this drive has no Recycle Bin, the item would be deleted permanently",
   "error.notInTrash": "the item is no longer in the Recycle Bin",
-  "error.notReleaseUrl": "the link doesn't point to a Finder-Win release page",
+  "error.notReleaseUrl": "the link doesn't point to a Dirwise release page",
   "error.noThumbnail": "the file has no preview",
   "error.notText": "the file isn't text",
 } satisfies Dictionary;

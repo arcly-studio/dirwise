@@ -20,8 +20,8 @@ const font = (w) => `@font-face { font-family: Inter; font-weight: ${w};
   src: url(${dataUri(root(`node_modules/@fontsource/inter/files/inter-latin-${w}-normal.woff2`), "font/woff2")}) format("woff2"); }`;
 const FONTS = [400, 500, 700].map(font).join("\n");
 
-const TITLE = "Finder-Win";
-const SUB = "A Finder-style file manager for Windows";
+const TITLE = "Dirwise";
+const SUB = "A fast, keyboard-friendly file manager for Windows";
 // V bannerech záměrně na dva řádky (jinak se zalomí jen „Windows“).
 const SUB_HTML = SUB.replace(" for ", "<br>for ");
 
@@ -107,7 +107,7 @@ function findBrowser() {
 }
 
 const PORT = 9334;
-const profileDir = fs.mkdtempSync(path.join(os.tmpdir(), "finderwin-brand-"));
+const profileDir = fs.mkdtempSync(path.join(os.tmpdir(), "dirwise-brand-"));
 const proc = spawn(findBrowser(), ["--headless=new", `--remote-debugging-port=${PORT}`, `--user-data-dir=${profileDir}`,
   "--no-first-run", "--hide-scrollbars", "--force-color-profile=srgb", "about:blank"], { stdio: "ignore" });
 

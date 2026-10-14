@@ -12,7 +12,7 @@ const SCREEN = fileURLToPath(new URL("./screen.ps1", import.meta.url));
 
 /** Ostrý barevný přechod ve stylu tapet macOS (soubor v %TEMP%). */
 export function testWallpaper(width, height) {
-  const file = path.join(os.tmpdir(), `finder-win-wallpaper-v2-${width}x${height}.png`);
+  const file = path.join(os.tmpdir(), `dirwise-wallpaper-v2-${width}x${height}.png`);
   if (fs.existsSync(file)) return file;
   execFileSync("ffmpeg", [
     "-v", "error", "-y", "-f", "lavfi",
