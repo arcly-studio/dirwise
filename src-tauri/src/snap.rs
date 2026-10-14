@@ -98,15 +98,23 @@ pub fn reposition() {
         if GetClientRect(parent, &mut client).is_err() {
             return;
         }
+        // Minimalizované okno má nulový klient; myš nad tlačítkem už není.
+        if client.right <= 0 {
+            set_state(STATE_NONE);
+            return;
+        }
         let width = (BUTTON_WIDTH * scale).round() as i32;
+        // Horní pixel nechat oknu — jinak by nad tlačítkem nešlo táhnout
+        // horní hranou (změna velikosti), jako u systémových tlačítek.
+        let top = scale.round().max(1.0) as i32;
         let x = client.right - ((BUTTONS_RIGHT + 1.0) * BUTTON_WIDTH * scale).round() as i32;
         let _ = SetWindowPos(
             HWND(overlay as *mut _),
             Some(HWND_TOP),
             x,
-            0,
+            top,
             width,
-            (BAR_HEIGHT * scale).round() as i32,
+            (BAR_HEIGHT * scale).round() as i32 - top,
             SWP_NOACTIVATE | SWP_SHOWWINDOW,
         );
     }

@@ -72,8 +72,8 @@
   /* Prstenec fokusu (pole hledání). */
   --focus-ring: rgba(10, 132, 255, 0.4);
 
-  /* Složka ve stylu macOS Sonoma — zadní záložka světlejší, přední deska
-     sytější. Glyf speciálních složek (Plocha, Dokumenty…) je bílý. */
+  /* Jantarová složka — zadní deska se záložkou tmavší, přední s přechodem
+     (front-top → front). Glyf speciálních složek (Plocha, Dokumenty…) tmavý. */
   --folder-back: #e0a12a;
   --folder-front-top: #ffd86b;
   --folder-front: #f6b73c;

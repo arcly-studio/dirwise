@@ -2,7 +2,7 @@ import { listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { useEffect, useState } from "react";
 
-import appIcon from "../../src-tauri/icons/64x64.png";
+import appIcon from "../assets/icon.png";
 import { useT } from "../i18n";
 
 /** Glyfy Segoe Fluent Icons (Windows 11); Segoe MDL2 Assets (Windows 10) má stejné kódy. */
