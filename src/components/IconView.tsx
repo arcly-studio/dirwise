@@ -20,6 +20,7 @@ import { useGlassInsets } from "../lib/glass";
 import { tagsOf } from "../lib/storage";
 import type { ViewHandleRef } from "../lib/viewHandle";
 import type { FileEntry, SelectMods, TagColor, TagMap } from "../types";
+import { useDisplayNames } from "../lib/extensions";
 
 /** Geometrie mřížky (musí sedět s tím, co buňka vykreslí): buňka 96 × 118,
  *  mezery 16 / 24, okraj plochy 20. Virtualizace i gumička z ní počítají. */
@@ -72,6 +73,7 @@ const IconCell = memo(
     tags,
     handlers,
   }: CellProps) {
+    const names = useDisplayNames();
     // Během přejmenování výběr nekreslíme — podbarvení pod inputem ruší.
     const showSelection = selected && !renaming;
     // Jako ve Windows 11: výběr podbarví celou dlaždici (ikonu i název),
@@ -84,7 +86,7 @@ const IconCell = memo(
         role="option"
         aria-selected={selected}
         tabIndex={0}
-        data-tooltip={entry.name}
+        data-tooltip={names.entry(entry)}
         // Přejmenovaný řádek se netahá — jinak by drag ukradl výběr v inputu.
         draggable={!renaming}
         onDragStart={(event) =>
@@ -127,7 +129,7 @@ const IconCell = memo(
             className="fw-icon-name line-clamp-2 max-w-full text-center"
             style={{ overflowWrap: "anywhere" }}
           >
-            {entry.name}
+            {names.entry(entry)}
           </span>
         )}
 

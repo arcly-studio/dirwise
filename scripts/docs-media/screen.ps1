@@ -3,6 +3,7 @@
 #   backdrop -Image p -X -Y -W -H   okno s testovací tapetou (běží, dokud se neukončí)
 #   place -X -Y -W -H               přesune okno aplikace
 #   top / untop                     tapeta a aplikace nad ostatní okna bez aktivace / zpět
+#   front                           aktivuje okno aplikace (rozmazaná průhlednost se kreslí jen v aktivním okně)
 #   shot -X -Y -W -H -Out p         snímek oblasti obrazovky (PNG)
 #   stop                            ukončí okno s tapetou
 param([string]$Cmd, [string]$Image, [int]$X, [int]$Y, [int]$W, [int]$H, [string]$Out)
@@ -16,6 +17,8 @@ public static class FwScreen {
   [DllImport("user32.dll", CharSet=CharSet.Unicode)] public static extern IntPtr FindWindow(string c, string t);
   [DllImport("user32.dll", CharSet=CharSet.Unicode)] public static extern IntPtr FindWindowEx(IntPtr p, IntPtr after, string cls, string title);
   [DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr h, out uint pid);
+  [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr h);
+  [DllImport("user32.dll")] public static extern void keybd_event(byte vk, byte scan, uint flags, IntPtr extra);
 }
 "@
 [FwScreen]::SetProcessDPIAware() | Out-Null
@@ -53,6 +56,11 @@ switch ($Cmd) {
     Start-Sleep -Milliseconds 300
     [FwScreen]::SetWindowPos((Get-Backdrop), [IntPtr]-1, 0, 0, 0, 0, $NOSIZE -bor $NOMOVE -bor $NOACTIVATE) | Out-Null
     [FwScreen]::SetWindowPos((Get-AppWindow), [IntPtr]-1, 0, 0, 0, 0, $NOSIZE -bor $NOMOVE -bor $NOACTIVATE) | Out-Null
+  }
+  "front" {
+    # Stisk Alt obejde zámek popředí (SetForegroundWindow z cizího procesu).
+    [FwScreen]::keybd_event(0x12, 0, 0, [IntPtr]::Zero); [FwScreen]::keybd_event(0x12, 0, 2, [IntPtr]::Zero)
+    [FwScreen]::SetForegroundWindow((Get-AppWindow)) | Out-Null
   }
   "untop" {
     [FwScreen]::SetWindowPos((Get-AppWindow), [IntPtr]-2, 0, 0, 0, 0, $NOSIZE -bor $NOMOVE -bor $NOACTIVATE) | Out-Null

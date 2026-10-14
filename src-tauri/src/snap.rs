@@ -11,6 +11,11 @@
 //!
 //! Pozice se počítá z pravého okraje: tlačítka mají 46 × 32 CSS px a vpravo
 //! od Maximalizovat je jen Zavřít — musí sedět s `TitleBar.tsx`.
+//!
+//! Navíc hlídá aktivaci okna (WM_NCACTIVATE, subclass hlavního okna) a posílá
+//! ji stránce událostí `window-active` (bool): podle ní Windows přepíná
+//! Acrylic na plnou výplň. Událost Tauri `onFocusChanged` na to nestačí —
+//! při aktivaci okna bez fokusu ve WebView2 nepřijde.
 
 use std::sync::atomic::{AtomicIsize, AtomicU8, Ordering};
 use std::sync::OnceLock;
@@ -21,10 +26,11 @@ use windows::Win32::Foundation::{HWND, LPARAM, LRESULT, RECT, WPARAM};
 use windows::Win32::Graphics::Gdi::{GetStockObject, ValidateRect, HBRUSH, NULL_BRUSH};
 use windows::Win32::System::LibraryLoader::GetModuleHandleW;
 use windows::Win32::UI::Input::KeyboardAndMouse::{TrackMouseEvent, TME_LEAVE, TME_NONCLIENT, TRACKMOUSEEVENT};
+use windows::Win32::UI::Shell::{DefSubclassProc, SetWindowSubclass};
 use windows::Win32::UI::WindowsAndMessaging::{
-    CreateWindowExW, DefWindowProcW, GetClientRect, LoadCursorW, RegisterClassW, SetWindowPos, HTMAXBUTTON,
+    CreateWindowExW, DefWindowProcW, GetClientRect, GetForegroundWindow, LoadCursorW, RegisterClassW, SetWindowPos, HTMAXBUTTON,
     HWND_TOP, IDC_ARROW, SWP_NOACTIVATE, SWP_SHOWWINDOW, WINDOW_EX_STYLE, WM_ERASEBKGND, WM_NCHITTEST,
-    WM_NCLBUTTONDBLCLK, WM_NCLBUTTONDOWN, WM_NCLBUTTONUP, WM_NCMOUSELEAVE, WM_NCMOUSEMOVE, WM_NCPAINT, WM_NCRBUTTONDOWN,
+    WM_NCACTIVATE, WM_NCLBUTTONDBLCLK, WM_NCLBUTTONDOWN, WM_NCLBUTTONUP, WM_NCMOUSELEAVE, WM_NCMOUSEMOVE, WM_NCPAINT, WM_NCRBUTTONDOWN,
     WM_NCRBUTTONUP, WM_PAINT, WNDCLASSW, WS_CHILD, WS_CLIPSIBLINGS, WS_VISIBLE,
 };
 
@@ -80,6 +86,7 @@ pub fn install(window: &WebviewWindow) {
             return;
         };
         OVERLAY.store(overlay.0 as isize, Ordering::Relaxed);
+        let _ = SetWindowSubclass(parent, Some(activation_proc), ACTIVATION_SUBCLASS, 0);
     }
     reposition();
 }
@@ -137,6 +144,34 @@ fn set_state(state: u8) {
 fn toggle_maximize() {
     let Some(window) = WINDOW.get() else { return };
     let _ = if window.is_maximized().unwrap_or(false) { window.unmaximize() } else { window.maximize() };
+}
+
+const ACTIVATION_SUBCLASS: usize = 1;
+
+/// Je okno aplikace právě aktivní (v popředí)? Výchozí stav pro stránku —
+/// `window-active` posílá jen změny (start, reload stránky).
+#[tauri::command]
+pub fn window_is_active() -> bool {
+    let Some(window) = WINDOW.get() else { return true };
+    let Ok(hwnd) = window.hwnd() else { return true };
+    unsafe { GetForegroundWindow() == hwnd }
+}
+
+/// Subclass hlavního okna: jen přeposílá aktivaci, zprávu zpracuje Tauri dál.
+unsafe extern "system" fn activation_proc(
+    hwnd: HWND,
+    message: u32,
+    wparam: WPARAM,
+    lparam: LPARAM,
+    _id: usize,
+    _data: usize,
+) -> LRESULT {
+    if message == WM_NCACTIVATE {
+        if let Some(window) = WINDOW.get() {
+            let _ = window.emit("window-active", wparam.0 != 0);
+        }
+    }
+    DefSubclassProc(hwnd, message, wparam, lparam)
 }
 
 unsafe extern "system" fn overlay_proc(hwnd: HWND, message: u32, wparam: WPARAM, lparam: LPARAM) -> LRESULT {

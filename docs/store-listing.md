@@ -31,7 +31,7 @@ Press Ctrl+K to open the command palette: jump to Quick access, recent folders a
 
 Dirwise works with the real Windows clipboard, so you can copy files to and from other apps such as Outlook or your browser. Drag & drop works both ways: drag files in from other windows or the desktop, and drag them out to other windows, the desktop, a browser upload, Discord or an e-mail. The New button creates folders, text documents and every file type Windows offers in its New menu. Undo and redo cover the last 50 operations, including deletions (restored from the Recycle Bin). The Recycle Bin is right in the sidebar: restore items, delete them permanently or empty it. In protected places, such as the root of the C: drive, choose Continue as Administrator and confirm the Windows prompt.
 
-A translucent glass look is the default. Turn on Transparency in More → Appearance for a transparent window – the desktop and other windows show through the app. Choose the strength from three levels.
+A translucent glass look is the default. Turn on Transparency in More → Appearance for a transparent window – the desktop and other windows show through the app, blurred (Acrylic, Windows 11 22H2 and later) or clear. Choose the strength from three levels.
 
 The window has the standard Windows 11 title bar with Snap Layouts. Light and dark mode follow Windows. The interface is in English and Czech.
 
@@ -45,6 +45,9 @@ Version 1.6.0
 - Icons view highlights the whole tile when selected.
 - The status bar shows the selection and free space, e.g. 1 of 52 selected · 120.7 GB free.
 - New amber folder icon in the style of Windows 11.
+- Blurred transparency (Acrylic) on Windows 11 22H2 and later: More → Appearance → Transparency: Blurred.
+- File extensions like in Windows: shortcuts never show one, other files follow your Windows setting (or Always / Never in More → Appearance).
+- The toolbar fits narrow windows; the search field turns into an icon when space runs out.
 - The quick preview is now simply called Preview.
 
 ### Features (max 20)
@@ -57,7 +60,7 @@ Version 1.6.0
 7. Real Windows clipboard; drag & drop to and from other apps, the desktop, browser, Discord and e-mail
 8. New button: folder, text document and the Windows New file types
 9. Undo / redo for the last 50 file operations
-10. Glass look with optional window transparency; light and dark mode that follows Windows; English and Czech
+10. Glass look with optional blurred (Acrylic) or clear window transparency; light and dark mode that follows Windows; English and Czech
 11. Recycle Bin in the sidebar: restore, delete permanently, empty
 
 ### Keywords (max 7)
@@ -84,7 +87,7 @@ Ctrl+K otevře paletu příkazů: skok do Rychlého přístupu, na nedávné slo
 
 Dirwise používá skutečnou schránku Windows, takže soubory kopíruješ z i do jiných aplikací, třeba Outlooku nebo prohlížeče. Přetahování funguje oběma směry: soubory přetáhneš dovnitř z jiných oken nebo z plochy a ven do jiných oken, na plochu, do prohlížeče, Discordu nebo e-mailu. Tlačítko Nový vytvoří složku, textový dokument i jakýkoli typ souboru z nabídky Nový ve Windows. Zpět a Znovu fungují pro posledních 50 operací včetně mazání (obnoví z Koše). Koš je přímo v postranním panelu: položky obnovíš, trvale smažeš nebo koš vysypeš. V chráněných místech, třeba v kořeni disku C:, zvolíš Pokračovat jako správce a potvrdíš výzvu Windows.
 
-Výchozí je skleněný vzhled s poloprůhlednými panely. V Více → Vzhled zapneš Průhlednost: průhledné okno, za aplikací prosvítá plocha a okna. Vybereš sílu ze tří úrovní.
+Výchozí je skleněný vzhled s poloprůhlednými panely. V Více → Vzhled zapneš Průhlednost: za aplikací prosvítá plocha a okna, rozmazaně (Acrylic, Windows 11 22H2 a novější) nebo ostře. Vybereš sílu ze tří úrovní.
 
 Okno má standardní titulkovou lištu Windows 11 se Snap Layouts. Světlý a tmavý režim se řídí Windows. Rozhraní je česky a anglicky.
 
@@ -98,6 +101,9 @@ Verze 1.6.0
 - V zobrazení Ikony se při výběru podbarví celá dlaždice.
 - Stavový řádek ukazuje výběr a volné místo, např. 1 z 52 vybráno · volno 120,7 GB.
 - Nová jantarová ikona složky ve stylu Windows 11.
+- Rozmazaná průhlednost (Acrylic) ve Windows 11 22H2 a novějších: Více → Vzhled → Průhlednost: rozmazaná.
+- Přípony jako ve Windows: zástupci je neukazují nikdy, ostatní soubory podle nastavení Windows (nebo Vždy / Nikdy ve Více → Vzhled).
+- Toolbar se vejde i do úzkého okna; hledání se při nedostatku místa schová do ikony.
 - Rychlý náhled se nově jmenuje prostě Náhled.
 
 ### Funkce (max 20)
@@ -110,7 +116,7 @@ Verze 1.6.0
 7. Skutečná schránka Windows; přetahování z i do jiných aplikací, na plochu, do prohlížeče, Discordu a e-mailu
 8. Tlačítko Nový: složka, textový dokument a typy souborů z nabídky Nový ve Windows
 9. Zpět / Znovu pro posledních 50 operací
-10. Skleněný vzhled s volitelnou průhledností okna; světlý a tmavý režim podle Windows; čeština a angličtina
+10. Skleněný vzhled s volitelnou rozmazanou (Acrylic) nebo ostrou průhledností okna; světlý a tmavý režim podle Windows; čeština a angličtina
 11. Koš v postranním panelu: obnovení, trvalé smazání, vysypání
 
 ### Klíčová slova (max 7)

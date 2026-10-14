@@ -9,6 +9,7 @@ import { useT } from "../i18n";
 import { tagsOf } from "../lib/storage";
 import { useStorage } from "../lib/useStorage";
 import type { FileEntry } from "../types";
+import { useDisplayNames } from "../lib/extensions";
 
 /** Sloupec s puntíky, Název, Kde je, Datum úpravy. */
 const GRID_TEMPLATE = "24px minmax(0, 1fr) minmax(0, 1.2fr) 140px";
@@ -57,6 +58,7 @@ export function ResultsView({
   onContextMenu,
   onCountChange,
 }: ResultsViewProps) {
+  const names = useDisplayNames();
   const t = useT();
   const { tags } = useStorage();
   const selected = selectedPath;
@@ -168,7 +170,7 @@ export function ResultsView({
 
             <div className="flex min-w-0 items-center gap-2">
               <SmallEntryIcon entry={entry} />
-              <span className="truncate">{entry.name}</span>
+              <span className="truncate">{names.entry(entry)}</span>
             </div>
 
             {/* Prázdné "kde" ve výsledcích hledání = přímo v prohledávané složce. */}

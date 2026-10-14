@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import { isValidFileName, stemLength } from "../fileops";
+import { useDisplayNames } from "../lib/extensions";
 import type { FileEntry } from "../types";
 
 type RenameInputProps = {
@@ -13,24 +14,32 @@ type RenameInputProps = {
 
 export function RenameInput({ entry, onSubmit, onCancel, variant = "row" }: RenameInputProps) {
   const centered = variant === "icon";
-  const [value, setValue] = useState(entry.name);
+  const names = useDisplayNames();
+  // Skrytá přípona (Průzkumník, volba Přípony) se v poli neukáže a po
+  // potvrzení se vrátí na konec — jako v Průzkumníku. Počítá se jednou, ať
+  // změna nastavení během psaní název nerozbije.
+  const [suffix] = useState(() => entry.name.slice(names.entry(entry).length));
+  const [value, setValue] = useState(() => entry.name.slice(0, entry.name.length - suffix.length));
   const inputRef = useRef<HTMLInputElement>(null);
 
   // ESC odpojí input a tím spustí blur — bez téhle pojistky by se hned po
   // zrušení potvrdila původní hodnota.
   const finished = useRef(false);
 
-  const valid = isValidFileName(value);
+  // Se skrytou příponou by prázdné pole dalo název „.txt“ — Průzkumník to nedovolí.
+  const valid = (suffix === "" || value.trim() !== "") && isValidFileName(value + suffix);
 
   useEffect(() => {
     const input = inputRef.current;
     if (!input) return;
 
     input.focus();
-    // Jako ve Finderu: u souboru se vybere jen tělo názvu, přípona zůstane
-    // mimo výběr. Složka příponu nemá — "my.folder" se vybere celé.
-    input.setSelectionRange(0, entry.is_dir ? entry.name.length : stemLength(entry.name));
-  }, [entry.name, entry.is_dir]);
+    // U souboru se vybere jen tělo názvu, viditelná přípona zůstane mimo
+    // výběr. Složka příponu nemá — "my.folder" se vybere celé; se skrytou
+    // příponou je v poli jen tělo, vybere se celé.
+    const shown = input.value;
+    input.setSelectionRange(0, entry.is_dir || suffix ? shown.length : stemLength(shown));
+  }, [entry.is_dir, suffix]);
 
   function submit() {
     if (finished.current) return;
@@ -40,7 +49,7 @@ export function RenameInput({ entry, onSubmit, onCancel, variant = "row" }: Rena
       return;
     }
     finished.current = true;
-    onSubmit(entry, value);
+    onSubmit(entry, value + suffix);
   }
 
   function cancel() {

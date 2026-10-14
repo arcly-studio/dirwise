@@ -44,24 +44,27 @@ function stemOf(fileName: string, extension: string): string {
   return fileName.toLowerCase().endsWith(extension.toLowerCase()) ? fileName.slice(0, -extension.length) : fileName;
 }
 
-/** Popisek do menu: „Přejmenovat „x.txt"", „Přesunout 3 položky". */
-export function undoLabel(op: UndoOp): string {
+/**
+ * Popisek do menu: „Přejmenovat „x.txt"", „Přesunout 3 položky". `show`
+ * upraví zobrazovaný název (skryté přípony, lib/extensions.ts).
+ */
+export function undoLabel(op: UndoOp, show: (name: string, isDir?: boolean) => string = (n) => n): string {
   switch (op.kind) {
     case "rename":
-      return t("undo.rename", { name: name(op.from) });
+      return t("undo.rename", { name: show(name(op.from)) });
     case "move":
       return op.items.length === 1
-        ? t("undo.moveOne", { name: name(op.items[0].from) })
+        ? t("undo.moveOne", { name: show(name(op.items[0].from)) })
         : t("undo.moveMany", { count: op.items.length });
     case "copy":
       return op.items.length === 1
-        ? t("undo.copyOne", { name: name(op.items[0].from) })
+        ? t("undo.copyOne", { name: show(name(op.items[0].from)) })
         : t("undo.copyMany", { count: op.items.length });
     case "create":
-      return t(op.folder ? "undo.newFolder" : "undo.newFile", { name: name(op.path) });
+      return t(op.folder ? "undo.newFolder" : "undo.newFile", { name: show(name(op.path), op.folder) });
     case "trash":
       return op.paths.length === 1
-        ? t("undo.trashOne", { name: name(op.paths[0]) })
+        ? t("undo.trashOne", { name: show(name(op.paths[0])) })
         : t("undo.trashMany", { count: op.paths.length });
     case "tags":
       return t("undo.tags");

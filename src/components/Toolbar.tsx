@@ -19,7 +19,6 @@ import {
 import { ContextMenu, type MenuItem } from "./ContextMenu";
 import type { CommandId, Command, Commands } from "../commands";
 import { useT, type MessageKey } from "../i18n";
-import { TRANSPARENCY_BLUR_AVAILABLE } from "../lib/storage";
 import type { ViewMode } from "../types";
 
 type IconButtonProps = {
@@ -240,20 +239,21 @@ export function Toolbar({
         item("themeDark", t("appearance.dark")),
         item("themeSystem", t("appearance.system")),
         { type: "separator" },
-        item("transparencyOn"),
+        // Průhlednost: vypnuto / rozmazaná / průhledná. Rozmazaná jen tam,
+        // kde ji Windows umí (enabled = Windows 11 22H2+).
         item("transparencyOff"),
+        ...(commands.transparencyBlur.enabled
+          ? [{ ...item("transparencyBlur"), tooltip: t("transparency.blurHint") }]
+          : []),
+        item("transparencyClear"),
         { type: "separator" },
         item("transparencySubtle"),
         item("transparencyMedium"),
         item("transparencyStrong"),
-        // Styl průhlednosti jen s rozmazanou (zatím vypnutá, lib/storage.ts).
-        ...(TRANSPARENCY_BLUR_AVAILABLE
-          ? ([
-              { type: "separator" },
-              item("transparencyClear"),
-              { ...item("transparencyBlur"), tooltip: t("transparency.blurHint") },
-            ] satisfies MenuItem[])
-          : []),
+        { type: "separator" },
+        item("extensionsWindows"),
+        item("extensionsAlways"),
+        item("extensionsNever"),
       ],
     },
     {
@@ -324,73 +324,87 @@ export function Toolbar({
 
       <div className="flex-1" />
 
-      {/* + Nový jako v Průzkumníku; na úzkém toolbaru jen ikona (index.css). */}
-      <button
-        ref={newButtonRef}
-        type="button"
-        aria-label={t("menu.new")}
-        data-tooltip={t("menu.new")}
-        data-fw-menu-trigger
-        disabled={newItems === null}
-        onMouseDown={(event) => {
-          event.preventDefault();
-          toggleMenu("new")(event);
-        }}
-        className={`fw-tool-btn fw-new-btn ${menu?.kind === "new" ? "bg-selected" : "hover:bg-hover"} disabled:pointer-events-none disabled:opacity-35`}
-      >
-        <Plus size={16} strokeWidth={1.75} />
-        <span className="fw-new-label">{t("menu.new")}</span>
-      </button>
+      {/* Nástroje mezi názvem a hledáním. Obal nemá vlastní box (contents) —
+          na úzkém toolbaru se schová, když se hledání rozbalí (index.css). */}
+      <div className="fw-toolbar-tools contents">
+        {/* + Nový jako v Průzkumníku; na úzkém toolbaru jen ikona (index.css). */}
+        <button
+          ref={newButtonRef}
+          type="button"
+          aria-label={t("menu.new")}
+          data-tooltip={t("menu.new")}
+          data-fw-menu-trigger
+          disabled={newItems === null}
+          onMouseDown={(event) => {
+            event.preventDefault();
+            toggleMenu("new")(event);
+          }}
+          className={`fw-tool-btn fw-new-btn ${menu?.kind === "new" ? "bg-selected" : "hover:bg-hover"} disabled:pointer-events-none disabled:opacity-35`}
+        >
+          <Plus size={16} strokeWidth={1.75} />
+          <span className="fw-new-label">{t("menu.new")}</span>
+        </button>
 
-      <ViewSwitcher mode={viewMode} onChange={onViewModeChange} />
+        <ViewSwitcher mode={viewMode} onChange={onViewModeChange} />
 
-      <IconButton
-        Icon={SlidersHorizontal}
-        label={t("toolbar.sort")}
-        secondary
-        active={menu?.kind === "sort"}
-        menuTrigger
-        onMouseDown={toggleMenu("sort")}
-      />
-
-      <div className="flex shrink-0 items-center gap-0.5">
         <IconButton
-          Icon={Share}
-          label={t("toolbar.share")}
+          Icon={SlidersHorizontal}
+          label={t("toolbar.sort")}
           secondary
-          active={menu?.kind === "share"}
+          active={menu?.kind === "sort"}
           menuTrigger
-          onMouseDown={toggleMenu("share")}
+          onMouseDown={toggleMenu("sort")}
         />
+
+        <div className="flex shrink-0 items-center gap-0.5">
+          <IconButton
+            Icon={Share}
+            label={t("toolbar.share")}
+            secondary
+            active={menu?.kind === "share"}
+            menuTrigger
+            onMouseDown={toggleMenu("share")}
+          />
+          <IconButton
+            Icon={Tag}
+            label={t("toolbar.tags")}
+            secondary
+            active={menu?.kind === "tags"}
+            unavailable={tagItems === null ? t("toolbar.tagsUnavailable") : undefined}
+            menuTrigger
+            onMouseDown={toggleMenu("tags")}
+          />
+        </div>
+
         <IconButton
-          Icon={Tag}
-          label={t("toolbar.tags")}
+          Icon={Columns2}
+          label={t("split.toggleWithShortcut")}
           secondary
-          active={menu?.kind === "tags"}
-          unavailable={tagItems === null ? t("toolbar.tagsUnavailable") : undefined}
+          active={commands.toggleSplit.checked}
+          onClick={commands.toggleSplit.run}
+        />
+
+        <IconButton
+          Icon={MoreHorizontal}
+          label={t("toolbar.more")}
+          secondary
+          active={menu?.kind === "more"}
           menuTrigger
-          onMouseDown={toggleMenu("tags")}
+          onMouseDown={toggleMenu("more")}
         />
       </div>
 
-      <IconButton
-        Icon={Columns2}
-        label={t("split.toggleWithShortcut")}
-        secondary
-        active={commands.toggleSplit.checked}
-        onClick={commands.toggleSplit.run}
-      />
-
-      <IconButton
-        Icon={MoreHorizontal}
-        label={t("toolbar.more")}
-        secondary
-        active={menu?.kind === "more"}
-        menuTrigger
-        onMouseDown={toggleMenu("more")}
-      />
-
-      <div className="fw-search shrink-0">
+      <div
+        className="fw-search shrink-0"
+        // Klik kamkoli do pole (i na lupu, když je na úzkém toolbaru jen
+        // ikona) zaostří vstup.
+        onMouseDown={(event) => {
+          if (event.target === searchRef.current) return;
+          if ((event.target as HTMLElement).closest("button")) return;
+          event.preventDefault();
+          searchRef.current?.focus();
+        }}
+      >
         <div className="fw-search-bg" aria-hidden />
         <div className="fw-search-content">
           <Search size={14} strokeWidth={2} className="shrink-0 text-secondary" />
@@ -415,6 +429,15 @@ export function Toolbar({
               if (event.key === "ArrowDown") {
                 event.preventDefault();
                 onSearchArrowDown();
+              }
+              // Úzký toolbar: rozbalené hledání schovává nástroje před sebou
+              // (index.css) — Shift+Tab by je přeskočil. Fokus na Více ho sbalí.
+              const tools = event.currentTarget.closest(".fw-toolbar")?.querySelector(".fw-toolbar-tools");
+              if (event.key === "Tab" && event.shiftKey && tools && getComputedStyle(tools).display === "none") {
+                event.preventDefault();
+                // Napřed opustit pole — dokud má fokus, jsou nástroje schované.
+                event.currentTarget.blur();
+                tools.querySelector<HTMLElement>(`[aria-label="${t("toolbar.more")}"]`)?.focus();
               }
             }}
             placeholder={t("toolbar.search")}

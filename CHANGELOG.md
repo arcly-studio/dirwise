@@ -10,6 +10,9 @@ Notable changes in each Dirwise release (up to 1.5.2 the app was called Finder-W
 - **Icons view** – a selected item highlights the whole tile (icon and name), like in Windows 11.
 - **Status bar** – “1 of 52 selected · 120.7 GB free”.
 - **New folder icon** – amber, in the style of Windows 11 (instead of the blue one).
+- **Blurred transparency (Acrylic)** – More → Appearance → Transparency: Off / Blurred / Clear (Blurred is the default when you turn it on; the strength applies to both). Native Windows 11 Acrylic, on Windows 11 22H2 and later with Transparency effects on; on Windows 10 and older Windows 11 only Clear is offered (Acrylic there stutters when dragging the window). When the window loses focus it turns solid instead of jumping to the grey fill Windows uses. Also in the command palette (“Transparency: Blurred”).
+- **File extensions like File Explorer** – shortcuts (.lnk, .url, .pif) never show an extension, so they read “Cursor”, “Dirwise”; other files follow Windows’ “Hide extensions for known file types” (known type = registered association; AlwaysShowExt respected). More → Appearance → File Extensions: Like Windows / Always Show / Never Show (also in the command palette). Applies to all views, Preview, Properties, the Recycle Bin, Recent and dialogs; sorting, filtering and search still use the full name. Rename (F2) keeps a hidden extension; a visible one stays unselected.
+- **Toolbar fits narrow windows** – it never runs off the edge (window 900–1920 px, any sidebar width, 100–150 % scaling): the search field gets narrower, then turns into a search icon that expands on click.
 - **Quick Look renamed to Preview** (Space, menu, command palette) – the old name belongs to another vendor.
 - **Upgrading from Finder-Win 1.5.x** – the Dirwise installer silently uninstalls the old installation (no second copy side by side) and your settings are kept. Pin the app to the taskbar again.
 

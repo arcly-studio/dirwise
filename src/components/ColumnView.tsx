@@ -27,6 +27,7 @@ import { entryOpacity, formatModified, formatSize, kindLabel } from "../format";
 import { failure, useT } from "../i18n";
 import type { Column, ColumnsApi } from "../columns";
 import type { FileEntry, FileProperties, SelectMods, TagColor, TagMap } from "../types";
+import { useDisplayNames } from "../lib/extensions";
 
 /** Výška řádku a horní okraj sloupce (py-1) — virtualizace i gumička z nich počítají. */
 const ROW_HEIGHT = 24;
@@ -71,6 +72,7 @@ const ColumnRow = memo(
     tags,
     handlers,
   }: RowProps) {
+    const names = useDisplayNames();
     const selectedClass = windowFocused ? "bg-selected" : "bg-selected-inactive";
 
     return (
@@ -78,7 +80,7 @@ const ColumnRow = memo(
         data-path={entry.path}
         role="option"
         aria-selected={selected}
-        data-tooltip={entry.name}
+        data-tooltip={names.entry(entry)}
         draggable={!renaming}
         onDragStart={(event) =>
           startEntryDrag(handlers.dragItems(entry), event)
@@ -105,7 +107,7 @@ const ColumnRow = memo(
             onCancel={handlers.renameCancel}
           />
         ) : (
-          <span className="min-w-0 flex-1 truncate">{entry.name}</span>
+          <span className="min-w-0 flex-1 truncate">{names.entry(entry)}</span>
         )}
         {!entry.is_dir && !renaming && <TagDots colors={tags} size={6} />}
         {entry.is_dir && !renaming && (
@@ -365,6 +367,7 @@ function formatDuration(milliseconds: number): string {
  */
 function InfoPanel({ entry, onOpen, tags }: InfoPanelProps) {
   const t = useT();
+  const names = useDisplayNames();
   const [properties, setProperties] = useState<FileProperties | null>(null);
   // Údaje nesou cestu — po změně výběru se ani na jeden snímek neukáží cizí.
   const [media, setMedia] = useState<{ path: string; info: MediaInfo } | null>(null);
@@ -412,7 +415,7 @@ function InfoPanel({ entry, onOpen, tags }: InfoPanelProps) {
         <EntryIcon entry={entry} size={previewSize} thumbnail contain />
       </div>
 
-      <p className="text-center text-[13px] font-semibold break-words text-primary">{entry.name}</p>
+      <p className="text-center text-[13px] font-semibold break-words text-primary">{names.entry(entry)}</p>
 
       <div className="flex flex-col border-t border-line pt-2">
         <InfoRow label={t("info.kind")}>{kindLabel(entry)}</InfoRow>

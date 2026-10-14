@@ -90,10 +90,12 @@ import {
   GLASS_UPDATE_BAR,
   GlassInsetsContext,
   systemTransparency,
+  acrylicSupported,
   watchSystemTransparency,
   windowBackdrop,
   type GlassInsets,
 } from "./lib/glass";
+import { refreshExplorerExtensions, useDisplayNames } from "./lib/extensions";
 import { applyMotion, motionEnabled, motionMs, smoothIfAllowed } from "./lib/motion";
 import * as storage from "./lib/storage";
 import type { TransparencyStrength, TransparencyStyle } from "./lib/storage";
@@ -210,6 +212,7 @@ function styleCommand(style: TransparencyStyle, checked: boolean) {
 }
 
 export default function App() {
+  const names = useDisplayNames();
   const [windowFocused, setWindowFocused] = useState(true);
   /** Fokus okna — panely si z něj odvodí vlastní (neaktivní panel je „bez fokusu"). */
   const windowFocusedAll = windowFocused;
@@ -279,6 +282,7 @@ export default function App() {
     favorites,
     recents,
     motion,
+    extensionMode,
     updates,
     splitRatio,
     language,
@@ -550,6 +554,15 @@ export default function App() {
     });
   }, []);
 
+  // Přípony „podle Windows“: nastavení Průzkumníku se čte při startu a při
+  // návratu do okna (registr žádnou událost nepošle).
+  useEffect(() => {
+    const refresh = () => void refreshExplorerExtensions();
+    refresh();
+    window.addEventListener("focus", refresh);
+    return () => window.removeEventListener("focus", refresh);
+  }, []);
+
   const toggleHidden = useCallback(() => {
     setShowHidden((current) => {
       const next = !current;
@@ -606,8 +619,33 @@ export default function App() {
   // bílého záblesku a bez přeskočení fontu. Když JS spadne, ukáže ho Rust
   // sám po 1,5 s.
   const [ready, setReady] = useState(false);
-  // Smí zapnutá Průhlednost rozmazávat (Efekty průhlednosti ve Windows)?
+  // Smí zapnutá Průhlednost rozmazávat (Efekty průhlednosti, Windows 11 22H2+)?
   const [blurAllowed, setBlurAllowed] = useState(true);
+  // Umí Windows Acrylic vůbec? Jinak menu ani paleta rozmazanou nenabízí.
+  const [acrylicAvailable, setAcrylicAvailable] = useState(false);
+  useEffect(() => {
+    void acrylicSupported().then(setAcrylicAvailable);
+  }, []);
+  // Neaktivní okno: Windows Acrylic nahradí plnou výplní — CSS okno předtím
+  // zneprůhlední (index.css, data-inactive), ať nepřeskočí na cizí šedou.
+  // Aktivace z Rustu (WM_NCACTIVATE, snap.rs) — window.blur přijde i při
+  // fokusu do iframe náhledu a onFocusChanged Tauri při aktivaci bez fokusu
+  // ve webview vůbec.
+  useEffect(() => {
+    const root = document.documentElement;
+    const unlisten = listen<boolean>("window-active", ({ payload: active }) =>
+      root.toggleAttribute("data-inactive", !active),
+    );
+    // Výchozí stav (start, reload stránky) — událost chodí jen při změně.
+    void unlisten.then(() =>
+      invoke<boolean>("window_is_active")
+        .then((active) => root.toggleAttribute("data-inactive", !active))
+        .catch(() => undefined),
+    );
+    return () => {
+      void unlisten.then((fn) => fn());
+    };
+  }, []);
   useEffect(() => {
     let active = true;
     Promise.all([storage.init(), document.fonts?.ready, systemTransparency()])
@@ -1059,12 +1097,12 @@ export default function App() {
       title: t("admin.title"),
       message:
         paths.length === 1
-          ? t("admin.messageOne", { name: storage.lastSegment(paths[0]) })
+          ? t("admin.messageOne", { name: names.name(storage.lastSegment(paths[0])) })
           : t("admin.messageMany", { count: paths.length }),
       confirmLabel: t("admin.continue"),
       onConfirm: retry,
     });
-  }, []);
+  }, [names]);
 
   /** Hláška o položkách, které operace nezvládla: první v textu, všechny v podrobnostech. */
   const reportFailures = useCallback(
@@ -1215,7 +1253,7 @@ export default function App() {
         setConfirm({
           title:
             paths.length === 1
-              ? t("confirm.deleteOne", { name: items[0].name })
+              ? t("confirm.deleteOne", { name: names.entry(items[0]) })
               : t("confirm.deleteMany", { count: paths.length }),
           message,
           confirmLabel: t("confirm.deleteConfirm"),
@@ -1317,7 +1355,7 @@ export default function App() {
       setConfirm({
         title:
           items.length === 1
-            ? t("confirm.deleteOne", { name: items[0].name })
+            ? t("confirm.deleteOne", { name: names.name(items[0].name) })
             : t("confirm.deleteMany", { count: items.length }),
         message: t("confirm.purgeMessage"),
         confirmLabel: t("confirm.deleteConfirm"),
@@ -2426,7 +2464,7 @@ export default function App() {
           if (isFavorite) void storage.removeFavorite(entry.path);
           else
             void storage.addFavorite({
-              label: entry.name,
+              label: names.entry(entry),
               path: entry.path,
               icon: "Folder",
               type: entry.is_dir ? "folder" : "file",
@@ -2658,10 +2696,15 @@ export default function App() {
       languageSystem: { run: () => void languageSetting.set("system"), checked: language === "system" },
       languageEnglish: { run: () => void languageSetting.set("en"), checked: language === "en" },
       languageCzech: { run: () => void languageSetting.set("cs"), checked: language === "cs" },
+      extensionsWindows: {
+        run: () => void storage.setExtensionMode("windows"),
+        checked: extensionMode === "windows",
+      },
+      extensionsAlways: { run: () => void storage.setExtensionMode("always"), checked: extensionMode === "always" },
+      extensionsNever: { run: () => void storage.setExtensionMode("never"), checked: extensionMode === "never" },
       motionSystem: { run: () => void storage.setMotion("system"), checked: motion === "system" },
       motionOn: { run: () => void storage.setMotion("on"), checked: motion === "on" },
       motionOff: { run: () => void storage.setMotion("off"), checked: motion === "off" },
-      transparencyOn: { run: () => void storage.setWindowTransparency(true), checked: windowTransparency },
       transparencyOff: { run: () => void storage.setWindowTransparency(false), checked: !windowTransparency },
       toggleTransparency: {
         run: () => void storage.setWindowTransparency(!windowTransparency),
@@ -2670,8 +2713,12 @@ export default function App() {
       transparencySubtle: strengthCommand("subtle", windowTransparency && transparencyStrength === "subtle"),
       transparencyMedium: strengthCommand("medium", windowTransparency && transparencyStrength === "medium"),
       transparencyStrong: strengthCommand("strong", windowTransparency && transparencyStrength === "strong"),
-      transparencyClear: styleCommand("clear", windowTransparency && transparencyStyle === "clear"),
-      transparencyBlur: styleCommand("blur", windowTransparency && transparencyStyle === "blur"),
+      // Rozmazaná, kterou Windows teď nedovolí (Efekty průhlednosti), jede jako průhledná.
+      transparencyClear: styleCommand("clear", windowTransparency && (transparencyStyle === "clear" || !blurAllowed)),
+      transparencyBlur: {
+        ...styleCommand("blur", windowTransparency && transparencyStyle === "blur" && blurAllowed),
+        enabled: acrylicAvailable,
+      },
       terminalAuto: { run: () => void storage.setTerminal("auto"), checked: terminal === "auto" },
       terminalWindows: {
         run: () => void storage.setTerminal("windowsTerminal"),
@@ -2705,12 +2752,12 @@ export default function App() {
       undo: {
         run: () => void stepHistory("undo"),
         enabled: lastUndo !== undefined,
-        title: lastUndo ? t("undo.undoAction", { action: undoLabel(lastUndo) }) : undefined,
+        title: lastUndo ? t("undo.undoAction", { action: undoLabel(lastUndo, names.name) }) : undefined,
       },
       redo: {
         run: () => void stepHistory("redo"),
         enabled: lastRedo !== undefined,
-        title: lastRedo ? t("undo.redoAction", { action: undoLabel(lastRedo) }) : undefined,
+        title: lastRedo ? t("undo.redoAction", { action: undoLabel(lastRedo, names.name) }) : undefined,
       },
       copy: {
         // Ve výsledcích hledání / tag view jen položka vybraná tam.

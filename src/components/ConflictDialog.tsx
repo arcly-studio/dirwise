@@ -5,6 +5,7 @@ import { SmallEntryIcon } from "./icons";
 import { formatModified, formatSize } from "../format";
 import { useT } from "../i18n";
 import type { FileEntry } from "../types";
+import { useDisplayNames } from "../lib/extensions";
 
 export type ConflictChoice = "replace" | "rename" | "skip";
 
@@ -59,6 +60,7 @@ export function ConflictDialog({
   onAnswer,
   onCancel,
 }: ConflictDialogProps) {
+  const names = useDisplayNames();
   const t = useT();
   const [applyToAll, setApplyToAll] = useState(false);
 
@@ -92,7 +94,7 @@ export function ConflictDialog({
     >
       <p id="fw-conflict-title" className="text-[14px] font-semibold break-words">
         {t(source.is_dir ? "conflict.titleFolder" : "conflict.titleFile", {
-          name: source.name,
+          name: names.entry(source),
           folder,
         })}
       </p>

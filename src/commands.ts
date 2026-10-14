@@ -1,5 +1,4 @@
 import type { MessageKey } from "./i18n";
-import { TRANSPARENCY_BLUR_AVAILABLE } from "./lib/storage";
 
 /**
  * Registr příkazů aplikace — jediný zdroj pravdy pro klávesové zkratky,
@@ -38,8 +37,10 @@ export type CommandId =
   | "motionSystem"
   | "motionOn"
   | "motionOff"
-  | "transparencyOn"
   | "transparencyOff"
+  | "extensionsWindows"
+  | "extensionsAlways"
+  | "extensionsNever"
   | "toggleTransparency"
   | "transparencySubtle"
   | "transparencyMedium"
@@ -153,15 +154,17 @@ const DEFINITIONS: Record<CommandId, CommandDefinition> = {
   motionOff: { title: "command.motionOff" },
   // Menu Více → Vzhled ukazuje obě volby; paleta jen přepínač
   // („Průhlednost: zapnout / vypnout" podle stavu) a sílu.
-  transparencyOn: { title: "transparency.on", palette: false },
   transparencyOff: { title: "transparency.off", palette: false },
   toggleTransparency: { title: "command.transparencyOn" },
+  extensionsWindows: { title: "extensions.windows" },
+  extensionsAlways: { title: "extensions.always" },
+  extensionsNever: { title: "extensions.never" },
   transparencySubtle: { title: "transparency.subtle" },
   transparencyMedium: { title: "transparency.medium" },
   transparencyStrong: { title: "transparency.strong" },
   // Styl průhlednosti jen s rozmazanou (zatím vypnutá, lib/storage.ts).
-  transparencyClear: { title: "transparency.clear", palette: TRANSPARENCY_BLUR_AVAILABLE },
-  transparencyBlur: { title: "transparency.blur", palette: TRANSPARENCY_BLUR_AVAILABLE },
+  transparencyClear: { title: "transparency.clear" },
+  transparencyBlur: { title: "transparency.blur" },
   terminalAuto: { title: "command.terminalAuto" },
   terminalWindows: { title: "command.terminalWindows" },
   terminalPwsh: { title: "command.terminalPwsh" },

@@ -16,6 +16,8 @@ export type FileEntry = {
   hidden: boolean;
   /** Symlink nebo junction; is_dir a size popisují cíl odkazu. */
   is_symlink: boolean;
+  /** Pravidlo přípony z registru (lib/extensions.ts); chybí u položek mimo výpis. */
+  ext_rule?: number;
 };
 
 /** Druh disku v sidebaru — určuje popisek bez názvu svazku („Místní disk (D:)"). */

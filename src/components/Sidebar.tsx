@@ -32,6 +32,7 @@ import type {
   SectionId,
   TagColor,
 } from "../types";
+import { useDisplayNames } from "../lib/extensions";
 
 /** Nedávných se ukládá 20, ale sidebar by z nich neúměrně narostl. */
 const RECENTS_SHOWN = 10;
@@ -252,6 +253,7 @@ function CustomFavorites({
   onRenameCancel,
   heading,
 }: CustomFavoritesProps) {
+  const names = useDisplayNames();
   const t = useT();
   const drag = useDrag();
   const [dropIndex, setDropIndex] = useState<number | null>(null);
@@ -425,7 +427,9 @@ function CustomFavorites({
                   active={false}
                 />
                 <span className="truncate">
-                  {incoming.length > 1 ? `${incoming[0].name} +${incoming.length - 1}` : incoming[0].name}
+                  {incoming.length > 1
+                    ? `${names.name(incoming[0].name, incoming[0].isDir)} +${incoming.length - 1}`
+                    : names.name(incoming[0].name, incoming[0].isDir)}
                 </span>
               </div>
               {/* Místo pro řádek navíc, ať poslední uhnutý nevjede do další sekce. */}
@@ -523,6 +527,7 @@ function Recents({
   onContextMenu,
   heading,
 }: RecentsProps) {
+  const names = useDisplayNames();
   const t = useT();
   const shown = items.slice(0, RECENTS_SHOWN);
 
@@ -565,7 +570,7 @@ function Recents({
                   muted
                 />
                 {/* min-w-0 musí být, jinak se flex položka odmítne zkrátit pod obsah. */}
-                <span className="min-w-0 flex-1 truncate">{entry.name}</span>
+                <span className="min-w-0 flex-1 truncate">{names.name(entry.name, entry.type === "folder")}</span>
                 <span className="fw-sidebar-value">{formatRelative(entry.opened_at)}</span>
               </button>
             );

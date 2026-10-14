@@ -1,7 +1,7 @@
 // Screenshoty do docs/screenshots (viz CLAUDE.md, sekce Screenshoty a demo).
 // node scripts/docs-media/shots.mjs [jméno …]   (bez argumentu všech šest)
 // Výchozí vzhled (Průhlednost vypnutá). Scéna transparency je skutečný snímek
-// obrazovky: okno s „čistou“ průhledností před testovací tapetou (wallpaper.mjs).
+// obrazovky: okno s rozmazanou průhledností (Acrylic) před testovací tapetou (wallpaper.mjs).
 // --store: 1920×1080 do docs/store/ (Microsoft Store chce aspoň 1366×768) – viewport 1280×720
 // se škálováním 1,5, ať rozložení odpovídá README a výpis jde odscrollovat pod sklo.
 import fs from "fs";
@@ -78,7 +78,7 @@ const scenes = {
   },
   "command-palette": { async run(c, h) { await h.palette("dow"); await c.sleep(800); } },
   transparency: {
-    opts: { theme: "dark", transparency: true, strength: "medium", style: "clear", emulate: false },
+    opts: { theme: "dark", transparency: true, strength: "medium", style: "blur", emulate: false },
     // README: okno 1280×800 přes celý snímek; Store: okno 1600×900 na tapetě přes
     // celou obrazovku 1920×1080 (primární monitor, 100 %).
     real: STORE

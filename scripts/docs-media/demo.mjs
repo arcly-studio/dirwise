@@ -83,7 +83,7 @@ const recDone = new Promise((resolve, reject) => {
 });
 await c.sleep(1500);
 
-// 0) fotky odjedou pod skleněnou lištu; pak Více → Vzhled → Průhlednost: zapnuto
+// 0) fotky odjedou pod skleněnou lištu; pak Více → Vzhled → Průhlednost: rozmazaná
 await moveTo([700, 520]);
 await c.wheel(700, 520, 300, 8, 10);
 await c.sleep(700);
@@ -93,14 +93,14 @@ const appearance = await center(".fw-menu-item", "Appearance");
 await moveTo(appearance);
 await c.sleep(700);
 // Do podmenu nejdřív vodorovně — šikmo by kurzor otevřel „Animations“.
-const transparencyOn = await center(".fw-menu-item", "Transparency: On");
-if (!transparencyOn) throw new Error("nenalezeno: Transparency: On");
-await moveTo([transparencyOn[0], appearance[1]]);
+const transparencyBlur = await center(".fw-menu-item", "Transparency: Blurred");
+if (!transparencyBlur) throw new Error("nenalezeno: Transparency: Blurred");
+await moveTo([transparencyBlur[0], appearance[1]]);
 await c.sleep(200);
-await moveTo(transparencyOn);
+await moveTo(transparencyBlur);
 await c.sleep(150);
-await c.click(transparencyOn[0], transparencyOn[1]);
-await hud("Transparency: On");
+await c.click(transparencyBlur[0], transparencyBlur[1]);
+await hud("Transparency: Blurred");
 await c.sleep(600);
 await moveTo([700, 520]);
 await c.wheel(700, 520, 200, 8, 10);

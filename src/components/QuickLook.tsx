@@ -11,6 +11,7 @@ import { formatSize, kindLabel, previewKind, type PreviewKind } from "../format"
 import { errorText, useT } from "../i18n";
 import { motionMs } from "../lib/motion";
 import type { FileEntry } from "../types";
+import { useDisplayNames } from "../lib/extensions";
 
 const MAX_PREVIEW_BYTES = 1_048_576;
 
@@ -102,12 +103,13 @@ function Centered({ children }: { children: React.ReactNode }) {
 
 /** Fallback pro typy bez náhledu i pro soubory, které se nepodařilo přečíst. */
 function Unsupported({ entry, message }: { entry: FileEntry; message: string }) {
+  const names = useDisplayNames();
   const { Icon, tint } = fileVisual(entry);
 
   return (
     <Centered>
       <Icon size={128} color={tint} strokeWidth={1} />
-      <p className="text-[15px] font-semibold break-all text-primary">{entry.name}</p>
+      <p className="text-[15px] font-semibold break-all text-primary">{names.entry(entry)}</p>
       <p className="text-[12px] text-secondary">
         {formatSize(entry.size, entry.is_dir)} · {kindLabel(entry)}
       </p>
@@ -197,6 +199,7 @@ function MarkdownPreview({ entry, state }: { entry: FileEntry; state: TextState 
 }
 
 function PreviewBody({ entry, state }: { entry: FileEntry; state: TextState }) {
+  const names = useDisplayNames();
   const t = useT();
   const kind = previewKind(entry);
   const source = convertFileSrc(entry.path);
@@ -234,7 +237,7 @@ function PreviewBody({ entry, state }: { entry: FileEntry; state: TextState }) {
       return (
         <Centered>
           <Music size={96} strokeWidth={1.25} style={{ color: "var(--accent)" }} />
-          <p className="text-[15px] font-semibold break-all text-primary">{entry.name}</p>
+          <p className="text-[15px] font-semibold break-all text-primary">{names.entry(entry)}</p>
           <audio src={source} controls autoPlay style={{ width: "80%" }} />
         </Centered>
       );
@@ -273,6 +276,7 @@ export function QuickLook({
   onContextMenu,
   onCurrentChange,
 }: QuickLookProps) {
+  const names = useDisplayNames();
   const t = useT();
   const files = useMemo(() => entries.filter((item) => !item.is_dir), [entries]);
 
@@ -420,7 +424,7 @@ export function QuickLook({
         tabIndex={-1}
         role="dialog"
         aria-modal="true"
-        aria-label={t("quicklook.label", { name: current.name })}
+        aria-label={t("quicklook.label", { name: names.entry(current) })}
         onMouseDown={(event) => event.stopPropagation()}
         onContextMenu={(event) => {
           event.preventDefault();
@@ -447,7 +451,7 @@ export function QuickLook({
         >
           <SmallEntryIcon entry={current} />
           <span className="min-w-0 flex-1 truncate text-[14px] font-semibold text-primary">
-            {current.name}
+            {names.entry(current)}
           </span>
 
           <button

@@ -19,7 +19,7 @@
 
 or: `winget install krystof2-ops.Dirwise` *(coming soon)*
 
-<img src="docs/demo.gif" width="960" alt="Dirwise demo: files scrolling under the glass toolbar, transparency turned on and its strength changed from the Ctrl+K command palette">
+<img src="docs/demo.gif" width="960" alt="Dirwise demo: files scrolling under the glass toolbar, blurred transparency turned on and its strength changed from the Ctrl+K command palette">
 
 </div>
 
@@ -43,15 +43,17 @@ Dirwise (formerly Finder-Win) is inspired by the macOS Finder, built for Windows
 
 - **Icons, List and Columns** views; thumbnails for images, videos (with a ▶ badge) and PDFs.
 - **Tabs** – rounded chips, each with its own history, view, sorting and selection; drag to reorder, drop files on a tab to move them there.
+- **File extensions like File Explorer** – shortcuts (.lnk, .url) never show one, other files follow Windows’ “Hide extensions for known file types”, or choose Always / Never in More → Appearance. Renaming keeps a hidden extension.
 - **Light and dark mode** following Windows, or set it in More → Appearance. English and Czech UI.
 
 ### Glass look & transparency
 
-![Dirwise with transparency turned on over a colorful wallpaper](docs/screenshots/transparency.png)
+![Dirwise with blurred transparency (Acrylic) over a colorful wallpaper](docs/screenshots/transparency.png)
 
 - **Glass look by default** – the title bar, toolbar and tabs sit on one translucent, blurred plate and the list shows through as you scroll; menus, the command palette and tooltips are glass too.
-- **Transparent window** – the desktop and other windows show through the app, in three strengths: Subtle, Medium and Strong. Off by default.
+- **Transparent window** – the desktop and other windows show through the app, **Blurred** (Acrylic, like Windows 11) or **Clear**, in three strengths: Subtle, Medium and Strong. Off by default.
 - **Turn it on** in More → Appearance → Transparency, or from the command palette (Ctrl+K, type “transparency”).
+- **Blurred** needs Windows 11 22H2 or later with Transparency effects on; elsewhere the window is clear. When the window isn't active it turns solid, like other Windows windows.
 
 ### Split view
 

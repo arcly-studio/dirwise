@@ -1,7 +1,8 @@
 // Testovací tapeta za okno se zapnutou Průhledností (1.5) a skutečné snímání
 // obrazovky (screen.ps1): tapeta je opravdové okno za aplikací, aplikace před
 // ní a snímá se obrazovka — žádné skládání, snímek ukazuje, jak okno vypadá.
-// Okno aplikace se krátce dá nad ostatní okna bez aktivace a pak se vrátí.
+// Okno aplikace se krátce dá nad ostatní okna a aktivuje (rozmazaná průhlednost
+// se kreslí jen v aktivním okně, neaktivní je plné) a pak se vrátí.
 import fs from "fs";
 import os from "os";
 import path from "path";
@@ -10,13 +11,17 @@ import { fileURLToPath } from "url";
 
 const SCREEN = fileURLToPath(new URL("./screen.ps1", import.meta.url));
 
-/** Ostrý barevný přechod ve stylu tapet macOS (soubor v %TEMP%). */
+/** Barevný přechod s ostrými diagonálními proužky (soubor v %TEMP%) — na
+ *  proužcích je vidět, že rozmazaná průhlednost opravdu rozmazává. */
 export function testWallpaper(width, height) {
-  const file = path.join(os.tmpdir(), `dirwise-wallpaper-v2-${width}x${height}.png`);
+  const file = path.join(os.tmpdir(), `dirwise-wallpaper-v3-${width}x${height}.png`);
   if (fs.existsSync(file)) return file;
   execFileSync("ffmpeg", [
     "-v", "error", "-y", "-f", "lavfi",
     "-i", `gradients=s=${width}x${height}:c0=0x1d2b64:c1=0x7b3fa0:c2=0xf0806a:c3=0xffc56b:n=4:seed=7:duration=1:speed=0`,
+    "-f", "lavfi",
+    "-i", `color=c=white:s=${width}x${height}:d=1,format=rgba,geq=r=255:g=255:b=255:a='160*gt(sin((X+Y)/14)\\,0.82)'`,
+    "-filter_complex", "[0][1]overlay=format=auto",
     "-frames:v", "1", file,
   ]);
   return file;
@@ -46,6 +51,7 @@ export async function stage(win, area = win) {
     await sleep(2500);
     screen("place", win);
     screen("top");
+    screen("front");
     await sleep(800);
   } catch (err) {
     unstage();

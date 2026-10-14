@@ -19,7 +19,7 @@
 
 nebo: `winget install krystof2-ops.Dirwise` *(brzy)*
 
-<img src="docs/demo.gif" width="960" alt="Ukázka Dirwise: soubory zajíždějí pod skleněný toolbar, zapnutí průhlednosti a změna její síly z palety Ctrl+K">
+<img src="docs/demo.gif" width="960" alt="Ukázka Dirwise: soubory zajíždějí pod skleněný toolbar, zapnutí rozmazané průhlednosti a změna její síly z palety Ctrl+K">
 
 </div>
 
@@ -43,15 +43,17 @@ Dirwise (dříve Finder-Win) je inspirován macOS Finderem, vytvořený pro Wind
 
 - Zobrazení **Ikony, Seznam a Sloupce**; náhledy obrázků, videí (s odznakem ▶) a PDF.
 - **Záložky** – zaoblené čipy, každá s vlastní historií, zobrazením, řazením a výběrem; přerovnání tažením, soubor puštěný na záložku se přesune do její složky.
+- **Přípony jako v Průzkumníku** – zástupci (.lnk, .url) je neukazují nikdy, ostatní soubory podle nastavení Windows „Skrýt přípony známých typů souborů“, nebo zvol Vždy / Nikdy ve Více → Vzhled. Přejmenování skrytou příponu zachová.
 - **Světlý a tmavý režim** podle Windows, nebo nastavený v Více → Vzhled. Rozhraní česky a anglicky.
 
 ### Skleněný vzhled a průhlednost
 
-![Dirwise se zapnutou průhledností nad barevnou tapetou](docs/screenshots/transparency.png)
+![Dirwise s rozmazanou průhledností (Acrylic) nad barevnou tapetou](docs/screenshots/transparency.png)
 
 - **Skleněný vzhled jako výchozí** – titulek, toolbar a záložky leží na jedné poloprůhledné rozmazané desce a výpis pod ní při scrollu prosvítá; skleněná jsou i menu, paleta příkazů a tooltipy.
-- **Průhledné okno** – za aplikací prosvítá plocha a ostatní okna, ve třech silách: jemná, střední a silná. Ve výchozím stavu vypnuté.
+- **Průhledné okno** – za aplikací prosvítá plocha a ostatní okna, **rozmazaně** (Acrylic jako ve Windows 11) nebo **ostře** (průhledná), ve třech silách: jemná, střední a silná. Ve výchozím stavu vypnuté.
 - **Zapnutí** v Více → Vzhled → Průhlednost, nebo z palety příkazů (Ctrl+K, napiš „průhlednost“).
+- **Rozmazaná** potřebuje Windows 11 22H2 nebo novější se zapnutými Efekty průhlednosti, jinde je okno průhledné bez rozmazání. Okno bez fokusu je plné, jako ostatní okna Windows.
 
 ### Rozdělené okno
 

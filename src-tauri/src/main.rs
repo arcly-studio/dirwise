@@ -10,6 +10,7 @@ use serde::Serialize;
 use walkdir::WalkDir;
 
 mod clipboard;
+mod extensions;
 mod external_drop;
 mod fileop;
 mod native_drag;
@@ -127,6 +128,9 @@ struct FileEntry {
     hidden: bool,
     /// Symlink nebo junction. `is_dir` a `size` popisují cíl odkazu.
     is_symlink: bool,
+    /// Jak zacházet s příponou (extensions.rs): 0 neznámý typ, 1 známý,
+    /// 2 nikdy neukazovat, 3 vždy ukazovat.
+    ext_rule: u8,
 }
 
 /// Položka v postranním panelu. Backend neposílá české ani anglické popisky —
@@ -273,6 +277,46 @@ fn explorer_shows_hidden() -> bool {
     false
 }
 
+/// Umí Windows rozmazaný podklad okna (Acrylic přes DWMWA_SYSTEMBACKDROP_TYPE)?
+/// Až Windows 11 22H2 (build 22621). Starší Windows 11 a Windows 10 by
+/// dostaly Acrylic přes accent, který se při tažení okna seká — tam aplikace
+/// nabízí jen průhlednou variantu.
+#[cfg(windows)]
+#[tauri::command(async)]
+fn acrylic_supported() -> bool {
+    use windows::core::w;
+    use windows::Win32::System::Registry::{RegGetValueW, HKEY_LOCAL_MACHINE, RRF_RT_REG_SZ};
+
+    let mut buffer = [0u16; 16];
+    let mut size = std::mem::size_of_val(&buffer) as u32;
+    let status = unsafe {
+        RegGetValueW(
+            HKEY_LOCAL_MACHINE,
+            w!("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion"),
+            w!("CurrentBuildNumber"),
+            RRF_RT_REG_SZ,
+            None,
+            Some(buffer.as_mut_ptr() as *mut _),
+            Some(&mut size),
+        )
+    };
+    if status.is_err() {
+        return false;
+    }
+    let len = buffer.iter().position(|&c| c == 0).unwrap_or(buffer.len());
+    String::from_utf16_lossy(&buffer[..len]).parse::<u32>().is_ok_and(|build| build >= ACRYLIC_MIN_BUILD)
+}
+
+/// Windows 11 22H2 — první build, kde Microsoft DWMSBT_TRANSIENTWINDOW dokumentuje.
+#[cfg(windows)]
+const ACRYLIC_MIN_BUILD: u32 = 22621;
+
+#[cfg(not(windows))]
+#[tauri::command(async)]
+fn acrylic_supported() -> bool {
+    false
+}
+
 /// Má Windows zapnuté „Efekty průhlednosti" (Nastavení → Přizpůsobení →
 /// Barvy)? Bez nich zapnutá Průhlednost okno nerozmazává (varianta bez efektu).
 #[cfg(windows)]
@@ -322,18 +366,12 @@ fn set_window_backdrop(window: tauri::WebviewWindow, backdrop: String) {
         let state = BACKDROP_STATE.load(Ordering::Relaxed);
         match backdrop.as_str() {
             "acrylic" => {
-                // Po clear_effects DWM Acrylic do restartu nenaskočí, rozmazání
-                // přes accent (Effect::Blur) ano.
-                let effect = if state == BACKDROP_ACCENT {
-                    Effect::Blur
-                } else {
-                    Effect::Acrylic
-                };
-                match w.set_effects(EffectsBuilder::new().effect(effect).build()) {
-                    Ok(()) if state == BACKDROP_NONE => {
-                        BACKDROP_STATE.store(BACKDROP_DWM, Ordering::Relaxed);
-                    }
-                    Ok(()) => {}
+                // Windows 11 22H2+ (frontend jinak „acrylic“ nepošle): Tauri
+                // nastaví DWMWA_SYSTEMBACKDROP_TYPE = DWMSBT_TRANSIENTWINDOW.
+                // Naskočí i po dřívějším clear_effects (accent vypnutý) — dřívější
+                // „až po restartu“ způsoboval Windhawk mod Translucent Windows.
+                match w.set_effects(EffectsBuilder::new().effect(Effect::Acrylic).build()) {
+                    Ok(()) => BACKDROP_STATE.store(BACKDROP_DWM, Ordering::Relaxed),
                     Err(err) => eprintln!("set_window_backdrop({backdrop}): {err}"),
                 }
             }
@@ -346,11 +384,9 @@ fn set_window_backdrop(window: tauri::WebviewWindow, backdrop: String) {
             // atribut a Acrylic pak jde znovu zapnout. Windows 10 ho nezná.
             "off" if state == BACKDROP_DWM && clear_system_backdrop(&w) => {}
             // Bez rozmazání musí efekt opravdu zmizet: samotný DWM atribut se do
-            // překreslení okna neprojeví, Tauri clear_effects ano. Volá ale i
-            // SetWindowCompositionAttribute(ACCENT_DISABLED), po kterém DWM
-            // Acrylic do restartu nenaskočí.
+            // překreslení okna neprojeví, Tauri clear_effects ano.
             _ => {
-                BACKDROP_STATE.store(BACKDROP_ACCENT, Ordering::Relaxed);
+                BACKDROP_STATE.store(BACKDROP_CLEARED, Ordering::Relaxed);
                 let _ = w.set_effects(None);
             }
         }
@@ -358,12 +394,12 @@ fn set_window_backdrop(window: tauri::WebviewWindow, backdrop: String) {
 }
 
 /// Nativní podklad v této session: žádný zatím nebyl / DWM Acrylic / proběhlo
-/// clear_effects a rozmazává se přes accent (viz set_window_backdrop).
+/// clear_effects (viz set_window_backdrop).
 static BACKDROP_STATE: std::sync::atomic::AtomicU8 =
     std::sync::atomic::AtomicU8::new(BACKDROP_NONE);
 const BACKDROP_NONE: u8 = 0;
 const BACKDROP_DWM: u8 = 1;
-const BACKDROP_ACCENT: u8 = 2;
+const BACKDROP_CLEARED: u8 = 2;
 
 /// DWMWA_SYSTEMBACKDROP_TYPE = žádný. False, když to Windows neumí (Windows 10).
 #[cfg(windows)]
@@ -414,12 +450,16 @@ fn make_entry(path: &Path, metadata: &fs::Metadata) -> FileEntry {
 
     let is_dir = metadata.is_dir();
 
+    let extension = if is_dir {
+        None
+    } else {
+        // "a." má podle Path prázdnou příponu — ta není žádná.
+        path.extension().map(|ext| ext.to_string_lossy().to_lowercase()).filter(|ext| !ext.is_empty())
+    };
+
     FileEntry {
-        extension: if is_dir {
-            None
-        } else {
-            path.extension().map(|ext| ext.to_string_lossy().to_lowercase())
-        },
+        ext_rule: extension.as_deref().map_or(extensions::RULE_PLAIN, extensions::rule),
+        extension,
         // Cesta bez poslední komponenty je leda kořen disku — ten se pojmenuje sám sebou.
         name: path
             .file_name()
@@ -3013,7 +3053,11 @@ fn main() {
             watch_dirs,
             open_device,
             explorer_shows_hidden,
+            extensions::explorer_hides_extensions,
+            extensions::extension_rules,
+            snap::window_is_active,
             system_transparency,
+            acrylic_supported,
             set_window_backdrop,
             trash_is_permanent,
             cancel_search,

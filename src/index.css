@@ -1199,6 +1199,51 @@ body {
   }
 }
 
+/* Toolbar nesmí přetéct (úzké okno, široký sidebar, škálování): hledání se
+   nejdřív zúží (200 px, v klidu 140), pak schová do ikony lupy. */
+@container toolbar (max-width: 760px) {
+  .fw-search {
+    --search-rest-scale: 0.7;
+    --search-shift: 60px;
+    width: 200px;
+  }
+}
+
+@container toolbar (max-width: 700px) {
+  .fw-toolbar {
+    gap: 8px;
+  }
+
+  /* Ikona: pole 28 px, podklad čtvereček, text schovaný. Klik do něj (nebo
+     rozepsaný dotaz) ho rozbalí na 220 px a nástroje mezi názvem a hledáním
+     se mezitím schovají — nic se nepřekrývá. Bez animace šířky. */
+  .fw-search {
+    --search-rest-scale: 1;
+    --search-shift: 0px;
+    width: 28px;
+  }
+
+  .fw-search .fw-search-content {
+    padding: 0 0 0 7px;
+  }
+
+  .fw-search:not(:focus-within):not(:has(input:not(:placeholder-shown))) :is(input, .fw-search-clear) {
+    opacity: 0;
+  }
+
+  .fw-search:is(:focus-within, :has(input:not(:placeholder-shown))) {
+    width: 220px;
+  }
+
+  .fw-search:is(:focus-within, :has(input:not(:placeholder-shown))) .fw-search-content {
+    padding: 0 28px 0 10px;
+  }
+
+  .fw-toolbar:has(.fw-search:is(:focus-within, :has(input:not(:placeholder-shown)))) .fw-toolbar-tools {
+    display: none;
+  }
+}
+
 /* Paleta příkazů (Ctrl+K): nahoře uprostřed, jako Spotlight. Okno přijede
    ze 0,98 a zprůhlednění, výsledky se překreslují bez animace. */
 .fw-palette-backdrop {
@@ -1935,7 +1980,8 @@ body {
 :root[data-transparency] {
   --see-sidebar: 0.8;
   --see-main: 0.75;
-  --see-bar: calc(1 - (1 - var(--see-sidebar)) / (1 - var(--see-main)));
+  /* max(): plné okno (krytí 1, neaktivní Acrylic) by dalo 0/0. */
+  --see-bar: calc(1 - (1 - var(--see-sidebar)) / max(1 - var(--see-main), 0.001));
   --bg-window: transparent;
   --bg-main: rgb(255 255 255 / var(--see-main));
   --bg-toolbar: rgb(246 246 246 / var(--see-main));
@@ -1972,6 +2018,34 @@ body {
 :root.dark[data-transparency="strong"] {
   --see-sidebar: 0.78;
   --see-main: 0.72;
+}
+
+/* Rozmazaná (Acrylic) bez fokusu: Windows místo rozmazání podloží okno
+   plnou šedou výplní. Okno proto samo zneprůhlední (krytí 1 = stejné barvy
+   jako bez průhlednosti) a nepřeskočí na cizí šedou; po návratu fokusu se
+   rozmazání zase odkryje. Registrované vlastnosti, ať se krytí přelije
+   plynule (přechod jen tady — změna síly v menu naskočí hned). */
+@property --see-sidebar {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 1;
+}
+
+@property --see-main {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 1;
+}
+
+:root[data-backdrop="acrylic"][data-transparency] {
+  transition:
+    --see-sidebar var(--dur-fade) var(--ease-out),
+    --see-main var(--dur-fade) var(--ease-out);
+}
+
+:root[data-backdrop="acrylic"][data-transparency][data-inactive] {
+  --see-sidebar: 1;
+  --see-main: 1;
 }
 
 /* Vnořené plochy (sloupce, panel informací) by krytí sčítaly s plochou

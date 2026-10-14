@@ -1,7 +1,7 @@
 import { createContext, useContext } from "react";
 import { invoke } from "@tauri-apps/api/core";
 
-import { TRANSPARENCY_BLUR_AVAILABLE, type TransparencyStrength, type TransparencyStyle } from "./storage";
+import type { TransparencyStrength, TransparencyStyle } from "./storage";
 import { syncWindowBackground } from "../theme";
 
 /*
@@ -10,7 +10,8 @@ import { syncWindowBackground } from "../theme";
  * :root[data-glass="on"], atribut je napevno v index.html.
  *
  * Volba Průhlednost (1.5) navíc zprůhlední samotné okno: za sidebarem,
- * lištami a výpisem je vidět plocha a okna za aplikací.
+ * lištami a výpisem je vidět plocha a okna za aplikací — rozmazaně (Acrylic,
+ * od 1.6 výchozí), nebo ostře (průhledná).
  */
 
 /**
@@ -22,13 +23,17 @@ export type WindowBackdrop = "off" | "acrylic" | "clear";
 const REDUCED_QUERY = "(prefers-reduced-transparency: reduce)";
 
 /**
- * Smí okno rozmazávat? Ne, když má Windows vypnuté Efekty průhlednosti
- * (registr) nebo prohlížeč hlásí prefers-reduced-transparency — pak zapnutá
- * Průhlednost jede bez rozmazání.
+ * Smí okno rozmazávat? Ne, když Windows Acrylic neumí (před Windows 11 22H2),
+ * má vypnuté Efekty průhlednosti (registr) nebo prohlížeč hlásí
+ * prefers-reduced-transparency — pak zapnutá Průhlednost jede bez rozmazání.
  */
 export async function systemTransparency(): Promise<boolean> {
   if (window.matchMedia(REDUCED_QUERY).matches) return false;
-  return invoke<boolean>("system_transparency").catch(() => true);
+  const [effects, acrylic] = await Promise.all([
+    invoke<boolean>("system_transparency").catch(() => true),
+    acrylicSupported(),
+  ]);
+  return effects && acrylic;
 }
 
 /**
@@ -46,13 +51,24 @@ export function watchSystemTransparency(onChange: () => void): () => void {
   };
 }
 
+let acrylicSupport: Promise<boolean> | null = null;
+
 /**
- * Rozmazaná (Acrylic) jen na přání, když ji Windows dovolí a je v této verzi
- * zapnutá (TRANSPARENCY_BLUR_AVAILABLE); jinak čistá.
+ * Umí Windows rozmazaný podklad (Windows 11 22H2+)? Na starších Windows by
+ * se Acrylic při tažení okna sekal — tam se nabízí jen průhledná varianta.
+ */
+export function acrylicSupported(): Promise<boolean> {
+  acrylicSupport ??= invoke<boolean>("acrylic_supported").catch(() => false);
+  return acrylicSupport;
+}
+
+/**
+ * Rozmazaná (Acrylic), když ji Windows umí a dovolí (Efekty průhlednosti);
+ * jinak průhledná bez rozmazání.
  */
 export function windowBackdrop(enabled: boolean, style: TransparencyStyle, blurAllowed: boolean): WindowBackdrop {
   if (!enabled) return "off";
-  return TRANSPARENCY_BLUR_AVAILABLE && style === "blur" && blurAllowed ? "acrylic" : "clear";
+  return style === "blur" && blurAllowed ? "acrylic" : "clear";
 }
 
 // null = nativní stav neznámý (start, reload stránky v dev) — první volání
@@ -71,6 +87,7 @@ export function applyWindowBackdrop(next: WindowBackdrop, strength: Transparency
     const root = document.documentElement;
     if (next === "off") {
       delete root.dataset.transparency;
+      delete root.dataset.backdrop;
       syncWindowBackground();
     }
     if (next !== appliedBackdrop) {
@@ -78,6 +95,8 @@ export function applyWindowBackdrop(next: WindowBackdrop, strength: Transparency
       appliedBackdrop = next;
     }
     if (next !== "off") {
+      // data-backdrop: neaktivní okno s Acrylicem zneprůhlední (index.css).
+      root.dataset.backdrop = next;
       root.dataset.transparency = strength;
       syncWindowBackground();
     }

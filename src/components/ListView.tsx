@@ -28,6 +28,7 @@ import {
 } from "../format";
 import { useLocale, useT, type MessageKey } from "../i18n";
 import type { FileEntry, SelectMods, TagColor, TagMap } from "../types";
+import { useDisplayNames } from "../lib/extensions";
 
 const COLUMNS: { key: SortKey; label: MessageKey; width: string; align: "left" | "right" }[] = [
   { key: "name", label: "sort.name", width: "minmax(0, 1fr)", align: "left" },
@@ -90,6 +91,7 @@ const ListRow = memo(
   }: RowProps) {
     // Druh, datum a velikost jsou v jazyce UI — memo by je po přepnutí nechalo.
     useLocale();
+    const names = useDisplayNames();
     // Pruhování podle indexu, ne přes :nth-child — virtuální řádky nejsou
     // sourozenci v pořadí výpisu.
     const stripeClass = index % 2 === 1 ? "fw-stripe" : "";
@@ -141,7 +143,7 @@ const ListRow = memo(
               onCancel={handlers.renameCancel}
             />
           ) : (
-            <span className="truncate">{entry.name}</span>
+            <span className="truncate">{names.entry(entry)}</span>
           )}
         </div>
         <span className="truncate text-right text-secondary tabular-nums">

@@ -9,6 +9,7 @@ import { compareNames, formatModified, formatSize } from "../format";
 import { errorDetail, listRecycleBin, type RecycleEntry } from "../fileops";
 import { failure, useT } from "../i18n";
 import type { FileEntry } from "../types";
+import { useDisplayNames } from "../lib/extensions";
 
 /** Název, Původní umístění, Datum smazání, Velikost. */
 const GRID_TEMPLATE = "minmax(0, 1.2fr) minmax(0, 1.4fr) 140px 80px";
@@ -54,6 +55,7 @@ export function RecycleBinView({
   onPurge,
   onEmpty,
 }: RecycleBinViewProps) {
+  const names = useDisplayNames();
   const t = useT();
   const [items, setItems] = useState<RecycleEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -261,7 +263,7 @@ export function RecycleBinView({
               >
                 <div className="flex min-w-0 items-center gap-2">
                   <SmallEntryIcon entry={asEntry(item)} />
-                  <span className="truncate">{item.name}</span>
+                  <span className="truncate">{names.name(item.name)}</span>
                 </div>
                 <span className="truncate text-secondary">{item.original_dir}</span>
                 <span className="truncate text-secondary">{formatModified(item.deleted)}</span>

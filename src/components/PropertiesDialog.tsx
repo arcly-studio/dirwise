@@ -8,6 +8,7 @@ import { tagsOf } from "../lib/storage";
 import { TAG_HEX, tagLabel } from "../lib/tags";
 import { useStorage } from "../lib/useStorage";
 import type { FileEntry, FileProperties, FolderStats } from "../types";
+import { useDisplayNames } from "../lib/extensions";
 
 /** Identita výpočtu velikosti — napříč dialogy, proto modulová. */
 let nextStatsId = 1;
@@ -36,6 +37,7 @@ type PropertiesDialogProps = {
 };
 
 export function PropertiesDialog({ entry, onClose }: PropertiesDialogProps) {
+  const names = useDisplayNames();
   const t = useT();
   const { tags } = useStorage();
   const [properties, setProperties] = useState<FileProperties | null>(null);
@@ -99,7 +101,7 @@ export function PropertiesDialog({ entry, onClose }: PropertiesDialogProps) {
 
   return (
     <Dialog
-      label={t("props.title", { name: entry.name })}
+      label={t("props.title", { name: names.entry(entry) })}
       width={340}
       onClose={onClose}
       actions={[{ label: t("common.close"), onClick: onClose, kind: "primary", autoFocus: true }]}
@@ -109,7 +111,7 @@ export function PropertiesDialog({ entry, onClose }: PropertiesDialogProps) {
       </div>
 
       <p className="text-center text-[14px] font-semibold break-words text-primary">
-        {entry.name}
+        {names.entry(entry)}
       </p>
 
       <div className="flex flex-col border-t border-line pt-2 text-[12px]">
