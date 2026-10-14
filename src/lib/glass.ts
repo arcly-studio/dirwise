@@ -1,7 +1,7 @@
 import { createContext, useContext } from "react";
 import { invoke } from "@tauri-apps/api/core";
 
-import type { TransparencyStrength, TransparencyStyle } from "./storage";
+import type { TransparencyStrength } from "./storage";
 import { syncWindowBackground } from "../theme";
 
 /*
@@ -10,15 +10,11 @@ import { syncWindowBackground } from "../theme";
  * :root[data-glass="on"], atribut je napevno v index.html.
  *
  * Volba Průhlednost (1.5) navíc zprůhlední samotné okno: za sidebarem,
- * lištami a výpisem je vidět plocha a okna za aplikací — rozmazaně (Acrylic,
- * od 1.6 výchozí), nebo ostře (průhledná).
+ * lištami a výpisem je vidět rozmazaná plocha a okna za aplikací (Acrylic).
  */
 
-/**
- * Co okno kreslí pod obsahem: plné pozadí (vypnuto), Acrylic (rozmazaná
- * plocha), nebo průhlednost bez rozmazání — když Windows efekty nedovolí.
- */
-export type WindowBackdrop = "off" | "acrylic" | "clear";
+/** Co okno kreslí pod obsahem: plné pozadí (vypnuto), nebo Acrylic (rozmazaná plocha). */
+export type WindowBackdrop = "off" | "acrylic";
 
 const REDUCED_QUERY = "(prefers-reduced-transparency: reduce)";
 
@@ -55,7 +51,7 @@ let acrylicSupport: Promise<boolean> | null = null;
 
 /**
  * Umí Windows rozmazaný podklad (Windows 11 22H2+)? Na starších Windows by
- * se Acrylic při tažení okna sekal — tam se nabízí jen průhledná varianta.
+ * se Acrylic při tažení okna sekal — tam se průhlednost nenabízí.
  */
 export function acrylicSupported(): Promise<boolean> {
   acrylicSupport ??= invoke<boolean>("acrylic_supported").catch(() => false);
@@ -64,11 +60,10 @@ export function acrylicSupported(): Promise<boolean> {
 
 /**
  * Rozmazaná (Acrylic), když ji Windows umí a dovolí (Efekty průhlednosti);
- * jinak průhledná bez rozmazání.
+ * jinak plné okno. Ostrá průhlednost bez rozmazání se od 1.6 nenabízí.
  */
-export function windowBackdrop(enabled: boolean, style: TransparencyStyle, blurAllowed: boolean): WindowBackdrop {
-  if (!enabled) return "off";
-  return style === "blur" && blurAllowed ? "acrylic" : "clear";
+export function windowBackdrop(enabled: boolean, blurAllowed: boolean): WindowBackdrop {
+  return enabled && blurAllowed ? "acrylic" : "off";
 }
 
 // null = nativní stav neznámý (start, reload stránky v dev) — první volání

@@ -98,7 +98,7 @@ import {
 import { refreshExplorerExtensions, useDisplayNames } from "./lib/extensions";
 import { applyMotion, motionEnabled, motionMs, smoothIfAllowed } from "./lib/motion";
 import * as storage from "./lib/storage";
-import type { TransparencyStrength, TransparencyStyle } from "./lib/storage";
+import type { TransparencyStrength } from "./lib/storage";
 import { TAG_COLORS, TAG_HEX, tagLabel } from "./lib/tags";
 import { useStableCallback } from "./lib/rowDnd";
 import { usePanel, type Panel } from "./panel";
@@ -200,16 +200,6 @@ function strengthCommand(strength: TransparencyStrength, checked: boolean) {
   };
 }
 
-/** Volba stylu průhlednost taky zapne. */
-function styleCommand(style: TransparencyStyle, checked: boolean) {
-  return {
-    checked,
-    run: () => {
-      void storage.setTransparencyStyle(style);
-      void storage.setWindowTransparency(true);
-    },
-  };
-}
 
 export default function App() {
   const names = useDisplayNames();
@@ -291,7 +281,6 @@ export default function App() {
     terminal,
     windowTransparency,
     transparencyStrength,
-    transparencyStyle,
   } = useStorage();
   // Překreslení po přepnutí jazyka; texty se berou z `t`, které čte aktuální locale.
   const locale = useLocale();
@@ -623,8 +612,13 @@ export default function App() {
   const [blurAllowed, setBlurAllowed] = useState(true);
   // Umí Windows Acrylic vůbec? Jinak menu ani paleta rozmazanou nenabízí.
   const [acrylicAvailable, setAcrylicAvailable] = useState(false);
+  // Windows bez Acrylicu (10, 11 před 22H2): průhlednost se nenabízí vůbec
+  // a uložená zapnutá se vypne (ostrá průhlednost od 1.6 není).
   useEffect(() => {
-    void acrylicSupported().then(setAcrylicAvailable);
+    void Promise.all([acrylicSupported(), storage.init()]).then(([supported]) => {
+      setAcrylicAvailable(supported);
+      if (!supported && storage.getSnapshot().windowTransparency) void storage.setWindowTransparency(false);
+    });
   }, []);
   // Neaktivní okno: Windows Acrylic nahradí plnou výplní — CSS okno předtím
   // zneprůhlední (index.css, data-inactive), ať nepřeskočí na cizí šedou.
@@ -652,9 +646,8 @@ export default function App() {
       // Průhlednost platí už pro první snímek okna — podklad i CSS před ukázáním.
       .then(([, , blur]) => {
         if (active) setBlurAllowed(blur);
-        const { windowTransparency: on, transparencyStrength: strength, transparencyStyle: style } =
-          storage.getSnapshot();
-        return applyWindowBackdrop(windowBackdrop(on, style, blur), strength);
+        const { windowTransparency: on, transparencyStrength: strength } = storage.getSnapshot();
+        return applyWindowBackdrop(windowBackdrop(on, blur), strength);
       })
       .catch(() => undefined)
       // Volba animací musí platit už pro rozsvícení okna.
@@ -691,10 +684,10 @@ export default function App() {
   useEffect(() => {
     if (!ready) return;
     void applyWindowBackdrop(
-      windowBackdrop(windowTransparency, transparencyStyle, blurAllowed),
+      windowBackdrop(windowTransparency, blurAllowed),
       transparencyStrength,
     );
-  }, [ready, windowTransparency, transparencyStyle, blurAllowed, transparencyStrength]);
+  }, [ready, windowTransparency, blurAllowed, transparencyStrength]);
   useEffect(() => {
     if (!ready || !windowTransparency) return;
     let alive = true;
@@ -2705,18 +2698,32 @@ export default function App() {
       motionSystem: { run: () => void storage.setMotion("system"), checked: motion === "system" },
       motionOn: { run: () => void storage.setMotion("on"), checked: motion === "on" },
       motionOff: { run: () => void storage.setMotion("off"), checked: motion === "off" },
-      transparencyOff: { run: () => void storage.setWindowTransparency(false), checked: !windowTransparency },
+      // Průhlednost jen tam, kde Windows Acrylic umí (enabled — menu i paleta ji jinak skryjí).
+      transparencyOff: {
+        run: () => void storage.setWindowTransparency(false),
+        checked: !windowTransparency,
+        enabled: acrylicAvailable,
+      },
+      transparencyBlur: {
+        run: () => void storage.setWindowTransparency(true),
+        checked: windowTransparency,
+        enabled: acrylicAvailable,
+      },
       toggleTransparency: {
         run: () => void storage.setWindowTransparency(!windowTransparency),
         title: windowTransparency ? t("command.transparencyOff") : t("command.transparencyOn"),
+        enabled: acrylicAvailable,
       },
-      transparencySubtle: strengthCommand("subtle", windowTransparency && transparencyStrength === "subtle"),
-      transparencyMedium: strengthCommand("medium", windowTransparency && transparencyStrength === "medium"),
-      transparencyStrong: strengthCommand("strong", windowTransparency && transparencyStrength === "strong"),
-      // Rozmazaná, kterou Windows teď nedovolí (Efekty průhlednosti), jede jako průhledná.
-      transparencyClear: styleCommand("clear", windowTransparency && (transparencyStyle === "clear" || !blurAllowed)),
-      transparencyBlur: {
-        ...styleCommand("blur", windowTransparency && transparencyStyle === "blur" && blurAllowed),
+      transparencySubtle: {
+        ...strengthCommand("subtle", windowTransparency && transparencyStrength === "subtle"),
+        enabled: acrylicAvailable,
+      },
+      transparencyMedium: {
+        ...strengthCommand("medium", windowTransparency && transparencyStrength === "medium"),
+        enabled: acrylicAvailable,
+      },
+      transparencyStrong: {
+        ...strengthCommand("strong", windowTransparency && transparencyStrength === "strong"),
         enabled: acrylicAvailable,
       },
       terminalAuto: { run: () => void storage.setTerminal("auto"), checked: terminal === "auto" },

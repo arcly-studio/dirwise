@@ -230,7 +230,24 @@ export function Toolbar({
     item("palette"),
     item("refresh"),
     item("goParent"),
-    item("toggleHidden"),
+    // Zobrazit ▸ jako v Průzkumníku: skryté soubory a přípony.
+    {
+      type: "submenu",
+      label: t("view.menu"),
+      items: [
+        item("toggleHidden", t("view.hiddenFiles")),
+        { type: "separator" },
+        {
+          type: "submenu",
+          label: t("extensions.menu"),
+          items: [
+            item("extensionsWindows", t("extensions.windowsShort")),
+            item("extensionsAlways", t("extensions.alwaysShort")),
+            item("extensionsNever", t("extensions.neverShort")),
+          ],
+        },
+      ],
+    },
     {
       type: "submenu",
       label: t("appearance.menu"),
@@ -238,22 +255,19 @@ export function Toolbar({
         item("themeLight", t("appearance.light")),
         item("themeDark", t("appearance.dark")),
         item("themeSystem", t("appearance.system")),
-        { type: "separator" },
-        // Průhlednost: vypnuto / rozmazaná / průhledná. Rozmazaná jen tam,
-        // kde ji Windows umí (enabled = Windows 11 22H2+).
-        item("transparencyOff"),
+        // Průhlednost (vypnuto / rozmazaná) a síla jen tam, kde Windows
+        // Acrylic umí (enabled = Windows 11 22H2+); jinde se nenabízí vůbec.
         ...(commands.transparencyBlur.enabled
-          ? [{ ...item("transparencyBlur"), tooltip: t("transparency.blurHint") }]
+          ? ([
+              { type: "separator" },
+              item("transparencyOff"),
+              { ...item("transparencyBlur"), tooltip: t("transparency.blurHint") },
+              { type: "separator" },
+              item("transparencySubtle"),
+              item("transparencyMedium"),
+              item("transparencyStrong"),
+            ] satisfies MenuItem[])
           : []),
-        item("transparencyClear"),
-        { type: "separator" },
-        item("transparencySubtle"),
-        item("transparencyMedium"),
-        item("transparencyStrong"),
-        { type: "separator" },
-        item("extensionsWindows"),
-        item("extensionsAlways"),
-        item("extensionsNever"),
       ],
     },
     {

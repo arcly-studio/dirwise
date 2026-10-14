@@ -45,7 +45,6 @@ export type CommandId =
   | "transparencySubtle"
   | "transparencyMedium"
   | "transparencyStrong"
-  | "transparencyClear"
   | "transparencyBlur"
   | "terminalAuto"
   | "terminalWindows"
@@ -163,7 +162,6 @@ const DEFINITIONS: Record<CommandId, CommandDefinition> = {
   transparencyMedium: { title: "transparency.medium" },
   transparencyStrong: { title: "transparency.strong" },
   // Styl průhlednosti jen s rozmazanou (zatím vypnutá, lib/storage.ts).
-  transparencyClear: { title: "transparency.clear" },
   transparencyBlur: { title: "transparency.blur" },
   terminalAuto: { title: "command.terminalAuto" },
   terminalWindows: { title: "command.terminalWindows" },

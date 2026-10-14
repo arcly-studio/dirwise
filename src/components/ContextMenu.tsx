@@ -26,7 +26,11 @@ type ActionItem = {
   shiftItems?: SubmenuEntry[];
 };
 
-type SubmenuEntry = { type: "separator" } | ActionItem;
+/** Položka podmenu: akce, oddělovač, nebo další podmenu (Zobrazit ▸ Přípony souborů ▸). */
+type SubmenuEntry =
+  | { type: "separator" }
+  | ActionItem
+  | { type: "submenu"; label: string; items: SubmenuEntry[] };
 
 export type MenuItem =
   | { type: "separator" }
@@ -213,6 +217,19 @@ function SubmenuRow({
 }: SubmenuRowProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const [shiftUp, setShiftUp] = useState(0);
+  // Vnořené podmenu (jen myší, najetím) — otevřené je nejvýš jedno. Po
+  // zavření tohohle podmenu se zapomene, jinak by se příště otevřelo samo.
+  const [openChild, setOpenChild] = useState<number | null>(null);
+  useEffect(() => {
+    if (!open) setOpenChild(null);
+  }, [open]);
+  // Druhá úroveň se vyklápí podle vlastního místa: u pravého okraje doleva.
+  const [childFlip, setChildFlip] = useState(flip);
+  useLayoutEffect(() => {
+    if (!open || !panelRef.current) return;
+    const rect = panelRef.current.getBoundingClientRect();
+    setChildFlip(flip || rect.right + SUBMENU_WIDTH + MARGIN > window.innerWidth);
+  }, [open, flip]);
 
   // U spodního okraje okna by podmenu přeteklo — posune se nahoru dovnitř.
   useLayoutEffect(() => {
@@ -247,8 +264,18 @@ function SubmenuRow({
           {items.map((entry, index) =>
             entry.type === "separator" ? (
               <div key={`separator-${index}`} className="fw-menu-separator" />
+            ) : entry.type === "submenu" ? (
+              <SubmenuRow
+                key={entry.label}
+                label={entry.label}
+                items={entry.items}
+                flip={childFlip}
+                open={openChild === index}
+                onHover={() => setOpenChild(index)}
+                onDone={onDone}
+              />
             ) : (
-              <ActionRow key={entry.label} item={entry} onDone={onDone} />
+              <ActionRow key={entry.label} item={entry} onDone={onDone} onHover={() => setOpenChild(null)} />
             ),
           )}
         </div>

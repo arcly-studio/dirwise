@@ -78,7 +78,7 @@ const scenes = {
   },
   "command-palette": { async run(c, h) { await h.palette("dow"); await c.sleep(800); } },
   transparency: {
-    opts: { theme: "dark", transparency: true, strength: "medium", style: "blur", emulate: false },
+    opts: { theme: "dark", transparency: true, strength: "medium", emulate: false },
     // README: okno 1280×800 přes celý snímek; Store: okno 1600×900 na tapetě přes
     // celou obrazovku 1920×1080 (primární monitor, 100 %).
     real: STORE
@@ -104,7 +104,10 @@ for (const name of which) {
       try { await scene.run(c, h); } catch (e) { console.error(e.message); }
       // Kurzor myši CDP nehýbe — hover stavy bez kurzoru.
       await c.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: 1, y: 1 });
-      await c.sleep(500);
+      // Rozmazaná průhlednost se kreslí jen v aktivním okně — okno s tapetou mu
+      // fokus mohlo vzít, před snímkem se aktivuje znovu.
+      screen("front");
+      await c.sleep(800);
       screen("shot", { ...(scene.real.area ?? scene.real.win), Out: `${OUT}${name}.png` });
     } finally {
       unstage();

@@ -43,7 +43,7 @@ Dirwise (formerly Finder-Win) is inspired by the macOS Finder, built for Windows
 
 - **Icons, List and Columns** views; thumbnails for images, videos (with a ▶ badge) and PDFs.
 - **Tabs** – rounded chips, each with its own history, view, sorting and selection; drag to reorder, drop files on a tab to move them there.
-- **File extensions like File Explorer** – shortcuts (.lnk, .url) never show one, other files follow Windows’ “Hide extensions for known file types”, or choose Always / Never in More → Appearance. Renaming keeps a hidden extension.
+- **File extensions like File Explorer** – shortcuts (.lnk, .url) never show one, other files follow Windows’ “Hide extensions for known file types”, or choose Always / Never in More → View → File Extensions. Renaming keeps a hidden extension.
 - **Light and dark mode** following Windows, or set it in More → Appearance. English and Czech UI.
 
 ### Glass look & transparency
@@ -51,9 +51,9 @@ Dirwise (formerly Finder-Win) is inspired by the macOS Finder, built for Windows
 ![Dirwise with blurred transparency (Acrylic) over a colorful wallpaper](docs/screenshots/transparency.png)
 
 - **Glass look by default** – the title bar, toolbar and tabs sit on one translucent, blurred plate and the list shows through as you scroll; menus, the command palette and tooltips are glass too.
-- **Transparent window** – the desktop and other windows show through the app, **Blurred** (Acrylic, like Windows 11) or **Clear**, in three strengths: Subtle, Medium and Strong. Off by default.
+- **Blurred transparent window** – the desktop and other windows show through the app, blurred like Windows 11 Acrylic, in three strengths: Subtle, Medium and Strong. Text keeps WCAG AA contrast over light, dark and colourful wallpapers. Off by default.
 - **Turn it on** in More → Appearance → Transparency, or from the command palette (Ctrl+K, type “transparency”).
-- **Blurred** needs Windows 11 22H2 or later with Transparency effects on; elsewhere the window is clear. When the window isn't active it turns solid, like other Windows windows.
+- Needs Windows 11 22H2 or later with Transparency effects on; on Windows 10 and older Windows 11 the option isn't offered. When the window isn't active it turns solid, like other Windows windows.
 
 ### Split view
 

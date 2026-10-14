@@ -38,9 +38,9 @@ const KEY_COMMAND_USAGE = "commandUsage";
 // všichni (i z 1.4.x) začínají s vypnutou průhledností.
 const KEY_WINDOW_TRANSPARENCY = "windowTransparency";
 const KEY_TRANSPARENCY_STRENGTH = "transparencyStrength";
-// Styl průhlednosti: rozmazaná (Acrylic, výchozí) nebo průhledná bez
-// rozmazání. Chybějící nebo neznámá hodnota = rozmazaná.
-const KEY_TRANSPARENCY_STYLE = "transparencyStyle";
+// Styl průhlednosti z 1.5/1.6 vývoje (čistá / rozmazaná) — od 1.6 je jen
+// rozmazaná, starý klíč se při načtení smaže.
+const KEY_LEGACY_TRANSPARENCY_STYLE = "transparencyStyle";
 const KEY_LEGACY_TRANSPARENCY = "transparency";
 
 /** Animace: podle systému (omezit animace ve Windows), vždy, nebo nikdy. */
@@ -53,14 +53,6 @@ export type ExtensionMode = "windows" | "always" | "never";
 export type TransparencyStrength = "subtle" | "medium" | "strong";
 export const TRANSPARENCY_STRENGTHS: readonly TransparencyStrength[] = ["subtle", "medium", "strong"];
 
-/**
- * Styl průhlednosti: blur = rozmazaná (Acrylic), clear = průhledná bez
- * rozmazání. Kde Windows Acrylic neumí (před Windows 11 22H2) nebo má vypnuté
- * Efekty průhlednosti, jede uložená „blur“ jako „clear“ (lib/glass.ts) —
- * volba se nepřepisuje, po přechodu na novější Windows naskočí.
- */
-export type TransparencyStyle = "clear" | "blur";
-export const TRANSPARENCY_STYLES: readonly TransparencyStyle[] = ["blur", "clear"];
 
 /** Jazyk UI: podle systému, nebo napevno (viz i18n/index.ts). */
 export type LanguagePreference = "system" | "en" | "cs";
@@ -115,7 +107,6 @@ export type Snapshot = {
   /** Průhledné okno (plocha za aplikací prosvítá); výchozí vypnuto. */
   windowTransparency: boolean;
   transparencyStrength: TransparencyStrength;
-  transparencyStyle: TransparencyStyle;
 };
 
 const EMPTY: Snapshot = {
@@ -137,7 +128,6 @@ const EMPTY: Snapshot = {
   commandUsage: {},
   windowTransparency: false,
   transparencyStrength: "medium",
-  transparencyStyle: "blur",
 };
 
 export const SPLIT_RATIO_MIN = 0.25;
@@ -347,7 +337,6 @@ export function init(): Promise<void> {
       usage,
       windowTransparency,
       transparencyStrength,
-      transparencyStyle,
       extensionMode,
     ] = await Promise.all([
       store.get<unknown>(KEY_FAVORITES),
@@ -365,7 +354,6 @@ export function init(): Promise<void> {
       store.get<unknown>(KEY_COMMAND_USAGE),
       store.get<unknown>(KEY_WINDOW_TRANSPARENCY),
       store.get<unknown>(KEY_TRANSPARENCY_STRENGTH),
-      store.get<unknown>(KEY_TRANSPARENCY_STYLE),
       store.get<unknown>(KEY_EXTENSIONS),
     ]);
 
@@ -388,7 +376,6 @@ export function init(): Promise<void> {
       commandUsage: sanitizeUsage(usage),
       windowTransparency: windowTransparency === true,
       transparencyStrength: TRANSPARENCY_STRENGTHS.find((s) => s === transparencyStrength) ?? "medium",
-      transparencyStyle: TRANSPARENCY_STYLES.find((s) => s === transparencyStyle) ?? "blur",
     });
     // Zrcadlo pro první render drží krok se souborem (i po smazání dat WebView2).
     writeThemeMirror(cache.theme);
@@ -396,8 +383,8 @@ export function init(): Promise<void> {
     if (await store.has(KEY_LEGACY_TRANSPARENCY).catch(() => false)) {
       await store.delete(KEY_LEGACY_TRANSPARENCY).catch(() => false);
     }
-    if (transparencyStyle !== undefined && transparencyStyle !== cache.transparencyStyle) {
-      await store.set(KEY_TRANSPARENCY_STYLE, cache.transparencyStyle).catch(() => undefined);
+    if (await store.has(KEY_LEGACY_TRANSPARENCY_STYLE).catch(() => false)) {
+      await store.delete(KEY_LEGACY_TRANSPARENCY_STYLE).catch(() => false);
     }
   })().catch((err: unknown) => {
     // Rozbité nastavení nesmí shodit aplikaci — pojede se s prázdným.
@@ -459,11 +446,6 @@ export async function setWindowTransparency(value: boolean): Promise<void> {
 export async function setTransparencyStrength(value: TransparencyStrength): Promise<void> {
   commit({ transparencyStrength: value });
   await persist(KEY_TRANSPARENCY_STRENGTH, value);
-}
-
-export async function setTransparencyStyle(value: TransparencyStyle): Promise<void> {
-  commit({ transparencyStyle: value });
-  await persist(KEY_TRANSPARENCY_STYLE, value);
 }
 
 /* --------------------------------- jazyk ------------------------------------ */
