@@ -44,7 +44,7 @@ Version 1.6.0
 - Sidebar sections: Quick access, This PC, Cloud, Drives (with the Recycle Bin), Recent and Tags. Pin folders from the context menu with Pin to Quick Access.
 - Icons view highlights the whole tile when selected.
 - The status bar shows the selection and free space, e.g. 1 of 52 selected · 120.7 GB free.
-- New folder icon.
+- New amber folder icon in the style of Windows 11.
 - The quick preview is now simply called Preview.
 
 ### Features (max 20)
@@ -97,7 +97,7 @@ Verze 1.6.0
 - Sekce postranního panelu: Rychlý přístup, Tento počítač, Cloud, Disky (s Košem), Nedávné a Štítky. Složky připneš v kontextovém menu přes Připnout do Rychlého přístupu.
 - V zobrazení Ikony se při výběru podbarví celá dlaždice.
 - Stavový řádek ukazuje výběr a volné místo, např. 1 z 52 vybráno · volno 120,7 GB.
-- Nová ikona složky.
+- Nová jantarová ikona složky ve stylu Windows 11.
 - Rychlý náhled se nově jmenuje prostě Náhled.
 
 ### Funkce (max 20)

@@ -1,6 +1,17 @@
 # Changelog
 
-Notable changes in each Finder-Win release. Installers are on the [Releases](https://github.com/krystof2-ops/finder-win/releases) page.
+Notable changes in each Dirwise release (up to 1.5.2 the app was called Finder-Win). Installers are on the [Releases](https://github.com/krystof2-ops/finder-win/releases) page.
+
+## [1.6.0](https://github.com/krystof2-ops/finder-win/releases/tag/v1.6.0) – 2026-10-14
+
+- **New name: Dirwise** – the previous name pointed to a third-party product. Installer `Dirwise_<version>_x64-setup.exe`, winget ID `krystof2-ops.Dirwise` (coming soon). Settings and the data folders under `com.krystof2ops.finderwin` are kept; the icon and thumbnail cache moved to `%LOCALAPPDATA%\dirwise` (Store build `dirwise-store`) and is rebuilt on demand.
+- **Windows 11 window buttons** – the title bar has a small icon and the name “Dirwise” on the left and the standard Minimize, Maximize / Restore and Close buttons on the right, including **Snap Layouts** when hovering Maximize. The coloured buttons on the left are gone.
+- **Sidebar** – headings in normal case; sections Quick access (pinned folders, formerly My Favorites) / This PC (Desktop, Downloads, Documents …, formerly Favorites) / Cloud / Drives (with the Recycle Bin, formerly Locations) / Recent / Tags. New context menu item **Pin to Quick Access**.
+- **Icons view** – a selected item highlights the whole tile (icon and name), like in Windows 11.
+- **Status bar** – “1 of 52 selected · 120.7 GB free”.
+- **New folder icon** – amber, in the style of Windows 11 (instead of the blue one).
+- **Quick Look renamed to Preview** (Space, menu, command palette) – the old name belongs to another vendor.
+- **Upgrading from Finder-Win 1.5.x** – the Dirwise installer silently uninstalls the old installation (no second copy side by side) and your settings are kept. Pin the app to the taskbar again.
 
 ## [1.5.2](https://github.com/krystof2-ops/finder-win/releases/tag/v1.5.2) – 2026-10-11
 

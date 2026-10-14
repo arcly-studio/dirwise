@@ -21,7 +21,7 @@ const font = (w) => `@font-face { font-family: Inter; font-weight: ${w};
 const FONTS = [400, 500, 700].map(font).join("\n");
 
 const TITLE = "Dirwise";
-const SUB = "A fast, keyboard-friendly file manager for Windows";
+const SUB = "A fast file manager for Windows";
 // V bannerech záměrně na dva řádky (jinak se zalomí jen „Windows“).
 const SUB_HTML = SUB.replace(" for ", "<br>for ");
 
