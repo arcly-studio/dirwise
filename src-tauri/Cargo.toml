@@ -67,6 +67,8 @@ windows = { version = "0.61", features = [
     "Win32_System_SystemServices",
     # Nastavení Průzkumníku „Zobrazovat skryté soubory" jako výchozí stav.
     "Win32_System_Registry",
+    # Modul pro registraci třídy overlaye Snap Layouts (snap.rs).
+    "Win32_System_LibraryLoader",
     "Win32_UI_Shell",
     "Win32_UI_Shell_Common",
     # Stav levého tlačítka na startu nativního tažení (native_drag.rs).

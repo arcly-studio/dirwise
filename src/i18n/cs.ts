@@ -355,6 +355,7 @@ export const cs = {
   /* ---------------------------------- okno ------------------------------------ */
   "window.minimize": "Minimalizovat",
   "window.maximize": "Maximalizovat",
+  "window.restore": "Obnovit",
 
   /* ------------------------------- druhy souborů ------------------------------ */
   "kind.folder": "Složka",

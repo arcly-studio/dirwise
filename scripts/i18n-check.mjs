@@ -29,7 +29,7 @@ const SHORTCUT =
 /** Klíč do slovníku ("toolbar.sort") — přeloží ho až t(). */
 const MESSAGE_KEY = /^[a-z][A-Za-z0-9]*(\.[A-Za-z0-9]+)+$/;
 /** Vlastní jména a technické texty, které se nepřekládají. */
-const ALLOWED_TEXT = new Set(["Finder-Win", "Finder", "MIT"]);
+const ALLOWED_TEXT = new Set(["Dirwise", "MIT"]);
 
 const UI_PROPERTIES = new Set(["label", "title", "message", "hint", "confirmLabel", "placeholder"]);
 /** JSX atributy s textem pro uživatele — i props vlastních komponent (label, hint). */

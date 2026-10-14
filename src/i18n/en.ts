@@ -335,6 +335,7 @@ export const en = {
   /* ---------------------------------- window ---------------------------------- */
   "window.minimize": "Minimize",
   "window.maximize": "Maximize",
+  "window.restore": "Restore Down",
 
   /* -------------------------------- file kinds -------------------------------- */
   "kind.folder": "Folder",

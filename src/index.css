@@ -120,10 +120,11 @@
   --shadow-popover: 0 8px 24px rgba(0, 0, 0, 0.25);
   --shadow-dialog: 0 24px 64px rgba(0, 0, 0, 0.35);
 
-  /* Semafor v titulkovém pruhu — barvy macOS. */
-  --traffic-close: #ff5f57;
-  --traffic-minimize: #febc2e;
-  --traffic-maximize: #28c840;
+  /* Tlačítka okna (titulkový pruh) — hodnoty Windows 11. */
+  --caption-hover: rgba(0, 0, 0, 0.06);
+  --caption-pressed: rgba(0, 0, 0, 0.04);
+  --caption-close: #c42b1c;
+  --caption-close-pressed: #c83c31;
 
   /* Animační křivky. Nejsou v .dark — na motion nemá téma vliv.
      Pozor: --ease-out a --ease-in-out má i Tailwind ve své @layer theme.
@@ -229,9 +230,10 @@
   --shadow-popover: 0 8px 24px rgba(0, 0, 0, 0.5);
   --shadow-dialog: 0 24px 64px rgba(0, 0, 0, 0.6);
 
-  --traffic-close: #ff5f57;
-  --traffic-minimize: #febc2e;
-  --traffic-maximize: #28c840;
+  --caption-hover: rgba(255, 255, 255, 0.06);
+  --caption-pressed: rgba(255, 255, 255, 0.04);
+  --caption-close: #c42b1c;
+  --caption-close-pressed: #c83c31;
 }
 
 html,
@@ -1042,10 +1044,52 @@ body {
   line-height: 15px;
 }
 
-/* Semafor v titlebaru — zjasnění při najetí bez přechodu (filter se
-   neanimuje, jen transform a opacity). */
-.fw-traffic:hover {
-  filter: brightness(1.08);
+/* Tlačítka okna jako ve Windows 11: 46 × 32, glyf 10 px ze Segoe Fluent
+   Icons (Windows 10: Segoe MDL2 Assets), podbarvení bez přechodu. Hover a
+   stisk Maximalizovat hlásí overlay ze snap.rs třídami is-hover / is-pressed. */
+.fw-caption-button {
+  display: flex;
+  width: 46px;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  font-family: "Segoe Fluent Icons", "Segoe MDL2 Assets";
+  font-size: 10px;
+  color: var(--text-primary);
+}
+
+.fw-titlebar.is-inactive .fw-caption-button,
+.fw-titlebar.is-inactive .fw-titlebar-title {
+  color: var(--text-secondary);
+}
+
+.fw-titlebar.is-inactive .fw-titlebar-title img {
+  opacity: 0.6;
+}
+
+.fw-caption-button:hover,
+.fw-caption-button.is-hover {
+  background: var(--caption-hover);
+}
+
+.fw-caption-button:active,
+.fw-caption-button.is-pressed {
+  background: var(--caption-pressed);
+}
+
+.fw-caption-button.fw-caption-close:hover {
+  background: var(--caption-close);
+  color: #fff;
+}
+
+.fw-caption-button.fw-caption-close:active {
+  background: var(--caption-close-pressed);
+  color: #fff;
+}
+
+.fw-caption-button:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
 }
 
 /* Pole hledání: 28 px, zaoblení 7 px, při fokusu 180 → 260 px a tenký
@@ -1591,8 +1635,8 @@ body {
   z-index: 30;
 }
 
-/* Titulek je průhledný: vlevo pod ním pokračuje sidebar (semafor sedí na
-   něm jako na Macu), vpravo skleněná deska hlavní plochy. */
+/* Titulek je průhledný: vlevo pod ním pokračuje sidebar (ikona a název
+   sedí na něm), vpravo skleněná deska hlavní plochy s tlačítky okna. */
 :root[data-glass="on"] .fw-titlebar {
   background: transparent;
 }

@@ -15,6 +15,7 @@ mod fileop;
 mod native_drag;
 mod recycle;
 mod shellnew;
+mod snap;
 
 /* --------------------------------- chyby ----------------------------------- */
 
@@ -2872,6 +2873,8 @@ fn show_main_window(window: &tauri::WebviewWindow) {
 #[tauri::command]
 fn app_ready(window: tauri::WebviewWindow) {
     show_main_window(&window);
+    // WebView2 už stojí — overlay Snap Layouts znovu nad něj.
+    snap::reposition();
 }
 
 /// Store verze: při prvním startu (vlastní settings.json ještě není) převezme
@@ -2927,6 +2930,7 @@ fn main() {
             if let Some(window) = app.get_webview_window("main") {
                 apply_rounded_corners(&window);
                 external_drop::install(&window);
+                snap::install(&window);
                 std::thread::spawn(move || {
                     std::thread::sleep(SHOW_FALLBACK);
                     show_main_window(&window);
@@ -2945,6 +2949,11 @@ fn main() {
             std::thread::spawn(prune_thumbnail_cache);
             shellnew::preload();
             Ok(())
+        })
+        .on_window_event(|_, event| {
+            if matches!(event, tauri::WindowEvent::Resized(_) | tauri::WindowEvent::ScaleFactorChanged { .. }) {
+                snap::reposition();
+            }
         })
         .invoke_handler(tauri::generate_handler![
             app_ready,
