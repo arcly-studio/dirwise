@@ -89,3 +89,4 @@ Dirwise (dříve Finder-Win) – správce souborů pro Windows (jen Windows). Bi
 - Nepřidávat telemetrii ani další síťové požadavky (jediný je denní GET na GitHub API).
 - Nepushovat a netagovat bez pokynu.
 - Nové nativní závislosti nebo >150 řádků Rustu jen po schválení plánu uživatelem.
+- Nikdy trvale nemazat ani nevysypávat položky ze skutečného Koše uživatele, které skript sám nevytvořil v rámci jednoho běhu. Scény a testy s Košem smí pracovat jen s vlastními testovacími soubory a před každým trvalým smazáním ověřit cestu i čas smazání.
