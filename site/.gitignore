@@ -1,0 +1,8 @@
+node_modules
+dist
+.astro
+# Generuje scripts/prepare.mjs z docs/brand a ikony aplikace
+public/og.png
+public/favicon.ico
+public/favicon-32.png
+public/apple-touch-icon.png

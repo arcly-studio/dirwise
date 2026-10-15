@@ -1,4 +1,6 @@
 @import "tailwindcss";
+/* Web (site/) má vlastní build – Tailwind aplikace ho neprochází. */
+@source not "../site";
 
 /* Tailwind v4 nemá tailwind.config.js — darkMode: 'class' se zapíná takhle. */
 @custom-variant dark (&:where(.dark, .dark *));

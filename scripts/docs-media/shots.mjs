@@ -1,5 +1,5 @@
 // Screenshoty do docs/screenshots (viz CLAUDE.md, sekce Screenshoty a demo).
-// node scripts/docs-media/shots.mjs [jméno …]   (bez argumentu všech šest)
+// node scripts/docs-media/shots.mjs [jméno …]   (bez argumentu všech osm)
 // Výchozí vzhled (Průhlednost vypnutá). Scéna transparency je skutečný snímek
 // obrazovky: okno s rozmazanou průhledností (Acrylic) před testovací tapetou (wallpaper.mjs).
 // --store: 1920×1080 do docs/store/ (Microsoft Store chce aspoň 1366×768) – viewport 1280×720
@@ -9,7 +9,7 @@ import { fileURLToPath } from "url";
 import { setup, panel, TABS } from "./setup.mjs";
 import { announceFocus, screen, stage } from "./wallpaper.mjs";
 
-const ALL = ["hero-dark", "hero-light", "split-view", "command-palette", "previews", "transparency"];
+const ALL = ["hero-dark", "hero-light", "split-view", "command-palette", "previews", "transparency", "columns", "tabs"];
 const STORE = process.argv.includes("--store");
 const args = process.argv.slice(2).filter((a) => a !== "--store");
 const which = args.length > 0 ? args : ALL;
@@ -85,6 +85,22 @@ const scenes = {
       ? { win: { X: 160, Y: 90, W: 1600, H: 900 }, area: { X: 0, Y: 0, W: 1920, H: 1080 } }
       : { win: { X: 200, Y: 120, W: 1280, H: 800 } },
     async run(c) { await c.wheel(Math.round(W * 0.55), Math.round(H * 0.6), 150, 6); await c.sleep(1500); },
+  },
+  // Sloupcové zobrazení: Photos → Summer 2026 → coastline.jpg, vpravo panel s náhledem fotky.
+  columns: {
+    opts: { tabs: { active: 0, items: [panel("Photos", "column"), TABS.items[1], TABS.items[2]] } },
+    async run(c, h) {
+      await h.clickEl("[data-path]", "Summer 2026");
+      await c.sleep(1200);
+      await h.clickEl("[data-path]", "coastline.jpg");
+      await c.sleep(2500);
+    },
+  },
+  // Více záložek s různými složkami a zobrazeními, aktivní Documents jako seznam.
+  tabs: {
+    opts: { tabs: { active: 1, items: [TABS.items[0], panel("Documents", "list"), panel("Projects", "column"), panel("Music", "list"), panel("Downloads", "icon")] } },
+    // Řádek v seznamu má v textu i další sloupce – klik na šestý řádek (roadmap.pptx) podle polohy.
+    async run(c) { await c.click(500, 264); await c.sleep(1200); },
   },
   previews: {
     opts: { tabs: { active: 0, items: [panel("Videos", "column"), TABS.items[1], TABS.items[2]] } },
