@@ -17,5 +17,9 @@
   },
   "engines": {
     "node": ">=22.12"
+  },
+  "devDependencies": {
+    "lucide": "^1.28.0",
+    "subset-font": "^2.9.0"
   }
 }

@@ -1,5 +1,5 @@
 // Screenshoty do docs/screenshots (viz CLAUDE.md, sekce Screenshoty a demo).
-// node scripts/docs-media/shots.mjs [jméno …]   (bez argumentu všech osm)
+// node scripts/docs-media/shots.mjs [jméno …]   (bez argumentu všech deset; recycle-bin poslední)
 // Výchozí vzhled (Průhlednost vypnutá). Scéna transparency je skutečný snímek
 // obrazovky: okno s rozmazanou průhledností (Acrylic) před testovací tapetou (wallpaper.mjs).
 // --store: 1920×1080 do docs/store/ (Microsoft Store chce aspoň 1366×768) – viewport 1280×720
@@ -9,7 +9,7 @@ import { fileURLToPath } from "url";
 import { setup, panel, TABS } from "./setup.mjs";
 import { announceFocus, screen, stage } from "./wallpaper.mjs";
 
-const ALL = ["hero-dark", "hero-light", "split-view", "command-palette", "previews", "transparency", "columns", "tabs"];
+const ALL = ["hero-dark", "hero-light", "split-view", "command-palette", "previews", "transparency", "columns", "tabs", "extensions", "recycle-bin"];
 const STORE = process.argv.includes("--store");
 const args = process.argv.slice(2).filter((a) => a !== "--store");
 const which = args.length > 0 ? args : ALL;
@@ -44,6 +44,12 @@ async function helpers(c) {
   const esc = () => c.key("Escape", "Escape", 27);
   return { clickEl, ctrl, palette, enter, esc };
 }
+
+// Soubory pro scénu Koše (kopie demo dat v C:\Demo); po snímku se z docs/demo vrátí zpátky.
+const TRASHED = ["C:\\Demo\\Documents\\quarterly-report.txt", "C:\\Demo\\Downloads\\setup.msi",
+  "C:\\Demo\\Photos\\Summer 2026\\festival.jpg", "C:\\Demo\\Projects\\cli-tool"];
+
+let sceneStart = 0;
 
 const ICON = (c, h) => h.clickEl("[data-path]", "harbor-lights.jpg");
 // Hero 1.5: výpis odjetý pod skleněnou lištu, ať je sklo vidět (posun kolečkem nad obsahem).
@@ -102,6 +108,50 @@ const scenes = {
     // Řádek v seznamu má v textu i další sloupce – klik na šestý řádek (roadmap.pptx) podle polohy.
     async run(c) { await c.click(500, 264); await c.sleep(1200); },
   },
+  // Koš: pár demo souborů se skutečně smaže do Koše, snímek, pak se z Koše trvale odstraní jen ty
+  // z C:\Demo (setup.mjs filtruje výpis na C:\Demo, cizí položky Koše se neukážou ani nesmažou).
+  // Scéna je v ALL poslední; smazané soubory se pak obnoví z docs/demo, ať další běhy mají stejná data.
+  "recycle-bin": {
+    async run(c, h) {
+      const inv = (cmd, args) => c.evaluate(`window.__TAURI_INTERNALS__.invoke(${JSON.stringify(cmd)}, ${JSON.stringify(args)})`);
+      sceneStart = Math.floor(Date.now() / 1000);
+      await inv("delete_paths", { paths: TRASHED, permanent: false, elevate: false });
+      await c.sleep(1500);
+      await h.clickEl("button, [role=button], a, div", "Recycle Bin");
+      await c.sleep(2000);
+      await c.click(500, 168);
+      await c.sleep(1000);
+    },
+    async after(c) {
+      const inv = (cmd, args) => c.evaluate(`window.__TAURI_INTERNALS__.invoke(${JSON.stringify(cmd)}, ${JSON.stringify(args)})`);
+      // Jen položky, které scéna sama smazala (cesta a čas od startu scény) – nic jiného z Koše.
+      const mine = (await inv("list_recycle_bin", {})).filter((i) =>
+        TRASHED.includes(`${i.original_dir}\\${i.name}`) && i.deleted >= sceneStart - 5);
+      if (mine.length > 0) await inv("purge_recycled", { ids: mine.map((i) => i.id), elevate: false });
+      // Zpátky do C:\Demo z docs/demo (cesty v C:\Demo odpovídají docs/demo).
+      const demo = fileURLToPath(new URL("../../docs/demo/", import.meta.url));
+      for (const p of TRASHED) fs.cpSync(demo + p.replace(/^C:\\Demo\\/, ""), p, { recursive: true });
+    },
+  },
+  // Přípony: Více → Zobrazit ▸ Přípony souborů ▸ (Jako ve Windows / Vždy / Nikdy) nad seznamem Documents.
+  extensions: {
+    opts: { tabs: { active: 1, items: [TABS.items[0], panel("Documents", "list"), TABS.items[2]] } },
+    async run(c, h) {
+      await h.clickEl("button", "More");
+      await c.sleep(500);
+      const hover = async (text) => {
+        const pos = await c.evaluate(`(() => { const e = [...document.querySelectorAll("[role=menuitem], button, div")].reverse()
+          .find((x) => x.textContent.trim().startsWith(${JSON.stringify(text)}) && x.getBoundingClientRect().width > 0 && x.getBoundingClientRect().height < 40);
+          if (!e) return null; const r = e.getBoundingClientRect(); return [r.x + 30, r.y + r.height / 2]; })()`);
+        if (!pos) throw new Error("nenalezeno: " + text);
+        await c.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: pos[0], y: pos[1] });
+        await c.sleep(600);
+      };
+      await hover("View");
+      await hover("File Extensions");
+    },
+    keepMouse: true,
+  },
   previews: {
     opts: { tabs: { active: 0, items: [panel("Videos", "column"), TABS.items[1], TABS.items[2]] } },
     async run(c, h) { await h.clickEl("[data-path]", "city-drive.mp4"); await c.sleep(2500); },
@@ -131,7 +181,13 @@ for (const name of which) {
   } else {
     await c.sleep(1500);
     try { await scene.run(c, h); } catch (e) { console.error(e.message); }
-    await c.shot(`${OUT}${name}.png`);
+    // Kurzor myši CDP nehýbe — hover stavy bez kurzoru (u menu se myš nechá, jinak by se zavřelo).
+    if (!scene.keepMouse) await c.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: 1, y: 1 });
+    try {
+      await c.shot(`${OUT}${name}.png`);
+    } finally {
+      if (scene.after) await scene.after(c, h);
+    }
   }
   console.log("ok", name);
   c.close();

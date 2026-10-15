@@ -1,0 +1,190 @@
+/* Živá ukázka okna (LiveDemo.astro). Hodnoty podle tmavého tématu aplikace (src/index.css .dark)
+   a skutečných snímků (docs/screenshots): titulek 32 px, sidebar 200 px, řádek 24 px, písmo 13 px. */
+.dw-wrap { position: relative; }
+/* Pozastavení smyčky – mimo role="img", ať je pro čtečku dostupné */
+.dw-toggle {
+  position: absolute; right: 10px; bottom: -48px; width: 36px; height: 36px; display: grid; place-items: center;
+  color: #fff; background: rgba(28, 28, 30, 0.85); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 50%; cursor: pointer;
+}
+.dw-toggle:hover { background: rgba(58, 58, 60, 0.9); }
+.dw-toggle[hidden] { display: none; }
+.dw-toggle .i-play, .dw-toggle.is-paused .i-pause { display: none; }
+.dw-toggle.is-paused .i-play { display: block; }
+.dw-stage {
+  --text-primary: #f5f5f7;
+  --text-secondary: #aeaeb2;
+  --text-section: #98989d;
+  --row-sel: #0e4a8a;
+  --row-sel-dim: #0b3a6c;
+  --tint-code: #0a84ff;
+  --tint-archive: #ac8e68;
+  position: relative;
+  aspect-ratio: 1040 / 600;
+  width: 100%;
+  overflow: visible;
+  isolation: isolate;
+}
+@media (max-width: 640px) { .dw-stage { aspect-ratio: 720 / 600; } }
+
+/* Rozmazané barevné pozadí za oknem (jako tapeta pod Acrylicem) */
+.dw-backdrop {
+  position: absolute; inset: -10% -8%; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(38% 50% at 12% 30%, rgba(10, 132, 255, 0.75), transparent 70%),
+    radial-gradient(32% 45% at 90% 22%, rgba(191, 90, 242, 0.55), transparent 70%),
+    radial-gradient(40% 45% at 78% 92%, rgba(255, 159, 10, 0.4), transparent 70%),
+    radial-gradient(36% 42% at 20% 96%, rgba(50, 215, 75, 0.3), transparent 70%),
+    radial-gradient(50% 50% at 50% 50%, rgba(10, 132, 255, 0.35), transparent 75%);
+  filter: blur(48px);
+}
+
+.dw {
+  position: absolute; left: 0; top: 0; width: 1040px; height: 600px;
+  transform-origin: 0 0; transform: scale(var(--dw-scale, 1));
+  border-radius: 10px; overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(0, 0, 0, 0.5);
+  font: 400 13px/1.2 "Inter Variable", Inter, system-ui, sans-serif;
+  color: var(--text-primary);
+  background: rgba(30, 30, 30, 0.72);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  backdrop-filter: blur(24px) saturate(140%);
+  display: flex; flex-direction: column;
+  user-select: none;
+}
+@media (max-width: 640px) {
+  .dw { width: 720px; }
+  .dw-side { display: none; }
+}
+.dw svg { flex-shrink: 0; }
+.dw-folder { width: 16px; height: 16px; }
+
+/* Titulková lišta Windows 11 */
+.dw-titlebar { height: 32px; display: flex; align-items: center; gap: 8px; padding-left: 12px; font-size: 12px; flex-shrink: 0; }
+.dw-caption { margin-left: auto; display: flex; height: 100%; }
+.dw-caption i { width: 46px; height: 100%; position: relative; }
+.dw-caption i::before, .dw-caption i::after { content: ""; position: absolute; left: 50%; top: 50%; background: var(--text-primary); }
+.cap-min::before { width: 10px; height: 1px; transform: translate(-50%, -50%); }
+.cap-max::before { width: 9px; height: 9px; background: none !important; border: 1px solid var(--text-primary); border-radius: 1.5px; transform: translate(-50%, -50%); }
+.cap-close::before, .cap-close::after { width: 13px; height: 1px; transform: translate(-50%, -50%) rotate(45deg); }
+.cap-close::after { transform: translate(-50%, -50%) rotate(-45deg); }
+
+.dw-body { flex: 1; display: flex; min-height: 0; }
+
+/* Sidebar */
+.dw-side { width: 200px; flex-shrink: 0; padding: 4px 8px; margin-top: -32px; padding-top: 36px; background: rgba(40, 40, 40, 0.55); }
+.dw-side-h { color: var(--text-section); font-size: 12.5px; font-weight: 500; padding: 14px 8px 6px; }
+.dw-side-h:first-child { padding-top: 10px; }
+.dw-side-item { display: flex; align-items: center; gap: 8px; height: 28px; padding: 0 8px; border-radius: 6px; font-size: 13.5px; }
+.tone-accent { color: #0a84ff; }
+.tone-muted { color: var(--text-secondary); }
+
+.dw-main { flex: 1; display: flex; flex-direction: column; min-width: 0; background: rgba(0, 0, 0, 0.88); border-top-left-radius: 0; }
+.dw-titlebar { position: relative; z-index: 1; }
+.dw-body { margin-top: 0; }
+
+/* Toolbar */
+.dw-toolbar { height: 48px; display: flex; align-items: center; gap: 14px; padding: 0 14px 0 16px; flex-shrink: 0; color: var(--text-primary); }
+.dw-dim { color: #636366; }
+.dw-title { display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 15px; min-width: 120px; }
+.dw-title .dw-folder { width: 18px; height: 18px; }
+.dw-tools { display: flex; align-items: center; gap: 16px; margin-left: auto; color: #d1d1d6; }
+.dw-new { display: flex; align-items: center; gap: 5px; font-weight: 500; color: var(--text-primary); }
+.dw-seg { display: flex; align-items: center; gap: 2px; padding: 2px; background: rgba(255, 255, 255, 0.08); border-radius: 7px; }
+.dw-seg > svg, .dw-seg > b { padding: 4px 7px; box-sizing: content-box; }
+.dw-seg > b { display: flex; background: #636366; border-radius: 5px; }
+.dw-search { display: flex; align-items: center; gap: 6px; width: 170px; height: 28px; padding: 0 10px; border-radius: 7px; background: rgba(255, 255, 255, 0.08); color: var(--text-secondary); margin-left: 12px; }
+
+/* Záložky */
+.dw-tabs { height: 34px; display: flex; align-items: center; gap: 6px; padding: 0 10px; flex-shrink: 0; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+.dw-tab { display: flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 7px; color: var(--text-secondary); font-size: 12.5px; min-width: 120px; }
+.dw-tab.is-active { background: rgba(255, 255, 255, 0.12); color: var(--text-primary); font-weight: 500; }
+.dw-tab.is-active > svg:last-child { margin-left: auto; color: var(--text-secondary); }
+
+/* Sloupce */
+.dw-cols { flex: 1; display: flex; min-height: 0; }
+.dw-col { width: 210px; flex-shrink: 0; border-right: 1px solid rgba(255, 255, 255, 0.08); padding-top: 4px; }
+.dw-col.c2 { background: rgba(255, 255, 255, 0.035); }
+.dw-row { display: flex; align-items: center; gap: 8px; height: 24px; padding: 0 10px 0 12px; white-space: nowrap; }
+.dw-row span { overflow: hidden; text-overflow: ellipsis; }
+.dw-chev { margin-left: auto; color: var(--text-secondary); }
+.dw-file { width: 15px; height: 15px; }
+
+/* Co je vidět podle stavu */
+.l-downloads, .l-cli, .l-website, .l-public, .l-src, .dw-preview, .v-downloads, .v-c1, .s-c2 { display: none; }
+.dw[data-c1="cli"] .l-cli, .dw[data-c1="website"] .l-website,
+.dw[data-c2="public"] .l-public, .dw[data-c2="src"] .l-src { display: block; }
+.dw[data-c2="index"] .c3 { display: none; }
+.dw[data-c2="index"] .dw-preview { display: flex; }
+.dw:not([data-c2=""]) .v-c1, .dw:not([data-c2=""]) .s-c2 { display: inline; }
+.dw:not([data-c2=""]) .s-c1 { display: none; }
+.dw[data-loc="downloads"] .l-projects, .dw[data-loc="downloads"] .c2, .dw[data-loc="downloads"] .c3,
+.dw[data-loc="downloads"] .dw-preview, .dw[data-loc="downloads"] .v-projects { display: none; }
+.dw[data-loc="downloads"] .l-downloads { display: block; }
+.dw[data-loc="downloads"] .v-downloads { display: inline; }
+.dw[data-loc="downloads"] .dw-title .v-downloads, .dw[data-loc="downloads"] .dw-tab .v-downloads { display: inline; }
+
+/* Výběr: aktivní sloupec plnější modrá, nadřazený tlumenější */
+.dw[data-loc="projects"][data-c1="cli"] .c1 [data-row="cli"],
+.dw[data-loc="projects"][data-c1="website"] .c1 [data-row="website"] { background: var(--row-sel); }
+.dw:not([data-c2=""]) .c1 .dw-row { background: none; }
+.dw[data-loc="projects"]:not([data-c2=""])[data-c1="website"] .c1 [data-row="website"] { background: var(--row-sel-dim); }
+.dw[data-c2="public"] .c2 [data-row="public"], .dw[data-c2="src"] .c2 [data-row="src"],
+.dw[data-c2="index"] .c2 [data-row="index"] { background: var(--row-sel); }
+.dw[data-loc="projects"] [data-side="projects"], .dw[data-loc="downloads"] [data-side="downloads"] { background: rgba(255, 255, 255, 0.1); }
+
+/* Panel náhledu (sloupcové zobrazení) */
+.dw-preview { flex: 1; flex-direction: column; align-items: center; padding: 24px 16px 16px; min-width: 0; }
+.dw-preview-icon { width: 112px; height: 112px; border-radius: 16px; background: #3a3a3c; display: grid; place-items: center; color: var(--tint-code); }
+.dw-preview-name { font-weight: 600; margin: 14px 0 12px; }
+.dw-preview dl { width: 240px; margin: 0; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.1); display: grid; grid-template-columns: auto 1fr; gap: 9px 12px; font-size: 12.5px; }
+.dw-preview dt { color: var(--text-secondary); }
+.dw-preview dd { margin: 0; text-align: right; font-weight: 500; }
+.dw-open { margin-top: auto; width: 240px; height: 28px; border-radius: 6px; background: #0068da; display: grid; place-items: center; font-weight: 600; }
+
+/* Stavový řádek */
+.dw-status { height: 24px; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; font-size: 11.5px; color: var(--text-primary); border-top: 1px solid rgba(255, 255, 255, 0.08); flex-shrink: 0; background: rgba(28, 28, 30, 0.9); }
+.dw-crumbs { color: var(--text-primary); }
+
+/* Paleta příkazů Ctrl+K */
+.dw-palette {
+  position: absolute; left: 50%; top: 96px; width: 580px; translate: -50% 0;
+  background: rgba(38, 38, 40, 0.92); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 12px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+  -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+  opacity: 0; scale: 0.97; pointer-events: none;
+  transition: opacity 0.16s ease, scale 0.16s ease;
+}
+@media (max-width: 640px) { .dw-palette { width: 540px; } }
+.dw[data-pal="on"] .dw-palette { opacity: 1; scale: 1; }
+.dw-pal-input { display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 14px; font-size: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); color: var(--text-secondary); }
+#dw-typed { color: var(--text-primary); }
+.dw-caret { width: 1.5px; height: 18px; background: var(--text-primary); margin-left: -9px; animation: dw-blink 1s steps(1) infinite; }
+@keyframes dw-blink { 50% { opacity: 0; } }
+.dw-pal-tabs { display: flex; align-items: center; gap: 4px; padding: 8px 12px; font-size: 12.5px; color: var(--text-secondary); }
+.dw-pal-tabs > * { padding: 3px 8px; border-radius: 6px; font-style: normal; }
+.dw-pal-tabs b { background: rgba(10, 132, 255, 0.35); color: var(--text-primary); font-weight: 500; }
+.dw-pal-tabs em { margin-left: auto; font-size: 11.5px; }
+.dw-pal-results { padding: 0 6px 6px; display: none; }
+.dw[data-typed="3"] .dw-pal-results { display: block; }
+.dw-pal-row { display: flex; align-items: center; gap: 12px; min-height: 32px; padding: 4px 10px; border-radius: 7px; color: var(--text-primary); }
+.dw-pal-row > svg { color: var(--text-secondary); width: 16px; height: 16px; }
+.dw-pal-row small { display: block; color: #c7c7cc; font-size: 11.5px; margin-top: 2px; }
+.dw-pal-row kbd { margin-left: auto; font: inherit; font-size: 11.5px; color: var(--text-secondary); background: none; border: 0; padding: 0; }
+.dw-pal-row.is-sel { background: #1d4f86; min-height: 44px; }
+
+/* Ukazatel stisknuté klávesy */
+.dw-key {
+  position: absolute; left: 50%; bottom: 40px; translate: -50% 8px;
+  min-width: 52px; padding: 8px 16px; border-radius: 12px; text-align: center;
+  background: rgba(20, 20, 22, 0.85); border: 1px solid rgba(255, 255, 255, 0.18);
+  font-size: 22px; font-weight: 600; letter-spacing: 0.02em; color: #fff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  opacity: 0; transition: opacity 0.15s ease, translate 0.15s ease;
+}
+.dw-key.is-on { opacity: 1; translate: -50% 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dw-caret { animation: none; }
+  .dw-palette, .dw-key { transition: none; }
+}

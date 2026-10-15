@@ -12,7 +12,9 @@ const SOURCE: Record<Lang, { file: string; heading: string }> = {
 };
 
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-const cell = (s: string) => esc(s.trim()).replace(/`([^`]+)`/g, "<kbd>$1</kbd>");
+// `Ctrl+Shift+D` → jednotlivé klávesy <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>D</kbd>.
+const keys = (combo: string) => combo.split("+").map((k) => `<kbd>${k}</kbd>`).join('<span class="plus">+</span>');
+const cell = (s: string) => esc(s.trim()).replace(/`([^`]+)`/g, (_, combo: string) => keys(combo));
 
 export function shortcuts(lang: Lang): { main: Row[]; all: Row[] } {
   const { file, heading } = SOURCE[lang];

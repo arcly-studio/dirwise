@@ -1,0 +1,277 @@
+---
+// Živá ukázka: okno Dirwise v HTML/CSS (rozměry a barvy podle tmavého tématu aplikace).
+// Stav drží data-atributy na .dw (loc, c1, c2, pal); CSS podle nich ukazuje sloupce, výběr a paletu.
+// Výchozí (bez JS / s „omezit pohyb“) je statický stav: website → index.html s náhledem.
+import { getImage } from "astro:assets";
+import appIcon from "../../../app-icon.png";
+import { demoTexts } from "../i18n/demo";
+import type { Lang } from "../i18n/texts";
+import { icon } from "../lib/icons";
+import "../styles/demo.css";
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const d = demoTexts[lang];
+const logo = await getImage({ src: appIcon, width: 32, height: 32, format: "png" });
+
+const folder = `<svg class="dw-folder" viewBox="0 0 64 64" aria-hidden="true"><use href="#dw-folder"/></svg>`;
+const chevron = icon("ChevronRight", 12, 'class="dw-chev"');
+const file = (name: "FileCode2" | "FileText" | "FileArchive" | "AppWindow" | "File", tint: string) =>
+  icon(name, 15, `class="dw-file" style="color:${tint}"`);
+
+type Row = { id: string; name: string; dir?: boolean; ico?: string };
+const rows = (list: Row[]) =>
+  list
+    .map((r) => `<div class="dw-row" data-row="${r.id}">${r.dir ? folder : r.ico}<span>${r.name}</span>${r.dir ? chevron : ""}</div>`)
+    .join("");
+
+const code = file("FileCode2", "var(--tint-code)");
+const text = file("FileText", "var(--text-secondary)");
+const cols = {
+  projects: rows([{ id: "cli", name: "cli-tool", dir: true }, { id: "website", name: "website", dir: true }]),
+  cli: rows([
+    { id: "x-src", name: "src", dir: true },
+    { id: "x-cargo", name: "Cargo.toml", ico: text },
+    { id: "x-readme", name: "README.md", ico: text },
+  ]),
+  website: rows([
+    { id: "public", name: "public", dir: true },
+    { id: "src", name: "src", dir: true },
+    { id: "index", name: "index.html", ico: code },
+    { id: "pkg", name: "package.json", ico: code },
+    { id: "readme", name: "README.md", ico: text },
+  ]),
+  public: rows([{ id: "robots", name: "robots.txt", ico: text }]),
+  src: rows([
+    { id: "mainjs", name: "main.js", ico: code },
+    { id: "renderjs", name: "render.js", ico: code },
+    { id: "css", name: "styles.css", ico: code },
+  ]),
+  downloads: rows([
+    { id: "zip", name: "archive.zip", ico: file("FileArchive", "var(--tint-archive)") },
+    { id: "exe", name: "installer.exe", ico: file("AppWindow", "var(--text-secondary)") },
+    { id: "msi", name: "setup.msi", ico: file("File", "var(--text-secondary)") },
+  ]),
+};
+
+const side = (ico: Parameters<typeof icon>[0], label: string, id = "", tone = "accent") =>
+  `<div class="dw-side-item" ${id ? `data-side="${id}"` : ""}>${icon(ico, 16, `class="tone-${tone}"`)}<span>${label}</span></div>`;
+---
+<div class="dw-wrap">
+<div class="dw-stage" role="img" aria-label={d.label}>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <linearGradient id="dw-folder-grad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#ffd86b" /><stop offset="1" stop-color="#f6b73c" />
+      </linearGradient>
+      <symbol id="dw-folder" viewBox="0 0 64 64">
+        <path d="M6 8h16.2a3 3 0 0 1 2.1.9l3.4 3.4H58a3 3 0 0 1 3 3V52a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V11a3 3 0 0 1 3-3z" fill="#e0a12a" />
+        <path d="M3 21.5a3 3 0 0 1 3-3h52a3 3 0 0 1 3 3V53a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3z" fill="url(#dw-folder-grad)" />
+        <path d="M6 18.5h52a3 3 0 0 1 3 3v1H3v-1a3 3 0 0 1 3-3z" fill="#fff" opacity="0.35" />
+      </symbol>
+    </defs>
+  </svg>
+  <div class="dw-backdrop" aria-hidden="true"></div>
+  <div class="dw" id="dw" data-loc="projects" data-c1="website" data-c2="index" data-pal="off" aria-hidden="true">
+    <div class="dw-titlebar">
+      <img src={logo.src} width="16" height="16" alt="" />
+      <span>Dirwise</span>
+      <div class="dw-caption">
+        <i class="cap-min"></i><i class="cap-max"></i><i class="cap-close"></i>
+      </div>
+    </div>
+    <div class="dw-body">
+      <aside class="dw-side">
+        <div class="dw-side-h">{d.quickAccess}</div>
+        <Fragment set:html={side("Folder", "Projects", "projects")} />
+        <Fragment set:html={side("Folder", "Photos")} />
+        <div class="dw-side-h">{d.thisPc}</div>
+        <Fragment set:html={side("Monitor", d.desktop)} />
+        <Fragment set:html={side("Download", d.downloads, "downloads")} />
+        <Fragment set:html={side("FileText", d.documents)} />
+        <Fragment set:html={side("Image", d.pictures)} />
+        <Fragment set:html={side("Music", d.music)} />
+        <Fragment set:html={side("Video", d.videos)} />
+        <Fragment set:html={side("House", d.home)} />
+        <div class="dw-side-h">{d.drives}</div>
+        <Fragment set:html={side("HardDrive", d.disk, "", "muted")} />
+        <Fragment set:html={side("Trash2", d.trash, "", "muted")} />
+      </aside>
+      <div class="dw-main">
+        <div class="dw-toolbar">
+          <Fragment set:html={icon("ChevronLeft", 16, 'class="dw-dim"')} />
+          <Fragment set:html={icon("ChevronRight", 16, 'class="dw-dim"')} />
+          <div class="dw-title">
+            <Fragment set:html={folder} />
+            <span class="v-projects">Projects</span><span class="v-downloads">{d.downloads}</span>
+          </div>
+          <div class="dw-tools">
+            <span class="dw-new"><Fragment set:html={icon("Plus", 15)} />{d.newBtn}</span>
+            <span class="dw-seg">
+              <Fragment set:html={icon("LayoutGrid", 14)} />
+              <Fragment set:html={icon("List", 14)} />
+              <b><Fragment set:html={icon("Columns3", 14)} /></b>
+            </span>
+            <Fragment set:html={icon("SlidersHorizontal", 15)} />
+            <Fragment set:html={icon("Share", 15)} />
+            <Fragment set:html={icon("Tag", 15)} />
+            <Fragment set:html={icon("Columns2", 15)} />
+            <Fragment set:html={icon("Ellipsis", 15)} />
+          </div>
+          <div class="dw-search"><Fragment set:html={icon("Search", 14)} />{d.search}</div>
+        </div>
+        <div class="dw-tabs">
+          <span class="dw-tab is-active"><Fragment set:html={folder} /><span class="v-projects">Projects</span><span class="v-downloads">{d.downloads}</span><Fragment set:html={icon("X", 12)} /></span>
+          <span class="dw-tab"><Fragment set:html={folder} />{d.documents}</span>
+          <Fragment set:html={icon("Plus", 14, 'class="dw-dim"')} />
+        </div>
+        <div class="dw-cols">
+          <div class="dw-col c1">
+            <div class="l-projects" set:html={cols.projects} />
+            <div class="l-downloads" set:html={cols.downloads} />
+          </div>
+          <div class="dw-col c2">
+            <div class="l-cli" set:html={cols.cli} />
+            <div class="l-website" set:html={cols.website} />
+          </div>
+          <div class="dw-col c3">
+            <div class="l-public" set:html={cols.public} />
+            <div class="l-src" set:html={cols.src} />
+          </div>
+          <div class="dw-preview">
+            <div class="dw-preview-icon"><Fragment set:html={icon("FileCode2", 56)} /></div>
+            <div class="dw-preview-name">index.html</div>
+            <dl>
+              <dt>{d.kind}</dt><dd>{d.htmlKind}</dd>
+              <dt>{d.size}</dt><dd>231 B</dd>
+              <dt>{d.created}</dt><dd>{d.date}</dd>
+              <dt>{d.modified}</dt><dd>{d.date}</dd>
+            </dl>
+            <div class="dw-open">{d.open}</div>
+          </div>
+        </div>
+        <div class="dw-status">
+          <span class="dw-crumbs">C: › {d.home} › <span class="v-projects">Projects<span class="v-c1"> › website</span></span><span class="v-downloads">{d.downloads}</span></span>
+          <span class="v-projects"><span class="s-c1">{d.selected(1, 2)}</span><span class="s-c2">{d.selected(1, 5)}</span></span>
+          <span class="v-downloads">{d.items(3)}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="dw-palette">
+      <div class="dw-pal-input"><Fragment set:html={icon("Search", 16)} /><span id="dw-typed"></span><i class="dw-caret"></i></div>
+      <div class="dw-pal-tabs">
+        <b>{d.all}</b><span>{d.folders}</span><span>{d.actions}</span><span>{d.tags}</span>
+        <em>{d.hints}</em>
+      </div>
+      <div class="dw-pal-results">
+        <div class="dw-pal-row is-sel">
+          <Fragment set:html={folder} />
+          <div><div>{d.downloads}</div><small>{d.sourceFavorite} · C:\Demo\Downloads</small></div>
+        </div>
+        <div class="dw-pal-row">
+          <Fragment set:html={icon("Zap", 15)} /><div>{d.split}</div><kbd>Ctrl+Shift+D</kbd>
+        </div>
+        <div class="dw-pal-row">
+          <Fragment set:html={icon("FileSearch", 15)} /><div>{d.searchFiles("dow")}</div>
+        </div>
+      </div>
+    </div>
+    <div class="dw-key" id="dw-key"></div>
+  </div>
+</div>
+
+<button type="button" class="dw-toggle" id="dw-toggle" hidden data-play={d.play} data-pause={d.pause} aria-label={d.pause}>
+  <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" class="i-pause"><path fill="currentColor" d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>
+  <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" class="i-play"><path fill="currentColor" d="M8 5.5v13l10.5-6.5z"/></svg>
+</button>
+</div>
+
+<script is:inline>
+  // Měřítko okna podle šířky (návrh 1040 px, na úzkém displeji kompaktní 720 px bez sidebaru).
+  // Inline hned za oknem, ať se nastaví před prvním vykreslením.
+  (() => {
+    const stage = document.querySelector(".dw-stage");
+    const fit = () => {
+      const compact = matchMedia("(max-width: 640px)").matches;
+      stage.style.setProperty("--dw-scale", String(stage.clientWidth / (compact ? 720 : 1040)));
+    };
+    fit();
+    new ResizeObserver(fit).observe(stage);
+  })();
+</script>
+
+<script>
+  // Smyčka ~10 s nad data-atributy .dw. Běží jen na obrazovce a ve viditelné kartě; tlačítko ji
+  // pozastaví (WCAG 2.2.2). S „omezit pohyb“ (i po změně za běhu) zůstane statický stav jako v HTML.
+  const stage = document.querySelector<HTMLElement>(".dw-stage");
+  const dw = document.getElementById("dw");
+  const toggle = document.getElementById("dw-toggle") as HTMLButtonElement | null;
+  if (stage && dw && toggle) {
+    const typed = document.getElementById("dw-typed")!;
+    const key = document.getElementById("dw-key")!;
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)");
+    let keyTimer = 0;
+    const press = (k: string) => {
+      key.textContent = k;
+      key.classList.add("is-on");
+      clearTimeout(keyTimer);
+      keyTimer = window.setTimeout(() => key.classList.remove("is-on"), 650);
+    };
+    const set = (s: Partial<Record<"loc" | "c1" | "c2" | "pal", string>>) => Object.assign(dw.dataset, s);
+    const type = (s: string) => { typed.textContent = s; dw.dataset.typed = String(s.length); };
+    const steps: [number, () => void][] = [
+      [0, () => { set({ loc: "projects", c1: "cli", c2: "", pal: "off" }); type(""); }],
+      [1000, () => { press("↓"); set({ c1: "website" }); }],
+      [2100, () => { press("→"); set({ c2: "public" }); }],
+      [3100, () => { press("↓"); set({ c2: "src" }); }],
+      [4100, () => { press("↓"); set({ c2: "index" }); }],
+      [5700, () => { press("Ctrl+K"); set({ pal: "on" }); }],
+      [6400, () => type("d")],
+      [6600, () => type("do")],
+      [6800, () => type("dow")],
+      [8000, () => { press("Enter"); set({ pal: "off", loc: "downloads", c2: "" }); type(""); }],
+      [10500, () => {}],
+    ];
+    let i = 0;
+    let timer = 0;
+    let running = false;
+    let paused = false; // pozastaveno uživatelem
+    let visible = false;
+    const run = () => {
+      const [at, fn] = steps[i];
+      fn();
+      const next = (i + 1) % steps.length;
+      i = next;
+      timer = window.setTimeout(run, next === 0 ? 0 : steps[next][0] - at);
+    };
+    const start = () => { if (!running) { running = true; run(); } };
+    const stop = () => { running = false; clearTimeout(timer); };
+    // Statický stav (jako v HTML): website → index.html s náhledem.
+    const still = () => {
+      stop(); i = 0;
+      set({ loc: "projects", c1: "website", c2: "index", pal: "off" }); type("");
+      key.classList.remove("is-on");
+    };
+    const label = () => {
+      toggle.classList.toggle("is-paused", paused);
+      toggle.setAttribute("aria-label", paused ? toggle.dataset.play! : toggle.dataset.pause!);
+    };
+    const update = () => {
+      if (reduce.matches) { still(); toggle.hidden = true; return; }
+      toggle.hidden = false;
+      if (visible && !document.hidden && !paused) start();
+      else if (!paused) { stop(); i = 0; } // mimo obrazovku: příště od začátku
+    };
+    toggle.addEventListener("click", () => {
+      paused = !paused;
+      if (paused) stop(); // zamrzne na aktuálním kroku
+      label();
+      update();
+    });
+    new IntersectionObserver((e) => { visible = e.some((x) => x.isIntersecting); update(); }).observe(stage);
+    document.addEventListener("visibilitychange", update);
+    reduce.addEventListener("change", update);
+    label();
+  }
+</script>

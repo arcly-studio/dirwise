@@ -1,7 +1,8 @@
 # Web Dirwise (site/, Astro) na GitHub Pages. Pages musí mít v nastavení repa zdroj „GitHub Actions“.
 # Adresa a base se berou z actions/configure-pages – sedí na <owner>.github.io/<repo>/ i na vlastní doménu.
 # Na push běží jen s proměnnou repa PAGES_ENABLED=true (nastavit po zapnutí Pages), jinak by configure-pages
-# padal; ručně (workflow_dispatch) vždy.
+# padal; ručně (workflow_dispatch) vždy – i po vydání (nová verze a velikost v hero). Trigger release
+# nejde: prostředí github-pages povoluje nasazení jen z výchozí větve, ne z tagu.
 name: Pages
 
 on:
@@ -13,6 +14,7 @@ on:
       - "docs/brand/**"
       - "README.md"
       - "README.cs.md"
+      - "package.json"
       - "app-icon.png"
       - "src-tauri/icons/icon.ico"
       - ".github/workflows/pages.yml"
@@ -49,6 +51,8 @@ jobs:
       # npm run build = prepare (OG obrázek, favicony) + astro build + kontrola zakázaných slov
       - run: npm run build
         env:
+          # velikost instalátoru z GitHub API (site/src/lib/release.ts) bez limitu anonymních požadavků
+          GITHUB_TOKEN: ${{ github.token }}
           SITE_URL: ${{ steps.pages.outputs.origin }}
           BASE_PATH: ${{ steps.pages.outputs.base_path }}
 

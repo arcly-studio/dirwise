@@ -1,5 +1,6 @@
 // Namapuje standardní složky na C:\Demo (bez jména uživatele), zahodí cloud sekci,
 // podvrhne typy menu + New, nastaví viewport a znovu načte stránku. Patch žije jen po dobu CDP session.
+// Koš: výpis i počet jen z položek, které pocházejí z C:\Demo – skutečný obsah Koše se nikde neukáže.
 // Předpoklad: složky z docs/demo zkopírované do C:\Demo a běžící dev s CDP na portu 9333.
 import { connect } from "./cdp.mjs";
 
@@ -21,6 +22,16 @@ const patch = `(() => {
   window.fetch = async (input, init) => {
     const url = typeof input === "string" ? input : input.url;
     const res = await of(input, init);
+    if (url.startsWith("http://ipc.localhost/list_recycle_bin") && res.ok) {
+      const items = (await res.json()).filter((i) => /^C:\\\\Demo(\\\\|$)/i.test(i.original_dir));
+      window.__demoTrash = items;
+      return new Response(JSON.stringify(items), { status: res.status, headers: res.headers });
+    }
+    if (url.startsWith("http://ipc.localhost/recycle_bin_state") && res.ok) {
+      const items = window.__demoTrash ?? [];
+      const state = { count: items.length, size: items.reduce((a, i) => a + i.size, 0) };
+      return new Response(JSON.stringify(state), { status: res.status, headers: res.headers });
+    }
     if (url.startsWith("http://ipc.localhost/list_shell_new") && res.ok) {
       return new Response(JSON.stringify(SHELL_NEW), { status: res.status, headers: res.headers });
     }
