@@ -12,6 +12,7 @@
 [![Stažení](https://img.shields.io/github/downloads/krystof2-ops/dirwise/total)](https://github.com/krystof2-ops/dirwise/releases)
 [![Licence](https://img.shields.io/github/license/krystof2-ops/dirwise)](LICENSE)
 ![Windows 10/11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows)
+[![Listed on Open Source Alternatives](https://www.opensourcealternatives.to/badge-osa.svg)](https://www.opensourcealternatives.to)
 
 <p align="center"><a href="https://github.com/krystof2-ops/dirwise/releases/latest"><img src="docs/buttons/download-cs.svg" alt="Stáhnout pro Windows" height="68"></a></p>
 
