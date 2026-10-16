@@ -112,6 +112,10 @@ const en = {
       a: "Bug reports, ideas and pull requests are welcome on GitHub. The interface is in English and Czech; texts live in the translation files in src/i18n, so a new language starts with a new file there.",
     },
   ] satisfies Faq[],
+  wingetFaq: {
+    q: "Can I install it with winget?",
+    a: "Yes. Install with winget: winget install krystof2-ops.Dirwise – later versions come with winget upgrade krystof2-ops.Dirwise.",
+  } satisfies Faq,
   footer: { github: "GitHub", changelog: "Changelog", support: "Support", privacy: "Privacy" },
   footerNav: "Links",
   footerNote: "Dirwise is free software under the MIT license.",
@@ -220,6 +224,10 @@ const cs: typeof en = {
       a: "Chyby, nápady i pull requesty vítáme na GitHubu. Rozhraní je anglicky a česky; texty jsou v překladových souborech v src/i18n, nový jazyk tedy začíná novým souborem tam.",
     },
   ],
+  wingetFaq: {
+    q: "Jde Dirwise nainstalovat přes winget?",
+    a: "Ano. Instalace přes winget: winget install krystof2-ops.Dirwise – další verze pak přes winget upgrade krystof2-ops.Dirwise.",
+  },
   footer: { github: "GitHub", changelog: "Seznam změn", support: "Podpora", privacy: "Soukromí" },
   footerNav: "Odkazy",
   footerNote: "Dirwise je svobodný software pod licencí MIT.",

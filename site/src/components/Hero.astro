@@ -4,11 +4,13 @@ import { texts, type Lang } from "../i18n/texts";
 import { icon } from "../lib/icons";
 import { links, storeLink, WINGET } from "../lib/links";
 import { formatSize, release } from "../lib/release";
+import { wingetAvailable } from "../lib/winget";
 
 interface Props { lang: Lang; base: string }
 const { lang, base } = Astro.props;
 const t = texts[lang];
 const rel = await release();
+const winget = await wingetAvailable();
 const meta = ["Windows 10/11", "x64", rel.bytes && formatSize(rel.bytes, lang), `v${rel.version}`].filter(Boolean).join(" · ");
 ---
 <section class="hero" id="download">
@@ -34,7 +36,7 @@ const meta = ["Windows 10/11", "x64", rel.bytes && formatSize(rel.bytes, lang), 
   <div class="winget">
     <span class="winget-prompt" aria-hidden="true">&gt;</span>
     <code>{WINGET}</code>
-    <span class="pill">{t.soon}</span>
+    {!winget && <span class="pill">{t.soon}</span>}
     <button type="button" class="copy" data-copy={WINGET} data-done={t.copied} aria-live="polite">
       <Fragment set:html={icon("Copy", 14)} /><span>{t.copy}</span>
     </button>

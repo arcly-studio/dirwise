@@ -17,7 +17,7 @@
 
 <p align="center"><a href="https://apps.microsoft.com/detail/9MZ67726S65X?mode=direct"><img src="https://get.microsoft.com/images/en-us%20dark.svg" alt="Get it from Microsoft" width="200"></a></p>
 
-or: `winget install krystof2-ops.Dirwise` *(coming soon)*
+<!-- winget:hero -->or: `winget install krystof2-ops.Dirwise` *(coming soon)*<!-- /winget -->
 
 <img src="docs/demo.gif" width="960" alt="Dirwise demo: files scrolling under the glass toolbar, blurred transparency turned on and its strength changed from the Ctrl+K command palette">
 
@@ -149,7 +149,7 @@ Upgrading from Finder-Win 1.5.x: the Dirwise installer silently uninstalls the o
 
 Or get it from the [Microsoft Store](https://apps.microsoft.com/detail/9MZ67726S65X) – no SmartScreen warning, updates come through the Store.
 
-Also coming: **winget** (`winget install krystof2-ops.Dirwise`; the manifest is in [`winget/`](winget)).
+<!-- winget:install -->Also coming: **winget** (`winget install krystof2-ops.Dirwise`; the manifest is in [`winget/`](winget)).<!-- /winget -->
 
 <details>
 <summary>Known limitations</summary>

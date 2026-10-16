@@ -17,7 +17,7 @@
 
 <p align="center"><a href="https://apps.microsoft.com/detail/9MZ67726S65X?hl=cs-cz&gl=CZ&mode=direct"><img src="https://get.microsoft.com/images/cs%20dark.svg" alt="Získat od Microsoftu" width="200"></a></p>
 
-nebo: `winget install krystof2-ops.Dirwise` *(brzy)*
+<!-- winget:hero -->nebo: `winget install krystof2-ops.Dirwise` *(brzy)*<!-- /winget -->
 
 <img src="docs/demo.gif" width="960" alt="Ukázka Dirwise: soubory zajíždějí pod skleněný toolbar, zapnutí rozmazané průhlednosti a změna její síly z palety Ctrl+K">
 
@@ -149,7 +149,7 @@ Aktualizace z Finder-Win 1.5.x: instalátor Dirwise starou verzi sám tiše odin
 
 Nebo si aplikaci nainstaluj z [Microsoft Storu](https://apps.microsoft.com/detail/9MZ67726S65X?hl=cs-cz&gl=CZ) – bez varování SmartScreen, aktualizace přicházejí přes Store.
 
-Připravujeme: **winget** (`winget install krystof2-ops.Dirwise`; manifest je ve složce [`winget/`](winget)).
+<!-- winget:install -->Připravujeme: **winget** (`winget install krystof2-ops.Dirwise`; manifest je ve složce [`winget/`](winget)).<!-- /winget -->
 
 <details>
 <summary>Známá omezení</summary>

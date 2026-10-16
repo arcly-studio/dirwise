@@ -14,6 +14,7 @@ import { texts, type Lang, type FeatureKey } from "../i18n/texts";
 import { shortcuts } from "../lib/shortcuts";
 import { links, BASE, pageHref } from "../lib/links";
 import { icon } from "../lib/icons";
+import { wingetAvailable } from "../lib/winget";
 import Hero from "./Hero.astro";
 import LiveDemo from "./LiveDemo.astro";
 import Layout from "./Layout.astro";
@@ -28,6 +29,8 @@ const asset = (p: string) => `${base}${p}`;
 
 const poster = await getImage({ src: heroDark, width: 1280, format: "webp", quality: 80 });
 const keys = shortcuts(lang);
+// Otázka o wingetu až po schválení balíčku (lib/winget.ts), hned za „zdarma“.
+const faq = (await wingetAvailable()) ? [t.faq[0], t.wingetFaq, ...t.faq.slice(1)] : t.faq;
 
 // Karty funkcí: výřez skutečného screenshotu – zvětšení `zoom` kolem bodu `focus` (CSS transform-origin).
 // wide = karta přes dva sloupce (bento).
@@ -136,7 +139,7 @@ const cardSizes = (c: Card) => {
           <h2 id="faq-title">{t.faqTitle}</h2>
         </header>
         <div class="faq-list">
-          {t.faq.map((f, i) => (
+          {faq.map((f, i) => (
             <details name="faq" open={i === 0}>
               <summary>{f.q}<span class="faq-plus" aria-hidden="true" /></summary>
               <p>{f.a}</p>

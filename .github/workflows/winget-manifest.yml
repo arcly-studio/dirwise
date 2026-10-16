@@ -59,6 +59,7 @@ jobs:
           sed -i -E "s|^PackageVersion: .*|PackageVersion: ${VERSION}|" winget/*.yaml
           sed -i -E "s|^(\s*InstallerUrl: ).*|\1${URL}|" winget/krystof2-ops.Dirwise.installer.yaml
           sed -i -E "s|^(\s*InstallerSha256: ).*|\1${SHA}|" winget/krystof2-ops.Dirwise.installer.yaml
+          sed -i -E "s|^ReleaseDate: .*|ReleaseDate: $(date -u +%F)|" winget/krystof2-ops.Dirwise.installer.yaml
           sed -i -E "s|^ReleaseNotesUrl: .*|ReleaseNotesUrl: https://github.com/$GITHUB_REPOSITORY/releases/tag/${TAG}|" winget/krystof2-ops.Dirwise.locale.en-US.yaml
 
       - name: Pull request
