@@ -6,7 +6,7 @@
 
 **Rychlý správce souborů pro Windows ovladatelný klávesnicí – sloupcové zobrazení, záložky, rozdělené okno, rychlý náhled a Ctrl+K.**
 
-[English](README.md) · **Čeština**
+[English](README.md) · **Čeština** · [Web](https://krystof2-ops.github.io/dirwise/cs/)
 
 [![Poslední verze](https://img.shields.io/github/v/release/krystof2-ops/dirwise)](https://github.com/krystof2-ops/dirwise/releases/latest)
 [![Stažení](https://img.shields.io/github/downloads/krystof2-ops/dirwise/total)](https://github.com/krystof2-ops/dirwise/releases)

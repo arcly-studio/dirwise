@@ -6,7 +6,7 @@
 
 **A fast, keyboard-friendly file manager for Windows — column view, tabs, split view, instant preview and Ctrl+K.**
 
-**English** · [Čeština](README.cs.md)
+**English** · [Čeština](README.cs.md) · [Website](https://krystof2-ops.github.io/dirwise/)
 
 [![Latest release](https://img.shields.io/github/v/release/krystof2-ops/dirwise)](https://github.com/krystof2-ops/dirwise/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/krystof2-ops/dirwise/total)](https://github.com/krystof2-ops/dirwise/releases)
