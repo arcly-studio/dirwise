@@ -4,7 +4,7 @@ version = "1.6.0"
 description = "A fast, keyboard-friendly file manager for Windows"
 authors = ["krystof2-ops"]
 license = "MIT"
-repository = "https://github.com/krystof2-ops/finder-win"
+repository = "https://github.com/krystof2-ops/dirwise"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

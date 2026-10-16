@@ -1,6 +1,5 @@
-// Odkazy mimo web. Repo zůstává krystof2-ops/finder-win do přejmenování (CLAUDE.md),
-// GitHub pak starou adresu přesměruje; změní se jen REPO.
-export const REPO = "https://github.com/krystof2-ops/finder-win";
+// Odkazy mimo web (repo dříve finder-win, GitHub starou adresu přesměruje).
+export const REPO = "https://github.com/krystof2-ops/dirwise";
 
 export const links = {
   repo: REPO,

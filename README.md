@@ -8,12 +8,12 @@
 
 **English** · [Čeština](README.cs.md)
 
-[![Latest release](https://img.shields.io/github/v/release/krystof2-ops/finder-win)](https://github.com/krystof2-ops/finder-win/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/krystof2-ops/finder-win/total)](https://github.com/krystof2-ops/finder-win/releases)
-[![License](https://img.shields.io/github/license/krystof2-ops/finder-win)](LICENSE)
+[![Latest release](https://img.shields.io/github/v/release/krystof2-ops/dirwise)](https://github.com/krystof2-ops/dirwise/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/krystof2-ops/dirwise/total)](https://github.com/krystof2-ops/dirwise/releases)
+[![License](https://img.shields.io/github/license/krystof2-ops/dirwise)](LICENSE)
 ![Windows 10/11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows)
 
-<p align="center"><a href="https://github.com/krystof2-ops/finder-win/releases/latest"><img src="docs/buttons/download.svg" alt="Download for Windows" height="68"></a></p>
+<p align="center"><a href="https://github.com/krystof2-ops/dirwise/releases/latest"><img src="docs/buttons/download.svg" alt="Download for Windows" height="68"></a></p>
 
 <p align="center"><a href="https://apps.microsoft.com/detail/9MZ67726S65X?mode=direct"><img src="https://get.microsoft.com/images/en-us%20dark.svg" alt="Get it from Microsoft" width="200"></a></p>
 
@@ -142,7 +142,7 @@ Dirwise (formerly Finder-Win) is inspired by the macOS Finder, built for Windows
 
 ## Install
 
-1. Download `Dirwise_…_x64-setup.exe` from the [latest release](https://github.com/krystof2-ops/finder-win/releases/latest) and run it. It installs for the current user only; no administrator rights needed.
+1. Download `Dirwise_…_x64-setup.exe` from the [latest release](https://github.com/krystof2-ops/dirwise/releases/latest) and run it. It installs for the current user only; no administrator rights needed.
 2. The installer is not code-signed, so Windows SmartScreen shows *"Windows protected your PC"*. Click **More info** → **Run anyway**.
 
 Upgrading from Finder-Win 1.5.x: the Dirwise installer silently uninstalls the old version itself (no second copy side by side) and your settings are kept. Pin it to the taskbar again.
@@ -164,7 +164,7 @@ Also coming: **winget** (`winget install krystof2-ops.Dirwise`; the manifest is 
 
 ## Privacy
 
-Dirwise makes exactly one kind of network request: at most once a day it asks the GitHub API (`api.github.com/repos/krystof2-ops/finder-win/releases/latest`) whether a newer version exists and, if so, shows a small bar with a link to the release page. No telemetry, nothing about you or your files is sent. Turn the check off in More → Check for Updates.
+Dirwise makes exactly one kind of network request: at most once a day it asks the GitHub API (`api.github.com/repos/krystof2-ops/dirwise/releases/latest`) whether a newer version exists and, if so, shows a small bar with a link to the release page. No telemetry, nothing about you or your files is sent. Turn the check off in More → Check for Updates.
 
 ## Build from source
 
@@ -178,7 +178,7 @@ npm run tauri build   # build the installer → src-tauri/target/release/bundle/
 
 ## Contributing
 
-Bug reports and pull requests are welcome in [Issues](https://github.com/krystof2-ops/finder-win/issues). Before a PR, run `npm run build` and, in `src-tauri`, `cargo clippy -- -D warnings` and `cargo test`. UI texts go through the translation files in `src/i18n/` (English and Czech). Security issues: see [SECURITY.md](SECURITY.md).
+Bug reports and pull requests are welcome in [Issues](https://github.com/krystof2-ops/dirwise/issues). Before a PR, run `npm run build` and, in `src-tauri`, `cargo clippy -- -D warnings` and `cargo test`. UI texts go through the translation files in `src/i18n/` (English and Czech). Security issues: see [SECURITY.md](SECURITY.md).
 
 Release notes are in [CHANGELOG.md](CHANGELOG.md).
 

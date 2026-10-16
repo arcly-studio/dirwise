@@ -8,12 +8,12 @@
 
 [English](README.md) · **Čeština**
 
-[![Poslední verze](https://img.shields.io/github/v/release/krystof2-ops/finder-win)](https://github.com/krystof2-ops/finder-win/releases/latest)
-[![Stažení](https://img.shields.io/github/downloads/krystof2-ops/finder-win/total)](https://github.com/krystof2-ops/finder-win/releases)
-[![Licence](https://img.shields.io/github/license/krystof2-ops/finder-win)](LICENSE)
+[![Poslední verze](https://img.shields.io/github/v/release/krystof2-ops/dirwise)](https://github.com/krystof2-ops/dirwise/releases/latest)
+[![Stažení](https://img.shields.io/github/downloads/krystof2-ops/dirwise/total)](https://github.com/krystof2-ops/dirwise/releases)
+[![Licence](https://img.shields.io/github/license/krystof2-ops/dirwise)](LICENSE)
 ![Windows 10/11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows)
 
-<p align="center"><a href="https://github.com/krystof2-ops/finder-win/releases/latest"><img src="docs/buttons/download-cs.svg" alt="Stáhnout pro Windows" height="68"></a></p>
+<p align="center"><a href="https://github.com/krystof2-ops/dirwise/releases/latest"><img src="docs/buttons/download-cs.svg" alt="Stáhnout pro Windows" height="68"></a></p>
 
 <p align="center"><a href="https://apps.microsoft.com/detail/9MZ67726S65X?hl=cs-cz&gl=CZ&mode=direct"><img src="https://get.microsoft.com/images/cs%20dark.svg" alt="Získat od Microsoftu" width="200"></a></p>
 
@@ -142,7 +142,7 @@ Dirwise (dříve Finder-Win) je inspirován macOS Finderem, vytvořený pro Wind
 
 ## Instalace
 
-1. Stáhni `Dirwise_…_x64-setup.exe` z [poslední verze](https://github.com/krystof2-ops/finder-win/releases/latest) a spusť ho. Instaluje se jen pro aktuálního uživatele, práva správce nejsou potřeba.
+1. Stáhni `Dirwise_…_x64-setup.exe` z [poslední verze](https://github.com/krystof2-ops/dirwise/releases/latest) a spusť ho. Instaluje se jen pro aktuálního uživatele, práva správce nejsou potřeba.
 2. Instalátor není digitálně podepsaný, takže Windows SmartScreen ukáže „Systém Windows ochránil váš počítač“. Klikni na **Další informace** → **Přesto spustit**.
 
 Aktualizace z Finder-Win 1.5.x: instalátor Dirwise starou verzi sám tiše odinstaluje (žádná druhá instalace vedle) a nastavení zůstane. Připnutí na hlavním panelu je potřeba udělat znovu.
@@ -164,7 +164,7 @@ Připravujeme: **winget** (`winget install krystof2-ops.Dirwise`; manifest je ve
 
 ## Soukromí
 
-Dirwise dělá jediný druh síťového požadavku: nejvýš jednou denně se zeptá GitHub API (`api.github.com/repos/krystof2-ops/finder-win/releases/latest`), jestli existuje novější verze, a pokud ano, ukáže proužek s odkazem na stránku vydání. Žádná telemetrie, nic o tobě ani o tvých souborech se neodesílá. Vypnout jde v Více → Kontrolovat aktualizace.
+Dirwise dělá jediný druh síťového požadavku: nejvýš jednou denně se zeptá GitHub API (`api.github.com/repos/krystof2-ops/dirwise/releases/latest`), jestli existuje novější verze, a pokud ano, ukáže proužek s odkazem na stránku vydání. Žádná telemetrie, nic o tobě ani o tvých souborech se neodesílá. Vypnout jde v Více → Kontrolovat aktualizace.
 
 ## Sestavení ze zdrojáků
 
@@ -178,7 +178,7 @@ npm run tauri build   # instalátor → src-tauri/target/release/bundle/nsis/
 
 ## Přispívání
 
-Chyby a pull requesty vítány v [Issues](https://github.com/krystof2-ops/finder-win/issues). Před PR spusť `npm run build` a v `src-tauri` `cargo clippy -- -D warnings` a `cargo test`. Texty UI jdou přes překlady v `src/i18n/` (čeština a angličtina). Bezpečnostní problémy: viz [SECURITY.md](SECURITY.md).
+Chyby a pull requesty vítány v [Issues](https://github.com/krystof2-ops/dirwise/issues). Před PR spusť `npm run build` a v `src-tauri` `cargo clippy -- -D warnings` a `cargo test`. Texty UI jdou přes překlady v `src/i18n/` (čeština a angličtina). Bezpečnostní problémy: viz [SECURITY.md](SECURITY.md).
 
 Seznam změn je v [CHANGELOG.md](CHANGELOG.md) (anglicky).
 

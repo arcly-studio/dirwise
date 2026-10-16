@@ -1,6 +1,6 @@
 // Po buildu: v HTML webu nesmí být „Finder“, „macOS“, „Quick Look“, „Explorer“ ani „Průzkumník“
 // (pravidla Storu, CLAUDE.md). Výjimka: jediná věta „inspired by the macOS Finder“ v angličtině (/).
-// Adresy (href, src, content s URL) se nekontrolují – repo se zatím jmenuje finder-win.
+// Adresy (href, src, content s URL) se nekontrolují.
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";

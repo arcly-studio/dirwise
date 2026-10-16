@@ -1098,8 +1098,7 @@ fn open_file(path: String) -> CmdResult<()> {
 
 /// Stránka release v prohlížeči (proužek „Je k dispozici nová verze").
 /// Jen stránka vydání tohohle repozitáře — command nesmí otevírat cokoli.
-/// Repo se přejmenovává z finder-win na dirwise: API pak vrací novou adresu,
-/// starou GitHub přesměruje — platí obě.
+/// Repo se dřív jmenovalo finder-win (GitHub starou adresu přesměruje) — platí obě.
 const RELEASE_TAG_URLS: [&str; 2] = [
     "https://github.com/krystof2-ops/dirwise/releases/tag/",
     "https://github.com/krystof2-ops/finder-win/releases/tag/",
