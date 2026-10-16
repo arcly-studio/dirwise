@@ -1,0 +1,59 @@
+---
+// Podpora: hlášení chyb a nápadů (formuláře .github/ISSUE_TEMPLATE), verze aplikace, známé problémy.
+import Layout from "../../components/Layout.astro";
+import { icon } from "../../lib/icons";
+import { links, pageHref, storeLink } from "../../lib/links";
+---
+<Layout lang="cs" path="support/" title="Podpora – Dirwise"
+  description="Pomoc s Dirwise: nahlášení chyby, návrh funkce, jak zjistit verzi aplikace a známé problémy, například varování SmartScreen.">
+  <main id="main" class="doc">
+    <header class="doc-head">
+      <h1>Podpora</h1>
+      <p class="doc-lead">Něco nefunguje, nebo máš nápad pro Dirwise? Tady je, jak získat pomoc.</p>
+    </header>
+
+    <div class="doc-actions">
+      <a class="doc-action" href={links.bugReport}>
+        <span class="card-icon" set:html={icon("Bug", 18)} />
+        <span><strong>Nahlásit chybu</strong><span>Otevře issue na GitHubu s krátkým formulářem – verze, Windows a postup, jak chybu vyvolat.</span></span>
+      </a>
+      <a class="doc-action" href={links.featureRequest}>
+        <span class="card-icon" set:html={icon("Lightbulb", 18)} />
+        <span><strong>Navrhnout funkci</strong><span>Popiš, co by měl Dirwise umět a proč by ti to pomohlo.</span></span>
+      </a>
+    </div>
+
+    <section aria-labelledby="before">
+      <h2 id="before">Než napíšeš</h2>
+      <ul>
+        <li>Podívej se do <a href={`${pageHref("cs")}#faq`}>otázek a odpovědí na hlavní stránce</a> – jsou tam ty nejčastější.</li>
+        <li>Prohledej <a href={links.issues}>existující issues</a> – stejnou věc už možná někdo nahlásil.</li>
+        <li>K založení issue potřebuješ bezplatný účet na GitHubu. Psát můžeš česky i anglicky.</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="version">
+      <h2 id="version">Jakou mám verzi?</h2>
+      <p>V Dirwise otevři <strong>Více → O aplikaci Dirwise</strong> (nebo stiskni <kbd>Ctrl</kbd>+<kbd>K</kbd> a napiš „O aplikaci“). Okno ukáže verzi, třeba <em>Verze 1.6.0</em>. Najdeš ji i v <strong>Nastavení Windows → Aplikace → Nainstalované aplikace</strong>.</p>
+      <p>Uveď prosím i verzi Windows (stiskni <kbd>Win</kbd>+<kbd>R</kbd> a napiš <code>winver</code>) a jestli máš Dirwise z Microsoft Storu, nebo z GitHubu.</p>
+    </section>
+
+    <section aria-labelledby="known">
+      <h2 id="known">Známé problémy</h2>
+      <h3>„Systém Windows ochránil váš počítač“ (SmartScreen)</h3>
+      <p>Instalátor z GitHubu není digitálně podepsaný, takže SmartScreen před prvním spuštěním varuje. Klikni na <strong>Další informace → Přesto spustit</strong>. <a href={storeLink("cs")}>Verze z Microsoft Storu</a> se instaluje bez varování a aktualizuje se přes Store.</p>
+      <h3>Ve Windows 10 není průhlednost</h3>
+      <p>Rozmazaná průhlednost (Více → Vzhled → Průhlednost) potřebuje Windows 11 22H2 nebo novější. Ve Windows 10 a starších sestaveních Windows 11 se volba nenabízí a okno je plné – všechno ostatní funguje stejně. Ve Windows 11 je okno plné i tehdy, když jsou v Nastavení → Přizpůsobení → Barvy vypnuté <strong>Efekty průhlednosti</strong>, a když okno není aktivní.</p>
+    </section>
+
+    <section aria-labelledby="releases">
+      <h2 id="releases">Vydání a změny</h2>
+      <p>Všechny verze s instalátorem jsou na stránce <a href={links.releases}>Releases</a>, co se v které změnilo, je v <a href={links.changelog}>seznamu změn</a>. Verze z GitHubu sama upozorní na nové vydání, verze z Microsoft Storu se aktualizuje sama.</p>
+    </section>
+
+    <section aria-labelledby="security">
+      <h2 id="security">Bezpečnost a soukromí</h2>
+      <p>Bezpečnostní chyby hlas prosím neveřejně přes <a href={links.security}>GitHub Security Advisories</a>, ne ve veřejném issue. Jak Dirwise zachází s daty, popisují <a href={pageHref("cs", "privacy/")}>Zásady ochrany soukromí</a>.</p>
+    </section>
+  </main>
+</Layout>

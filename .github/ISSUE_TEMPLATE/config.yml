@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Support and known issues
+    url: https://krystof2-ops.github.io/dirwise/support/
+    about: Finding your version, the SmartScreen warning, transparency on Windows 10 and more.

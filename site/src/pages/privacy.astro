@@ -1,0 +1,52 @@
+---
+// Zásady ochrany soukromí – obsah drž v souladu s PRIVACY.md (soubor v repu odkazuje sem).
+import Layout from "../components/Layout.astro";
+import { links, pageHref } from "../lib/links";
+---
+<Layout lang="en" path="privacy/" title="Privacy Policy – Dirwise"
+  description="Dirwise collects no personal data: no telemetry, no analytics, no accounts. What stays on your computer and the one network request the GitHub version makes.">
+  <main id="main" class="doc">
+    <header class="doc-head">
+      <h1>Privacy Policy</h1>
+      <p class="doc-lead">Dirwise is a file manager that runs entirely on your computer. It does not collect, store or send any personal data.</p>
+      <p class="doc-meta">Last updated: <time datetime="2026-10-16">16 October 2026</time></p>
+    </header>
+
+    <section aria-labelledby="summary">
+      <h2 id="summary">In short</h2>
+      <ul>
+        <li><strong>No telemetry, no analytics, no crash reporting, no accounts, no ads.</strong></li>
+        <li><strong>Your files stay on your computer.</strong> Dirwise reads and changes files only when you ask it to (open, copy, move, rename, delete).</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="local">
+      <h2 id="local">Data on your computer</h2>
+      <p>Settings (favorites, recents, tags, tabs, appearance) are saved in a <code>settings.json</code> file in your user profile. Thumbnails (deleted after 30 days) and file icons are cached in your user profile. Nothing of this is sent anywhere.</p>
+      <p>Uninstalling the Microsoft Store version removes this data. For the version from GitHub you can delete it yourself: <code>%APPDATA%\com.krystof2ops.finderwin</code>, <code>%LOCALAPPDATA%\dirwise</code> and <code>%LOCALAPPDATA%\com.krystof2ops.finderwin</code>.</p>
+    </section>
+
+    <section aria-labelledby="network">
+      <h2 id="network">Network</h2>
+      <h3>Microsoft Store version</h3>
+      <p><strong>Dirwise itself makes no network requests.</strong> Updates are delivered by the Microsoft Store. The Microsoft Edge WebView2 component that Dirwise uses to draw its window is part of Windows and is updated by Microsoft under Microsoft's own privacy statement.</p>
+      <h3>Version from GitHub (installer, winget)</h3>
+      <p>At most once a day Dirwise checks for a new version with a single request to <code>https://api.github.com/repos/krystof2-ops/dirwise/releases/latest</code>. The request contains no information about you or your files (GitHub sees your IP address, as with any web request). You can turn the check off in <strong>More → Check for Updates</strong>.</p>
+    </section>
+
+    <section aria-labelledby="apps">
+      <h2 id="apps">Other apps</h2>
+      <p>When you choose <em>Open</em>, <em>Open With…</em>, <em>Open in Terminal</em> or open a folder in the Windows file manager, the file or folder is handed over to that app; what it does is governed by its own privacy policy.</p>
+    </section>
+
+    <section aria-labelledby="site">
+      <h2 id="site">This website</h2>
+      <p>This website uses no cookies, trackers or analytics and loads nothing from other servers. It is hosted on GitHub Pages, which, like any web server, processes your IP address to deliver the pages.</p>
+    </section>
+
+    <section aria-labelledby="contact">
+      <h2 id="contact">Contact</h2>
+      <p>Questions about privacy: open an issue at <a href={links.issues}>github.com/krystof2-ops/dirwise/issues</a>. More ways to get help are on the <a href={pageHref("en", "support/")}>Support</a> page.</p>
+    </section>
+  </main>
+</Layout>

@@ -291,3 +291,31 @@ details[open] .faq-plus::after { transform: rotate(0deg); }
 .foot nav a { color: var(--text); padding: 6px 0; }
 .foot p { margin: 0; }
 .foot p a { color: var(--muted); text-decoration: underline; }
+
+/* Textové stránky (Soukromí, Podpora): úzký sloupec, čitelné řádky */
+.doc { max-width: 720px; padding-top: 56px; padding-bottom: 24px; }
+.doc-head { margin-bottom: 36px; }
+.doc-head h1 { font-size: clamp(34px, 6vw, 52px); font-weight: 850; letter-spacing: -0.035em; line-height: 1.05; margin: 0 0 14px; }
+.doc-lead { color: var(--muted); font-size: 18px; margin: 0; text-wrap: pretty; }
+.doc-meta { color: var(--muted); font-size: 14px; margin: 14px 0 0; }
+.doc section { padding: 0; margin: 0 0 40px; }
+.doc h2 { text-align: left; font-size: 24px; letter-spacing: -0.015em; margin: 0 0 12px; scroll-margin-top: 96px; }
+.doc h3 { font-size: 17px; margin: 22px 0 6px; }
+.doc p, .doc li { color: rgba(235, 235, 245, 0.82); font-size: 16px; line-height: 1.7; }
+.doc p { margin: 0 0 14px; }
+.doc ul, .doc ol { margin: 0 0 14px; padding-left: 22px; }
+.doc li { margin: 0 0 8px; }
+.doc li::marker { color: var(--muted); }
+.doc strong { color: var(--text); font-weight: 650; }
+.doc a { text-decoration: underline; text-underline-offset: 2px; text-decoration-thickness: 1px; }
+.doc code { font: 500 0.88em/1.4 ui-monospace, "Cascadia Code", Consolas, monospace; background: rgba(255, 255, 255, 0.07); border: 1px solid var(--border); border-radius: 6px; padding: 1px 6px; overflow-wrap: anywhere; color: var(--text); }
+.doc kbd { min-width: 0; height: 24px; font-size: 13px; padding: 0 7px; border-radius: 6px; vertical-align: 1px; }
+.doc .note { border: 1px solid var(--border); border-left: 3px solid var(--accent); background: rgba(255, 255, 255, 0.03); border-radius: 10px; padding: 14px 16px; }
+.doc .note p:last-child { margin-bottom: 0; }
+.doc-actions { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); margin: 0 0 40px; }
+.doc-action { display: flex; gap: 14px; align-items: flex-start; padding: 18px; border-radius: var(--radius); background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); color: var(--text); }
+.doc-action:hover { text-decoration: none; border-color: rgba(10, 132, 255, 0.35); background: rgba(10, 132, 255, 0.05); }
+.doc-action strong { display: block; font-size: 16.5px; margin-bottom: 4px; }
+.doc-action span:last-child { color: var(--muted); font-size: 14.5px; line-height: 1.5; }
+.foot nav a[aria-current="page"] { color: var(--muted); }
+.doc a.doc-action { text-decoration: none; }

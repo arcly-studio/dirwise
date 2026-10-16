@@ -6,7 +6,7 @@
 
 **Rychlý správce souborů pro Windows ovladatelný klávesnicí – sloupcové zobrazení, záložky, rozdělené okno, rychlý náhled a Ctrl+K.**
 
-[English](README.md) · **Čeština** · [Web](https://krystof2-ops.github.io/dirwise/cs/)
+[English](README.md) · **Čeština** · [Web](https://krystof2-ops.github.io/dirwise/cs/) · [Podpora](https://krystof2-ops.github.io/dirwise/cs/support/) · [Soukromí](https://krystof2-ops.github.io/dirwise/cs/privacy/)
 
 [![Poslední verze](https://img.shields.io/github/v/release/krystof2-ops/dirwise)](https://github.com/krystof2-ops/dirwise/releases/latest)
 [![Stažení](https://img.shields.io/github/downloads/krystof2-ops/dirwise/total)](https://github.com/krystof2-ops/dirwise/releases)
@@ -164,7 +164,7 @@ Připravujeme: **winget** (`winget install krystof2-ops.Dirwise`; manifest je ve
 
 ## Soukromí
 
-Dirwise dělá jediný druh síťového požadavku: nejvýš jednou denně se zeptá GitHub API (`api.github.com/repos/krystof2-ops/dirwise/releases/latest`), jestli existuje novější verze, a pokud ano, ukáže proužek s odkazem na stránku vydání. Žádná telemetrie, nic o tobě ani o tvých souborech se neodesílá. Vypnout jde v Více → Kontrolovat aktualizace.
+Dirwise dělá jediný druh síťového požadavku: nejvýš jednou denně se zeptá GitHub API (`api.github.com/repos/krystof2-ops/dirwise/releases/latest`), jestli existuje novější verze, a pokud ano, ukáže proužek s odkazem na stránku vydání. Žádná telemetrie, nic o tobě ani o tvých souborech se neodesílá. Vypnout jde v Více → Kontrolovat aktualizace. Úplné [zásady ochrany soukromí](https://krystof2-ops.github.io/dirwise/cs/privacy/).
 
 ## Sestavení ze zdrojáků
 
@@ -178,7 +178,7 @@ npm run tauri build   # instalátor → src-tauri/target/release/bundle/nsis/
 
 ## Přispívání
 
-Chyby a pull requesty vítány v [Issues](https://github.com/krystof2-ops/dirwise/issues). Před PR spusť `npm run build` a v `src-tauri` `cargo clippy -- -D warnings` a `cargo test`. Texty UI jdou přes překlady v `src/i18n/` (čeština a angličtina). Bezpečnostní problémy: viz [SECURITY.md](SECURITY.md).
+Chyby a pull requesty vítány v [Issues](https://github.com/krystof2-ops/dirwise/issues); pomoc a známé problémy jsou na stránce [Podpora](https://krystof2-ops.github.io/dirwise/cs/support/). Před PR spusť `npm run build` a v `src-tauri` `cargo clippy -- -D warnings` a `cargo test`. Texty UI jdou přes překlady v `src/i18n/` (čeština a angličtina). Bezpečnostní problémy: viz [SECURITY.md](SECURITY.md).
 
 Seznam změn je v [CHANGELOG.md](CHANGELOG.md) (anglicky).
 

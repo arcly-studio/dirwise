@@ -1,0 +1,24 @@
+name: Feature request
+description: Suggest an idea for Dirwise
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for the idea! Please search the [existing issues](https://github.com/krystof2-ops/dirwise/issues) first. You can write in English or Czech.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What would you like to do?
+      description: The task or situation where Dirwise falls short today.
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: How could Dirwise help?
+      description: How you imagine it working – a shortcut, a menu item, a view …
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Anything else?
+      description: Workarounds you use now, other apps that do it well, screenshots.

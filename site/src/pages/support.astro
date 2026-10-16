@@ -1,0 +1,59 @@
+---
+// Podpora: hlášení chyb a nápadů (formuláře .github/ISSUE_TEMPLATE), verze aplikace, známé problémy.
+import Layout from "../components/Layout.astro";
+import { icon } from "../lib/icons";
+import { links, pageHref } from "../lib/links";
+---
+<Layout lang="en" path="support/" title="Support – Dirwise"
+  description="Get help with Dirwise: report a bug, suggest a feature, find your version and read about known issues such as the SmartScreen warning.">
+  <main id="main" class="doc">
+    <header class="doc-head">
+      <h1>Support</h1>
+      <p class="doc-lead">Something not working, or an idea for Dirwise? Here's how to get help.</p>
+    </header>
+
+    <div class="doc-actions">
+      <a class="doc-action" href={links.bugReport}>
+        <span class="card-icon" set:html={icon("Bug", 18)} />
+        <span><strong>Report a bug</strong><span>Opens a GitHub issue with a short form – version, Windows and steps to reproduce.</span></span>
+      </a>
+      <a class="doc-action" href={links.featureRequest}>
+        <span class="card-icon" set:html={icon("Lightbulb", 18)} />
+        <span><strong>Suggest a feature</strong><span>Describe what you'd like Dirwise to do and why it would help you.</span></span>
+      </a>
+    </div>
+
+    <section aria-labelledby="before">
+      <h2 id="before">Before you write</h2>
+      <ul>
+        <li>Check the <a href={`${pageHref("en")}#faq`}>FAQ on the home page</a> – it covers the most common questions.</li>
+        <li>Search the <a href={links.issues}>existing issues</a> – someone may have reported the same thing already.</li>
+        <li>You need a free GitHub account to open an issue. You can write in English or Czech.</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="version">
+      <h2 id="version">Which version do I have?</h2>
+      <p>In Dirwise open <strong>More → About Dirwise</strong> (or press <kbd>Ctrl</kbd>+<kbd>K</kbd> and type “About”). The dialog shows the version, for example <em>Version 1.6.0</em>. You can also find it in Windows <strong>Settings → Apps → Installed apps</strong>.</p>
+      <p>Please also mention your Windows version (press <kbd>Win</kbd>+<kbd>R</kbd>, type <code>winver</code>) and whether you installed Dirwise from the Microsoft Store or from GitHub.</p>
+    </section>
+
+    <section aria-labelledby="known">
+      <h2 id="known">Known issues</h2>
+      <h3>“Windows protected your PC” (SmartScreen)</h3>
+      <p>The installer from GitHub isn't code-signed, so SmartScreen warns before the first run. Click <strong>More info → Run anyway</strong>. The <a href={links.store}>Microsoft Store version</a> installs without this warning and updates through the Store.</p>
+      <h3>No transparency on Windows 10</h3>
+      <p>Blurred transparency (More → Appearance → Transparency) needs Windows 11 22H2 or later. On Windows 10 and older Windows 11 builds the option isn't offered and the window stays solid – everything else works the same. On Windows 11 the window is also solid when <strong>Transparency effects</strong> are turned off in Settings → Personalization → Colors, and while the window isn't active.</p>
+    </section>
+
+    <section aria-labelledby="releases">
+      <h2 id="releases">Releases and changes</h2>
+      <p>Every version with its installer is on the <a href={links.releases}>Releases</a> page; what changed in each one is in the <a href={links.changelog}>Changelog</a>. The GitHub version tells you when a new release is out; the Store version updates by itself.</p>
+    </section>
+
+    <section aria-labelledby="security">
+      <h2 id="security">Security and privacy</h2>
+      <p>Please report security vulnerabilities privately through <a href={links.security}>GitHub Security Advisories</a>, not in a public issue. How Dirwise handles your data is described in the <a href={pageHref("en", "privacy/")}>Privacy Policy</a>.</p>
+    </section>
+  </main>
+</Layout>

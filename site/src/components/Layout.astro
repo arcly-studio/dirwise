@@ -1,0 +1,87 @@
+---
+// Kostra každé stránky: <head> (meta, hreflang, písma), lišta novinky + navigace, obsah a patička.
+// path = stránka v obou jazycích ("" úvod, "privacy/", "support/") – podle ní canonical, hreflang a přepínač jazyka.
+import interLatin from "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url";
+import interLatinExt from "@fontsource-variable/inter/files/inter-latin-ext-wght-normal.woff2?url";
+import { texts, type Lang } from "../i18n/texts";
+import { links, pageHref, BASE, type PagePath } from "../lib/links";
+import Nav from "./Nav.astro";
+import "../styles/site.css";
+
+interface Props { lang: Lang; path: PagePath; title: string; description: string }
+const { lang, path, title, description } = Astro.props;
+const t = texts[lang];
+
+const abs = (l: Lang) => new URL(pageHref(l, path), Astro.site).href;
+const urls = { en: abs("en"), cs: abs("cs") };
+const canonical = urls[lang];
+const asset = (p: string) => `${BASE}${p}`;
+const og = new URL(asset("og.png"), Astro.site).href;
+---
+<!doctype html>
+<html lang={t.htmlLang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#000000" />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="en" href={urls.en} />
+    <link rel="alternate" hreflang="cs" href={urls.cs} />
+    <link rel="alternate" hreflang="x-default" href={urls.en} />
+    <link rel="icon" href={asset("favicon.ico")} sizes="any" />
+    <link rel="icon" href={asset("favicon-32.png")} type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href={asset("apple-touch-icon.png")} />
+    <link rel="sitemap" href={asset("sitemap-index.xml")} />
+    <link rel="preload" href={interLatin} as="font" type="font/woff2" crossorigin />
+    {/* Čeština: malá podmnožina s č, ř, ž … (scripts/prepare.mjs) – bez ní by se čekalo na celé latin-ext. */}
+    {lang === "cs" && <link rel="preload" href={asset("fonts/inter-cs.woff2")} as="font" type="font/woff2" crossorigin />}
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Dirwise" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={t.ogLocale} />
+    <meta property="og:locale:alternate" content={lang === "en" ? texts.cs.ogLocale : texts.en.ogLocale} />
+    <meta property="og:image" content={og} />
+    <meta property="og:image:width" content="1280" />
+    <meta property="og:image:height" content="640" />
+    <meta property="og:image:alt" content={t.ogAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={og} />
+
+    <style set:html={`
+      @font-face { font-family: "Inter Variable"; font-style: normal; font-display: swap; font-weight: 100 900;
+        src: url(${interLatinExt}) format("woff2-variations");
+        unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+      @font-face { font-family: "Inter Variable"; font-style: normal; font-display: swap; font-weight: 100 900;
+        src: url(${interLatin}) format("woff2-variations");
+        unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+      @font-face { font-family: "Inter Variable"; font-style: normal; font-display: swap; font-weight: 100 900;
+        src: url(${asset("fonts/inter-cs.woff2")}) format("woff2-variations");
+        unicode-range: U+010C-010F,U+011A-011B,U+0147-0148,U+0158-0159,U+0160-0161,U+0164-0165,U+016E-016F,U+017D-017E; }
+    `} />
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip" href="#main">{t.skip}</a>
+    <div class="page-lines" aria-hidden="true"></div>
+    <Nav lang={lang} path={path} />
+    <slot />
+
+    <footer class="foot">
+      <nav aria-label={t.footerNav}>
+        <a href={links.repo}>{t.footer.github}</a>
+        <a href={links.changelog}>{t.footer.changelog}</a>
+        <a href={pageHref(lang, "support/")} aria-current={path === "support/" ? "page" : undefined}>{t.footer.support}</a>
+        <a href={pageHref(lang, "privacy/")} aria-current={path === "privacy/" ? "page" : undefined}>{t.footer.privacy}</a>
+      </nav>
+      <p>© 2026 krystof2-ops · <a href={links.license}>{t.footerNote}</a></p>
+    </footer>
+  </body>
+</html>

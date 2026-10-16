@@ -1,0 +1,52 @@
+---
+// Zásady ochrany soukromí – obsah drž v souladu s PRIVACY.md (soubor v repu odkazuje sem).
+import Layout from "../../components/Layout.astro";
+import { links, pageHref } from "../../lib/links";
+---
+<Layout lang="cs" path="privacy/" title="Zásady ochrany soukromí – Dirwise"
+  description="Dirwise nesbírá žádné osobní údaje: žádná telemetrie, analytika ani účty. Co zůstává ve tvém počítači a jediný síťový požadavek verze z GitHubu.">
+  <main id="main" class="doc">
+    <header class="doc-head">
+      <h1>Zásady ochrany soukromí</h1>
+      <p class="doc-lead">Dirwise je správce souborů, který běží celý ve tvém počítači. Nesbírá, neukládá ani neodesílá žádné osobní údaje.</p>
+      <p class="doc-meta">Poslední změna: <time datetime="2026-10-16">16. října 2026</time></p>
+    </header>
+
+    <section aria-labelledby="summary">
+      <h2 id="summary">Stručně</h2>
+      <ul>
+        <li><strong>Žádná telemetrie, analytika, hlášení pádů, účty ani reklamy.</strong></li>
+        <li><strong>Tvoje soubory zůstávají v počítači.</strong> Dirwise soubory čte a mění jen na tvůj pokyn (otevřít, kopírovat, přesunout, přejmenovat, smazat).</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="local">
+      <h2 id="local">Data ve tvém počítači</h2>
+      <p>Nastavení (oblíbené, nedávné, štítky, záložky, vzhled) se ukládá do souboru <code>settings.json</code> v uživatelském profilu. Náhledy (mažou se po 30 dnech) a ikony souborů se cachují v uživatelském profilu. Nic z toho se nikam neodesílá.</p>
+      <p>Odinstalace verze z Microsoft Storu tato data odstraní. U verze z GitHubu je můžeš smazat sám: <code>%APPDATA%\com.krystof2ops.finderwin</code>, <code>%LOCALAPPDATA%\dirwise</code> a <code>%LOCALAPPDATA%\com.krystof2ops.finderwin</code>.</p>
+    </section>
+
+    <section aria-labelledby="network">
+      <h2 id="network">Síť</h2>
+      <h3>Verze z Microsoft Storu</h3>
+      <p><strong>Dirwise sám nedělá žádné síťové požadavky.</strong> Aktualizace doručuje Microsoft Store. Komponentu Microsoft Edge WebView2, kterou Dirwise používá k vykreslení okna, dodává a aktualizuje Microsoft podle svých vlastních zásad.</p>
+      <h3>Verze z GitHubu (instalátor, winget)</h3>
+      <p>Nejvýš jednou denně se Dirwise jedním požadavkem na <code>https://api.github.com/repos/krystof2-ops/dirwise/releases/latest</code> zeptá, jestli existuje nová verze. Požadavek neobsahuje nic o tobě ani o tvých souborech (GitHub vidí tvou IP adresu jako u každého požadavku na web). Kontrolu jde vypnout v <strong>Více → Kontrolovat aktualizace</strong>.</p>
+    </section>
+
+    <section aria-labelledby="apps">
+      <h2 id="apps">Jiné aplikace</h2>
+      <p>Když zvolíš <em>Otevřít</em>, <em>Otevřít v aplikaci…</em>, <em>Otevřít v Terminálu</em> nebo otevřeš složku ve správci souborů Windows, soubor či složka se předá té aplikaci; co s ním udělá, řídí její vlastní zásady.</p>
+    </section>
+
+    <section aria-labelledby="site">
+      <h2 id="site">Tento web</h2>
+      <p>Web nepoužívá cookies, sledovací kódy ani analytiku a nenačítá nic z cizích serverů. Běží na GitHub Pages, které jako každý webový server zpracovávají tvou IP adresu, aby stránky doručily.</p>
+    </section>
+
+    <section aria-labelledby="contact">
+      <h2 id="contact">Kontakt</h2>
+      <p>Dotazy k soukromí: založ issue na <a href={links.issues}>github.com/krystof2-ops/dirwise/issues</a>. Další možnosti pomoci najdeš na stránce <a href={pageHref("cs", "support/")}>Podpora</a>.</p>
+    </section>
+  </main>
+</Layout>

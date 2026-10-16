@@ -2,7 +2,7 @@
 
 **English** · [Čeština](#zásady-ochrany-osobních-údajů--dirwise)
 
-*Last updated: 14 October 2026*
+*Last updated: 16 October 2026* · Also on the web: <https://krystof2-ops.github.io/dirwise/privacy/>
 
 Dirwise is a file manager that runs entirely on your computer. It does not collect, store or send any personal data.
 
@@ -22,7 +22,7 @@ Questions: open an issue at <https://github.com/krystof2-ops/dirwise/issues>.
 
 [English](#privacy-policy--dirwise) · **Čeština**
 
-*Poslední změna: 14. října 2026*
+*Poslední změna: 16. října 2026* · Také na webu: <https://krystof2-ops.github.io/dirwise/cs/privacy/>
 
 Dirwise je správce souborů, který běží celý ve tvém počítači. Nesbírá, neukládá ani neodesílá žádné osobní údaje.
 

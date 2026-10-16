@@ -1,6 +1,7 @@
 // Po buildu: v HTML webu nesmí být „Finder“, „macOS“, „Quick Look“, „Explorer“ ani „Průzkumník“
 // (pravidla Storu, CLAUDE.md). Výjimka: jediná věta „inspired by the macOS Finder“ v angličtině (/).
-// Adresy (href, src, content s URL) se nekontrolují.
+// Adresy (href, src, content s URL) se nekontrolují, stejně jako interní identifier aplikace
+// com.krystof2ops.finderwin v cestách k datům (Soukromí) – záměrně se nemění (CLAUDE.md).
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -24,7 +25,7 @@ let errors = 0;
 let allowedTotal = 0;
 for (const file of files) {
   const rel = path.relative(dist, file).replace(/\\/g, "/");
-  const html = fs.readFileSync(file, "utf8").replace(/https?:\/\/[^\s"'<>)]+/g, "");
+  const html = fs.readFileSync(file, "utf8").replace(/https?:\/\/[^\s"'<>)]+/g, "").replace(/com\.krystof2ops\.finderwin\b/g, "");
   const allowed = html.match(ALLOWED)?.length ?? 0;
   allowedTotal += allowed;
   if (allowed > 0 && rel !== "index.html") {

@@ -112,7 +112,7 @@ const en = {
       a: "Bug reports, ideas and pull requests are welcome on GitHub. The interface is in English and Czech; texts live in the translation files in src/i18n, so a new language starts with a new file there.",
     },
   ] satisfies Faq[],
-  footer: { github: "GitHub", changelog: "Changelog", privacy: "Privacy", issues: "Issues" },
+  footer: { github: "GitHub", changelog: "Changelog", support: "Support", privacy: "Privacy" },
   footerNav: "Links",
   footerNote: "Dirwise is free software under the MIT license.",
 };
@@ -220,7 +220,7 @@ const cs: typeof en = {
       a: "Chyby, nápady i pull requesty vítáme na GitHubu. Rozhraní je anglicky a česky; texty jsou v překladových souborech v src/i18n, nový jazyk tedy začíná novým souborem tam.",
     },
   ],
-  footer: { github: "GitHub", changelog: "Seznam změn", privacy: "Soukromí", issues: "Hlášení chyb" },
+  footer: { github: "GitHub", changelog: "Seznam změn", support: "Podpora", privacy: "Soukromí" },
   footerNav: "Odkazy",
   footerNote: "Dirwise je svobodný software pod licencí MIT.",
 };

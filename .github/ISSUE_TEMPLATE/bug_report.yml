@@ -1,0 +1,56 @@
+name: Bug report
+description: Something in Dirwise doesn't work as expected
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Please search the [existing issues](https://github.com/krystof2-ops/dirwise/issues) first. You can write in English or Czech.
+        Security vulnerabilities: please report them privately via [Security Advisories](https://github.com/krystof2-ops/dirwise/security/advisories/new), not here.
+  - type: input
+    id: version
+    attributes:
+      label: Dirwise version
+      description: More → About Dirwise
+      placeholder: "1.6.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: source
+    attributes:
+      label: Installed from
+      options:
+        - Microsoft Store
+        - GitHub installer
+        - winget
+        - Built from source
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      description: Press Win+R and type winver
+      placeholder: Windows 11 24H2 (build 26100)
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open folder …
+        2. Press …
+        3. …
+  - type: textarea
+    id: extra
+    attributes:
+      label: Screenshots or error message
+      description: You can paste images directly into this field. Click "Details" in an error message to see the full text.

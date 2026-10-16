@@ -1,9 +1,6 @@
 ---
 // Celá stránka v jednom jazyce (/ = en, /cs/ = cs). Obrázky se berou přímo z docs/ v repu.
 import { Picture, getImage } from "astro:assets";
-import interLatin from "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url";
-import interLatinExt from "@fontsource-variable/inter/files/inter-latin-ext-wght-normal.woff2?url";
-import appIcon from "../../../app-icon.png";
 import heroDark from "../../../docs/screenshots/hero-dark.png";
 import columns from "../../../docs/screenshots/columns.png";
 import tabs from "../../../docs/screenshots/tabs.png";
@@ -15,20 +12,18 @@ import trash from "../../../docs/screenshots/recycle-bin.png";
 import extensions from "../../../docs/screenshots/extensions.png";
 import { texts, type Lang, type FeatureKey } from "../i18n/texts";
 import { shortcuts } from "../lib/shortcuts";
-import { links } from "../lib/links";
+import { links, BASE, pageHref } from "../lib/links";
 import { icon } from "../lib/icons";
 import Hero from "./Hero.astro";
 import LiveDemo from "./LiveDemo.astro";
-import "../styles/site.css";
+import Layout from "./Layout.astro";
 
 interface Props { lang: Lang }
 const { lang } = Astro.props;
 const t = texts[lang];
 
-const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
-const home = new URL(base, Astro.site);
-const urls = { en: home.href, cs: new URL("cs/", home).href };
-const canonical = urls[lang];
+const base = BASE;
+const canonical = new URL(pageHref(lang), Astro.site).href;
 const asset = (p: string) => `${base}${p}`;
 
 const poster = await getImage({ src: heroDark, width: 1280, format: "webp", quality: 80 });
@@ -53,55 +48,8 @@ const cardSizes = (c: Card) => {
   return `(min-width: 1120px) ${Math.round(w * c.zoom)}px, (min-width: 760px) ${Math.round((c.wide ? 66 : 50) * c.zoom)}vw, ${Math.round(100 * c.zoom)}vw`;
 };
 ---
-<!doctype html>
-<html lang={t.htmlLang}>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{t.title}</title>
-    <meta name="description" content={t.description} />
-    <meta name="color-scheme" content="dark" />
-    <meta name="theme-color" content="#000000" />
-    <link rel="canonical" href={canonical} />
-    <link rel="alternate" hreflang="en" href={urls.en} />
-    <link rel="alternate" hreflang="cs" href={urls.cs} />
-    <link rel="alternate" hreflang="x-default" href={urls.en} />
-    <link rel="icon" href={asset("favicon.ico")} sizes="any" />
-    <link rel="icon" href={asset("favicon-32.png")} type="image/png" sizes="32x32" />
-    <link rel="apple-touch-icon" href={asset("apple-touch-icon.png")} />
-    <link rel="sitemap" href={asset("sitemap-index.xml")} />
-    <link rel="preload" href={interLatin} as="font" type="font/woff2" crossorigin />
-    {/* Čeština: malá podmnožina s č, ř, ž … (scripts/prepare.mjs) – bez ní by se čekalo na celé latin-ext. */}
-    {lang === "cs" && <link rel="preload" href={asset("fonts/inter-cs.woff2")} as="font" type="font/woff2" crossorigin />}
-
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Dirwise" />
-    <meta property="og:title" content={t.title} />
-    <meta property="og:description" content={t.description} />
-    <meta property="og:url" content={canonical} />
-    <meta property="og:locale" content={t.ogLocale} />
-    <meta property="og:locale:alternate" content={lang === "en" ? texts.cs.ogLocale : texts.en.ogLocale} />
-    <meta property="og:image" content={new URL("og.png", home).href} />
-    <meta property="og:image:width" content="1280" />
-    <meta property="og:image:height" content="640" />
-    <meta property="og:image:alt" content={t.ogAlt} />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={t.title} />
-    <meta name="twitter:description" content={t.description} />
-    <meta name="twitter:image" content={new URL("og.png", home).href} />
-
-    <style set:html={`
-      @font-face { font-family: "Inter Variable"; font-style: normal; font-display: swap; font-weight: 100 900;
-        src: url(${interLatinExt}) format("woff2-variations");
-        unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
-      @font-face { font-family: "Inter Variable"; font-style: normal; font-display: swap; font-weight: 100 900;
-        src: url(${interLatin}) format("woff2-variations");
-        unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
-      @font-face { font-family: "Inter Variable"; font-style: normal; font-display: swap; font-weight: 100 900;
-        src: url(${asset("fonts/inter-cs.woff2")}) format("woff2-variations");
-        unicode-range: U+010C-010F,U+011A-011B,U+0147-0148,U+0158-0159,U+0160-0161,U+0164-0165,U+016E-016F,U+017D-017E; }
-    `} />
-    <script type="application/ld+json" set:html={JSON.stringify({
+<Layout lang={lang} path="" title={t.title} description={t.description}>
+    <script slot="head" type="application/ld+json" set:html={JSON.stringify({
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
       name: "Dirwise",
@@ -113,10 +61,6 @@ const cardSizes = (c: Card) => {
       downloadUrl: links.latest,
       license: "https://opensource.org/licenses/MIT",
     })} />
-  </head>
-  <body>
-    <a class="skip" href="#main">{t.skip}</a>
-    <div class="page-lines" aria-hidden="true"></div>
     <Hero lang={lang} base={base} />
 
     <main id="main">
@@ -202,15 +146,6 @@ const cardSizes = (c: Card) => {
       </section>
     </main>
 
-    <footer class="foot">
-      <nav aria-label={t.footerNav}>
-        <a href={links.repo}>{t.footer.github}</a>
-        <a href={links.changelog}>{t.footer.changelog}</a>
-        <a href={links.privacy}>{t.footer.privacy}</a>
-        <a href={links.issues}>{t.footer.issues}</a>
-      </nav>
-      <p>© 2026 krystof2-ops · <a href={links.license}>{t.footerNote}</a></p>
-    </footer>
 
     <script>
       // Video (preload="none") se spustí, až je na obrazovce, a mimo ni se pozastaví.
@@ -264,5 +199,4 @@ const cardSizes = (c: Card) => {
         });
       }
     </script>
-  </body>
-</html>
+</Layout>
