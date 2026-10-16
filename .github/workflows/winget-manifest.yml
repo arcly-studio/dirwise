@@ -1,8 +1,11 @@
 name: Update winget manifest
 
-# Po publikování release (tauri-action ho zakládá jako draft) stáhne
-# instalátor, spočítá SHA256 a otevře PR s aktualizovaným manifestem ve
-# složce winget/. Do microsoft/winget-pkgs nic neposílá — to dělá autor ručně.
+# Po publikování release (tauri-action ho zakládá jako draft):
+# - manifest: stáhne instalátor, spočítá SHA256 a otevře PR s aktualizovaným
+#   manifestem ve složce winget/ (záznam v repu),
+# - winget-pkgs: wingetcreate update pošle novou verzi do microsoft/winget-pkgs
+#   (PR z forku vlastníka tokenu WINGET_TOKEN, classic PAT s public_repo).
+#   Jen pro balíček, který už ve winget-pkgs je – první verzi se podává ručně.
 
 on:
   release:
@@ -72,4 +75,75 @@ jobs:
             Manifest v `winget/` aktualizovaný pro ${{ steps.release.outputs.tag }}
             (InstallerSha256 `${{ steps.sha.outputs.sha }}`).
 
-            Odeslání do microsoft/winget-pkgs: viz README → winget.
+            Do microsoft/winget-pkgs verzi posílá job winget-pkgs (wingetcreate update).
+
+  winget-pkgs:
+    runs-on: windows-latest
+    permissions:
+      contents: read
+    steps:
+      # Stejná kontrola tagu jako v jobu manifest (vstup zvenku jen přes env a jen vX.Y.Z).
+      - name: Version and installer URL
+        id: release
+        shell: bash
+        env:
+          RAW_TAG: ${{ github.event.release.tag_name || inputs.tag }}
+        run: |
+          [[ "$RAW_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "Unexpected tag: $RAW_TAG"; exit 1; }
+          TAG="$RAW_TAG"
+          VERSION="${TAG#v}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "url=https://github.com/$GITHUB_REPOSITORY/releases/download/${TAG}/Dirwise_${VERSION}_x64-setup.exe" >> "$GITHUB_OUTPUT"
+
+      # Pojistka: wingetcreate update umí jen existující balíček. Dokud krystof2-ops.Dirwise
+      # ve winget-pkgs není (nebo tam tahle verze už je), job skončí s upozorněním, ne chybou.
+      # Dotaz jde s GITHUB_TOKEN (jen čtení), ne s WINGET_TOKEN.
+      - name: Package in winget-pkgs?
+        id: check
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          API=https://api.github.com/repos/microsoft/winget-pkgs/contents/manifests/k/krystof2-ops/Dirwise
+          status() { curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" "$1"; }
+          CODE=$(status "$API")
+          if [ "$CODE" = 404 ]; then
+            echo "::warning::krystof2-ops.Dirwise ještě není v microsoft/winget-pkgs – verzi $VERSION je potřeba podat ručně."
+            echo "submit=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          [ "$CODE" = 200 ] || { echo "::error::GitHub API vrátilo $CODE"; exit 1; }
+          CODE=$(status "$API/$VERSION")
+          if [ "$CODE" = 200 ]; then
+            echo "::warning::Verze $VERSION už v microsoft/winget-pkgs je – nic se neposílá."
+            echo "submit=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "submit=true" >> "$GITHUB_OUTPUT"
+
+      # wingetcreate pevné verze, ověřený SHA256 (z wingetcreate.exe.txt i digestu release).
+      # Token jen přes env (v logu ho GitHub maskuje), nikde se nevypisuje.
+      - name: Submit with wingetcreate
+        if: steps.check.outputs.submit == 'true'
+        shell: pwsh
+        env:
+          WINGET_TOKEN: ${{ secrets.WINGET_TOKEN }}
+          VERSION: ${{ steps.release.outputs.version }}
+          TAG: ${{ steps.release.outputs.tag }}
+          URL: ${{ steps.release.outputs.url }}
+        run: |
+          if (-not $env:WINGET_TOKEN) { throw "Chybí secret WINGET_TOKEN." }
+          $exe = Join-Path $env:RUNNER_TEMP "wingetcreate.exe"
+          Invoke-WebRequest -Uri "https://github.com/microsoft/winget-create/releases/download/v1.12.13.0/wingetcreate.exe" -OutFile $exe
+          $hash = (Get-FileHash $exe -Algorithm SHA256).Hash
+          if ($hash -ne "24042BD37915805615E6CF969AC57C6439124C3FE85823327F5F3FB24BD9FFEA") { throw "wingetcreate.exe: neočekávaný SHA256 $hash" }
+          & $exe update krystof2-ops.Dirwise `
+            --version $env:VERSION `
+            --urls "$($env:URL)|x64" `
+            --release-notes-url "https://github.com/$($env:GITHUB_REPOSITORY)/releases/tag/$($env:TAG)" `
+            --prtitle "Update: krystof2-ops.Dirwise to $($env:VERSION)" `
+            --submit --no-open `
+            --token $env:WINGET_TOKEN
+          if ($LASTEXITCODE -ne 0) { throw "wingetcreate skončil s kódem $LASTEXITCODE" }
