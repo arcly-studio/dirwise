@@ -9,7 +9,6 @@ import {
   MoreHorizontal,
   Plus,
   Search,
-  Share,
   SlidersHorizontal,
   Tag,
   XCircle,
@@ -17,6 +16,7 @@ import {
 } from "lucide-react";
 
 import { ContextMenu, type MenuItem } from "./ContextMenu";
+import { ShareWindows } from "./icons/ShareWindows";
 import type { CommandId, Command, Commands } from "../commands";
 import { useT, type MessageKey } from "../i18n";
 import type { ViewMode } from "../types";
@@ -372,7 +372,7 @@ export function Toolbar({
 
         <div className="flex shrink-0 items-center gap-0.5">
           <IconButton
-            Icon={Share}
+            Icon={ShareWindows}
             label={t("toolbar.share")}
             secondary
             active={menu?.kind === "share"}
