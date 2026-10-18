@@ -181,6 +181,8 @@ npm run tauri build   # instalátor → src-tauri/target/release/bundle/nsis/
 
 Chyby a pull requesty vítány v [Issues](https://github.com/krystof2-ops/dirwise/issues); vylepšení navrhuj a hlasuj pro ně na stránce [Nápady](https://krystof2-ops.github.io/dirwise/cs/ideas/); pomoc a známé problémy jsou na stránce [Podpora](https://krystof2-ops.github.io/dirwise/cs/support/). Před PR spusť `npm run build` a v `src-tauri` `cargo clippy -- -D warnings` a `cargo test`. Texty UI jdou přes překlady v `src/i18n/` (čeština a angličtina). Bezpečnostní problémy: viz [SECURITY.md](SECURITY.md).
 
+Dirwise vzniká s pomocí AI (Claude Code). Autor řídí návrh, testuje a kontroluje každou verzi.
+
 Seznam změn je v [CHANGELOG.md](CHANGELOG.md) (anglicky).
 
 ## Licence

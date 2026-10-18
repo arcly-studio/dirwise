@@ -181,6 +181,8 @@ npm run tauri build   # build the installer → src-tauri/target/release/bundle/
 
 Bug reports and pull requests are welcome in [Issues](https://github.com/krystof2-ops/dirwise/issues); suggest and upvote improvements on the [Ideas](https://krystof2-ops.github.io/dirwise/ideas/) page; help and known issues are on the [Support](https://krystof2-ops.github.io/dirwise/support/) page. Before a PR, run `npm run build` and, in `src-tauri`, `cargo clippy -- -D warnings` and `cargo test`. UI texts go through the translation files in `src/i18n/` (English and Czech). Security issues: see [SECURITY.md](SECURITY.md).
 
+Dirwise is developed with the help of AI (Claude Code). The author directs the design, tests and reviews every release.
+
 Release notes are in [CHANGELOG.md](CHANGELOG.md).
 
 ## License
