@@ -1,5 +1,5 @@
 // Po buildu: v HTML webu nesmí být „Finder“, „macOS“, „Quick Look“, „Explorer“ ani „Průzkumník“
-// (pravidla Storu, CLAUDE.md). Výjimka: jediná věta „inspired by the macOS Finder“ v angličtině (/).
+// (pravidla Storu, CLAUDE.md) – bez výjimek, web je odkazovaný ze Store listingu.
 // Adresy (href, src, content s URL) se nekontrolují, stejně jako interní identifier aplikace
 // com.krystof2ops.finderwin v cestách k datům (Soukromí) – záměrně se nemění (CLAUDE.md).
 import fs from "fs";
@@ -8,7 +8,6 @@ import { fileURLToPath } from "url";
 
 const dist = fileURLToPath(new URL("../dist/", import.meta.url));
 const FORBIDDEN = /finder|macos|quick\s*look|explorer|průzkumník/gi;
-const ALLOWED = /inspired by the macOS Finder/gi;
 
 const files = [];
 const walk = (dir) => {
@@ -22,25 +21,13 @@ walk(dist);
 if (files.length === 0) throw new Error("check-words: v dist/ není žádné HTML");
 
 let errors = 0;
-let allowedTotal = 0;
 for (const file of files) {
   const rel = path.relative(dist, file).replace(/\\/g, "/");
   const html = fs.readFileSync(file, "utf8").replace(/https?:\/\/[^\s"'<>)]+/g, "").replace(/com\.krystof2ops\.finderwin\b/g, "");
-  const allowed = html.match(ALLOWED)?.length ?? 0;
-  allowedTotal += allowed;
-  if (allowed > 0 && rel !== "index.html") {
-    console.error(`${rel}: věta „inspired by the macOS Finder“ smí být jen v anglické verzi`);
+  for (const m of html.matchAll(FORBIDDEN)) {
+    console.error(`${rel}: zakázané slovo „${m[0]}“ … ${html.slice(Math.max(0, m.index - 40), m.index + 40).replace(/\s+/g, " ")}`);
     errors++;
   }
-  const rest = html.replace(ALLOWED, "");
-  for (const m of rest.matchAll(FORBIDDEN)) {
-    console.error(`${rel}: zakázané slovo „${m[0]}“ … ${rest.slice(Math.max(0, m.index - 40), m.index + 40).replace(/\s+/g, " ")}`);
-    errors++;
-  }
-}
-if (allowedTotal > 1) {
-  console.error(`věta „inspired by the macOS Finder“ je na webu ${allowedTotal}×, smí být nanejvýš jednou`);
-  errors++;
 }
 if (errors > 0) process.exit(1);
 console.log(`check-words: ${files.length} HTML bez zakázaných slov`);

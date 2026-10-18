@@ -19,7 +19,7 @@ npm run preview   # servíruje dist/
 - `public/media/dirwise-demo.mp4` = demo video (H.264, `+faststart`, bez zvuku); načítá se až při doscrollování.
 - `public/media/store-badge-{en,cs}.svg` = oficiální odznaky z `get.microsoft.com/images/` uložené lokálně (web nedělá požadavky na cizí servery).
 - Nápady (`/ideas/`, `/cs/ideas/`, `src/components/Ideas.astro`): seznam z GitHub Discussions (kategorie Ideas) seřazený podle hlasů – při buildu přes GraphQL (`src/lib/ideas.ts`), potřebuje `GITHUB_TOKEN` (v CI `discussions: read`, lokálně `GITHUB_TOKEN=$(gh auth token) npm run build`); lokálně se bez tokenu nebo při chybě stránka sestaví bez seznamu, v CI se chyba 3× zopakuje a pak build selže (denní cron tak nepřepíše nasazený seznam prázdným). Uzavřené diskuse a úvodní příspěvek #15 (`WELCOME_DISCUSSION`) se vynechávají. giscus (mapping `number` = #15, téma `transparent_dark`, jazyk podle stránky) se načte až po kliknutí na „Load comments“ – jediné místo, kde web načítá něco z cizích serverů (popsané na stránce Soukromí). Workflow běží i denně (cron), aby se seznam obnovoval.
-- Pravidla textů jako v aplikaci: žádné „Finder“, „macOS“, „Quick Look“, „Explorer“ / „Průzkumník“; jediná výjimka je věta „Inspired by the macOS Finder, built for Windows.“ v angličtině. Build to hlídá.
+- Pravidla textů jako v aplikaci: žádné „Finder“, „macOS“, „Quick Look“, „Explorer“ / „Průzkumník“, bez výjimek (web je odkazovaný ze Store listingu; věta „inspired by the macOS Finder“ smí být jen v README). Build to hlídá.
 - Bez cookies, trackerů a analytiky. Stránka v prohlížeči nedělá požadavky mimo vlastní doménu (síťové požadavky jsou jen při buildu na GitHub API) – výjimkou je giscus na stránce nápadů, a to až po kliknutí.
 
 ## Nasazení

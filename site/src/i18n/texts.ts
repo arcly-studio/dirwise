@@ -1,5 +1,5 @@
 // Texty webu. Pravidla jako v aplikaci (CLAUDE.md): žádné „Finder“, „macOS“, „Quick Look“ ani
-// „Explorer“/„Průzkumník“ – výjimkou je jediná věta `inspired` v angličtině. Hlídá scripts/check-words.mjs.
+// „Explorer“/„Průzkumník“ – bez výjimek (web odkazuje Store listing). Hlídá scripts/check-words.mjs.
 // Jen pravdivé funkce podle README a PRIVACY.md – žádná vymyšlená čísla ani superlativy.
 export type Lang = "en" | "cs";
 
@@ -19,7 +19,6 @@ const en = {
   skip: "Skip to content",
   langSwitch: "Language",
   mainNav: "Main",
-  inspired: "Inspired by the macOS Finder, built for Windows.",
   announceTag: "NEW",
   announce: "Dirwise 1.6 – now on Microsoft Store",
   nav: { features: "Features", download: "Download", faq: "FAQ", ideas: "Ideas", home: "Dirwise home" },
@@ -131,7 +130,6 @@ const cs: typeof en = {
   skip: "Přeskočit na obsah",
   langSwitch: "Jazyk",
   mainNav: "Hlavní",
-  inspired: "",
   announceTag: "NOVÉ",
   announce: "Dirwise 1.6 – nově v Microsoft Storu",
   nav: { features: "Funkce", download: "Stáhnout", faq: "Otázky", ideas: "Nápady", home: "Dirwise – úvod" },
