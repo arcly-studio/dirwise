@@ -9,7 +9,7 @@ import { links, pageHref } from "../../lib/links";
     <header class="doc-head">
       <h1>Zásady ochrany soukromí</h1>
       <p class="doc-lead">Dirwise je správce souborů, který běží celý ve tvém počítači. Nesbírá, neukládá ani neodesílá žádné osobní údaje.</p>
-      <p class="doc-meta">Poslední změna: <time datetime="2026-10-16">16. října 2026</time></p>
+      <p class="doc-meta">Poslední změna: <time datetime="2026-10-18">18. října 2026</time></p>
     </header>
 
     <section aria-labelledby="summary">
@@ -41,7 +41,8 @@ import { links, pageHref } from "../../lib/links";
 
     <section aria-labelledby="site">
       <h2 id="site">Tento web</h2>
-      <p>Web nepoužívá cookies, sledovací kódy ani analytiku a nenačítá nic z cizích serverů. Běží na GitHub Pages, které jako každý webový server zpracovávají tvou IP adresu, aby stránky doručily.</p>
+      <p>Web nepoužívá cookies, sledovací kódy ani analytiku a nenačítá nic z cizích serverů kromě volitelných komentářů (viz níže). Běží na GitHub Pages, které jako každý webový server zpracovávají tvou IP adresu, aby stránky doručily.</p>
+      <p>Jedinou výjimkou jsou komentáře na stránce <a href={pageHref("cs", "ideas/")}>Nápady</a>: načtou se až po kliknutí na <strong>Načíst komentáře</strong>. Pak stránka načte widget <a href="https://giscus.app">giscus</a> z giscus.app a avatary z GitHubu, a když se přihlásíš ke komentování, giscus si uloží přihlašovací token do úložiště prohlížeče (local storage). Komentáře se ukládají v GitHub Discussions podle zásad GitHubu. Samotný seznam nápadů se generuje při sestavení webu a nic z cizích serverů nenačítá.</p>
     </section>
 
     <section aria-labelledby="contact">

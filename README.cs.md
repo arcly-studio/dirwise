@@ -6,7 +6,7 @@
 
 **Rychlý správce souborů pro Windows ovladatelný klávesnicí – sloupcové zobrazení, záložky, rozdělené okno, rychlý náhled a Ctrl+K.**
 
-[English](README.md) · **Čeština** · [Web](https://krystof2-ops.github.io/dirwise/cs/) · [Podpora](https://krystof2-ops.github.io/dirwise/cs/support/) · [Soukromí](https://krystof2-ops.github.io/dirwise/cs/privacy/)
+[English](README.md) · **Čeština** · [Web](https://krystof2-ops.github.io/dirwise/cs/) · [Podpora](https://krystof2-ops.github.io/dirwise/cs/support/) · [Nápady](https://krystof2-ops.github.io/dirwise/cs/ideas/) · [Soukromí](https://krystof2-ops.github.io/dirwise/cs/privacy/)
 
 [![Poslední verze](https://img.shields.io/github/v/release/krystof2-ops/dirwise)](https://github.com/krystof2-ops/dirwise/releases/latest)
 [![Stažení](https://img.shields.io/github/downloads/krystof2-ops/dirwise/total)](https://github.com/krystof2-ops/dirwise/releases)
@@ -179,7 +179,7 @@ npm run tauri build   # instalátor → src-tauri/target/release/bundle/nsis/
 
 ## Přispívání
 
-Chyby a pull requesty vítány v [Issues](https://github.com/krystof2-ops/dirwise/issues); pomoc a známé problémy jsou na stránce [Podpora](https://krystof2-ops.github.io/dirwise/cs/support/). Před PR spusť `npm run build` a v `src-tauri` `cargo clippy -- -D warnings` a `cargo test`. Texty UI jdou přes překlady v `src/i18n/` (čeština a angličtina). Bezpečnostní problémy: viz [SECURITY.md](SECURITY.md).
+Chyby a pull requesty vítány v [Issues](https://github.com/krystof2-ops/dirwise/issues); vylepšení navrhuj a hlasuj pro ně na stránce [Nápady](https://krystof2-ops.github.io/dirwise/cs/ideas/); pomoc a známé problémy jsou na stránce [Podpora](https://krystof2-ops.github.io/dirwise/cs/support/). Před PR spusť `npm run build` a v `src-tauri` `cargo clippy -- -D warnings` a `cargo test`. Texty UI jdou přes překlady v `src/i18n/` (čeština a angličtina). Bezpečnostní problémy: viz [SECURITY.md](SECURITY.md).
 
 Seznam změn je v [CHANGELOG.md](CHANGELOG.md) (anglicky).
 

@@ -9,7 +9,6 @@ export const links = {
   issues: `${REPO}/issues`,
   // Formuláře v .github/ISSUE_TEMPLATE – předvyplněná šablona.
   bugReport: `${REPO}/issues/new?template=bug_report.yml`,
-  featureRequest: `${REPO}/issues/new?template=feature_request.yml`,
   security: `${REPO}/security/advisories/new`,
   license: `${REPO}/blob/master/LICENSE`,
   store: "https://apps.microsoft.com/detail/9MZ67726S65X?mode=direct",
@@ -21,7 +20,7 @@ export const storeLink = (lang: string) =>
 
 export const WINGET = "winget install krystof2-ops.Dirwise";
 
-// Stránky webu: "" = úvod, jinak "privacy/", "support/". Base cesta z configure-pages (/dirwise/).
-export type PagePath = "" | "privacy/" | "support/";
+// Stránky webu: "" = úvod, jinak "privacy/", "support/", "ideas/". Base cesta z configure-pages (/dirwise/).
+export type PagePath = "" | "privacy/" | "support/" | "ideas/";
 export const BASE = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 export const pageHref = (lang: string, path: PagePath = "") => `${BASE}${lang === "cs" ? "cs/" : ""}${path}`;

@@ -2,7 +2,7 @@
 
 **English** · [Čeština](#zásady-ochrany-osobních-údajů--dirwise)
 
-*Last updated: 16 October 2026* · Also on the web: <https://krystof2-ops.github.io/dirwise/privacy/>
+*Last updated: 18 October 2026* · Also on the web: <https://krystof2-ops.github.io/dirwise/privacy/>
 
 Dirwise is a file manager that runs entirely on your computer. It does not collect, store or send any personal data.
 
@@ -13,6 +13,7 @@ Dirwise is a file manager that runs entirely on your computer. It does not colle
   - In the **Microsoft Store version, Dirwise itself makes no network requests.** Updates are delivered by the Microsoft Store. The Microsoft Edge WebView2 component that Dirwise uses to draw its window is part of Windows and is updated by Microsoft under Microsoft's own privacy statement.
   - The version downloaded from GitHub checks for a new version at most once a day with a single request to `https://api.github.com/repos/krystof2-ops/dirwise/releases/latest`. The request contains no information about you or your files (GitHub sees your IP address, as with any web request). The check can be turned off in More → Check for Updates.
 - **Other apps.** When you choose *Open*, *Open with…*, *Open in Terminal* or *Open in Explorer*, the file or folder is handed over to that app; what it does is governed by its own privacy policy.
+- **Website.** The website uses no cookies, trackers or analytics. Comments on the Ideas page (giscus, stored in GitHub Discussions) load from giscus.app and GitHub only after you click *Load comments*; if you sign in to comment, giscus keeps a session token in your browser. Details: <https://krystof2-ops.github.io/dirwise/privacy/#site>.
 
 Questions: open an issue at <https://github.com/krystof2-ops/dirwise/issues>.
 
@@ -22,7 +23,7 @@ Questions: open an issue at <https://github.com/krystof2-ops/dirwise/issues>.
 
 [English](#privacy-policy--dirwise) · **Čeština**
 
-*Poslední změna: 16. října 2026* · Také na webu: <https://krystof2-ops.github.io/dirwise/cs/privacy/>
+*Poslední změna: 18. října 2026* · Také na webu: <https://krystof2-ops.github.io/dirwise/cs/privacy/>
 
 Dirwise je správce souborů, který běží celý ve tvém počítači. Nesbírá, neukládá ani neodesílá žádné osobní údaje.
 
@@ -33,5 +34,6 @@ Dirwise je správce souborů, který běží celý ve tvém počítači. Nesbír
   - **Ve verzi z Microsoft Storu nedělá Dirwise sám žádné síťové požadavky.** Aktualizace doručuje Microsoft Store. Komponentu Microsoft Edge WebView2, kterou Dirwise používá k vykreslení okna, dodává a aktualizuje Microsoft podle svých vlastních zásad.
   - Verze stažená z GitHubu se nejvýš jednou denně jedním požadavkem na `https://api.github.com/repos/krystof2-ops/dirwise/releases/latest` zeptá, jestli existuje nová verze. Požadavek neobsahuje nic o tobě ani o tvých souborech (GitHub vidí tvou IP adresu jako u každého požadavku na web). Kontrolu jde vypnout v Více → Kontrolovat aktualizace.
 - **Jiné aplikace.** Když zvolíš *Otevřít*, *Otevřít v aplikaci…*, *Otevřít v terminálu* nebo *Otevřít v Průzkumníku*, soubor či složka se předá té aplikaci; co s ním udělá, řídí její vlastní zásady.
+- **Web.** Web nepoužívá cookies, sledovací kódy ani analytiku. Komentáře na stránce Nápady (giscus, ukládají se v GitHub Discussions) se z giscus.app a GitHubu načtou až po kliknutí na *Načíst komentáře*; když se přihlásíš ke komentování, giscus si uloží přihlašovací token v prohlížeči. Podrobnosti: <https://krystof2-ops.github.io/dirwise/cs/privacy/#site>.
 
 Dotazy: založ issue na <https://github.com/krystof2-ops/dirwise/issues>.

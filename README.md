@@ -6,7 +6,7 @@
 
 **A fast, keyboard-friendly file manager for Windows — column view, tabs, split view, instant preview and Ctrl+K.**
 
-**English** · [Čeština](README.cs.md) · [Website](https://krystof2-ops.github.io/dirwise/) · [Support](https://krystof2-ops.github.io/dirwise/support/) · [Privacy](https://krystof2-ops.github.io/dirwise/privacy/)
+**English** · [Čeština](README.cs.md) · [Website](https://krystof2-ops.github.io/dirwise/) · [Support](https://krystof2-ops.github.io/dirwise/support/) · [Ideas](https://krystof2-ops.github.io/dirwise/ideas/) · [Privacy](https://krystof2-ops.github.io/dirwise/privacy/)
 
 [![Latest release](https://img.shields.io/github/v/release/krystof2-ops/dirwise)](https://github.com/krystof2-ops/dirwise/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/krystof2-ops/dirwise/total)](https://github.com/krystof2-ops/dirwise/releases)
@@ -179,7 +179,7 @@ npm run tauri build   # build the installer → src-tauri/target/release/bundle/
 
 ## Contributing
 
-Bug reports and pull requests are welcome in [Issues](https://github.com/krystof2-ops/dirwise/issues); help and known issues are on the [Support](https://krystof2-ops.github.io/dirwise/support/) page. Before a PR, run `npm run build` and, in `src-tauri`, `cargo clippy -- -D warnings` and `cargo test`. UI texts go through the translation files in `src/i18n/` (English and Czech). Security issues: see [SECURITY.md](SECURITY.md).
+Bug reports and pull requests are welcome in [Issues](https://github.com/krystof2-ops/dirwise/issues); suggest and upvote improvements on the [Ideas](https://krystof2-ops.github.io/dirwise/ideas/) page; help and known issues are on the [Support](https://krystof2-ops.github.io/dirwise/support/) page. Before a PR, run `npm run build` and, in `src-tauri`, `cargo clippy -- -D warnings` and `cargo test`. UI texts go through the translation files in `src/i18n/` (English and Czech). Security issues: see [SECURITY.md](SECURITY.md).
 
 Release notes are in [CHANGELOG.md](CHANGELOG.md).
 

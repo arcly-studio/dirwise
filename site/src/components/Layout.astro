@@ -1,6 +1,6 @@
 ---
 // Kostra každé stránky: <head> (meta, hreflang, písma), lišta novinky + navigace, obsah a patička.
-// path = stránka v obou jazycích ("" úvod, "privacy/", "support/") – podle ní canonical, hreflang a přepínač jazyka.
+// path = stránka v obou jazycích ("" úvod, "privacy/", "support/", "ideas/") – podle ní canonical, hreflang a přepínač jazyka.
 import interLatin from "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url";
 import interLatinExt from "@fontsource-variable/inter/files/inter-latin-ext-wght-normal.woff2?url";
 import { texts, type Lang } from "../i18n/texts";
@@ -79,6 +79,7 @@ const og = new URL(asset("og.png"), Astro.site).href;
         <a href={links.repo}>{t.footer.github}</a>
         <a href={links.changelog}>{t.footer.changelog}</a>
         <a href={pageHref(lang, "support/")} aria-current={path === "support/" ? "page" : undefined}>{t.footer.support}</a>
+        <a href={pageHref(lang, "ideas/")} aria-current={path === "ideas/" ? "page" : undefined}>{t.footer.ideas}</a>
         <a href={pageHref(lang, "privacy/")} aria-current={path === "privacy/" ? "page" : undefined}>{t.footer.privacy}</a>
       </nav>
       <p>© 2026 krystof2-ops · <a href={links.license}>{t.footerNote}</a></p>

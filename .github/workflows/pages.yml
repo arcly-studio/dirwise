@@ -3,6 +3,8 @@
 # Na push běží jen s proměnnou repa PAGES_ENABLED=true (nastavit po zapnutí Pages), jinak by configure-pages
 # padal; ručně (workflow_dispatch) vždy – i po vydání (nová verze a velikost v hero). Trigger release
 # nejde: prostředí github-pages povoluje nasazení jen z výchozí větve, ne z tagu.
+# Denně (cron) kvůli seznamu nápadů z GitHub Discussions na /ideas/ (site/src/lib/ideas.ts). GitHub plánované
+# workflow ve veřejném repu vypne po 60 dnech bez commitů – pak ho stačí znovu zapnout v záložce Actions.
 name: Pages
 
 on:
@@ -19,6 +21,8 @@ on:
       - "src-tauri/icons/icon.ico"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
+  schedule:
+    - cron: "17 4 * * *"
 
 permissions:
   contents: read
@@ -31,6 +35,10 @@ jobs:
   build:
     if: github.event_name == 'workflow_dispatch' || vars.PAGES_ENABLED == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # GraphQL: nápady z kategorie Ideas (site/src/lib/ideas.ts)
+      discussions: read
     defaults:
       run:
         working-directory: site
@@ -51,7 +59,8 @@ jobs:
       # npm run build = prepare (OG obrázek, favicony) + astro build + kontrola zakázaných slov
       - run: npm run build
         env:
-          # velikost instalátoru z GitHub API (site/src/lib/release.ts) bez limitu anonymních požadavků
+          # velikost instalátoru z GitHub API (site/src/lib/release.ts) bez limitu anonymních požadavků,
+          # nápady z Discussions přes GraphQL (bez tokenu nejde – stránka by byla bez seznamu)
           GITHUB_TOKEN: ${{ github.token }}
           SITE_URL: ${{ steps.pages.outputs.origin }}
           BASE_PATH: ${{ steps.pages.outputs.base_path }}

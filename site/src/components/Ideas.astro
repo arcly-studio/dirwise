@@ -1,0 +1,139 @@
+---
+// Stránka nápadů (en /ideas/, cs /cs/ideas/): seznam z GitHub Discussions (Ideas) podle hlasů
+// – načtený při buildu (src/lib/ideas.ts) – a diskuse přes giscus. giscus (iframe z giscus.app,
+// avatary z GitHubu) se načte až po kliknutí – bez toho stránka nic z cizích serverů nenačítá.
+import Layout from "./Layout.astro";
+import { icon } from "../lib/icons";
+import { pageHref } from "../lib/links";
+import { ideas, GISCUS, WELCOME_DISCUSSION, NEW_IDEA, ALL_IDEAS } from "../lib/ideas";
+import type { Lang } from "../i18n/texts";
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+
+const texts = {
+  en: {
+    title: "Ideas – Dirwise",
+    description: "Suggest improvements for Dirwise and upvote ideas from others. The most-voted ideas are listed first.",
+    h1: "Ideas",
+    lead: "Have an idea for Dirwise? Share it below or upvote others.",
+    account: "Anyone can read the ideas; to post, vote or comment you need a free GitHub account.",
+    suggest: "Suggest an idea",
+    browse: "All ideas on GitHub",
+    listHeading: "Most-voted ideas",
+    updated: "Updated daily, last on",
+    empty: "No ideas yet – be the first to suggest one.",
+    unavailable: "The list of ideas isn't available right now. You can browse them on GitHub.",
+    votes: { one: "vote", other: "votes" } as Record<string, string>,
+    comments: { one: "comment", other: "comments" } as Record<string, string>,
+    discussHeading: "General discussion",
+    discussText: "Comments here go to the welcome thread in GitHub Discussions.",
+    load: "Load comments",
+    loadNote: "Loads giscus from giscus.app and avatars from GitHub. See the",
+    privacy: "Privacy Policy",
+  },
+  cs: {
+    title: "Nápady – Dirwise",
+    description: "Navrhni vylepšení pro Dirwise a hlasuj pro nápady ostatních. Nápady s nejvíce hlasy jsou nahoře.",
+    h1: "Nápady",
+    lead: "Máš nápad pro Dirwise? Napiš ho, nebo dej hlas nápadům ostatních.",
+    account: "Číst může každý; k psaní, hlasování a komentářům potřebuješ bezplatný účet na GitHubu.",
+    suggest: "Navrhnout nápad",
+    browse: "Všechny nápady na GitHubu",
+    listHeading: "Nápady s nejvíce hlasy",
+    updated: "Aktualizuje se denně, naposledy",
+    empty: "Zatím tu žádné nápady nejsou – buď první.",
+    unavailable: "Seznam nápadů teď není k dispozici. Najdeš je na GitHubu.",
+    votes: { one: "hlas", few: "hlasy", many: "hlasu", other: "hlasů" } as Record<string, string>,
+    comments: { one: "komentář", few: "komentáře", many: "komentáře", other: "komentářů" } as Record<string, string>,
+    discussHeading: "Obecná diskuse",
+    discussText: "Komentáře odsud jdou do úvodního vlákna v GitHub Discussions.",
+    load: "Načíst komentáře",
+    loadNote: "Načte giscus z giscus.app a avatary z GitHubu. Viz",
+    privacy: "Zásady ochrany soukromí",
+  },
+}[lang];
+
+const list = await ideas();
+const plural = new Intl.PluralRules(lang);
+const count = (n: number, forms: Record<string, string>) => `${n} ${forms[plural.select(n)] ?? forms.other}`;
+const today = new Date().toLocaleDateString(lang === "cs" ? "cs-CZ" : "en-GB", { day: "numeric", month: "long", year: "numeric" });
+---
+<Layout lang={lang} path="ideas/" title={texts.title} description={texts.description}>
+  <main id="main" class="doc">
+    <header class="doc-head">
+      <h1>{texts.h1}</h1>
+      <p class="doc-lead">{texts.lead}</p>
+      <p class="doc-meta">{texts.account}</p>
+    </header>
+
+    <div class="ideas-actions">
+      <a class="btn btn-primary" href={NEW_IDEA}><Fragment set:html={icon("Lightbulb", 18)} />{texts.suggest}</a>
+      <a class="btn btn-ghost" href={ALL_IDEAS}>{texts.browse}</a>
+    </div>
+
+    <section aria-labelledby="list">
+      <h2 id="list">{texts.listHeading}</h2>
+      {list === null && <p>{texts.unavailable}</p>}
+      {list?.length === 0 && <p>{texts.empty}</p>}
+      {list && list.length > 0 && (
+        <>
+          <ol class="ideas">
+            {list.map((idea) => (
+              <li>
+                <span class="idea-votes">
+                  <Fragment set:html={icon("ArrowUp", 16)} />
+                  <span aria-hidden="true">{idea.votes}</span>
+                  <span class="sr-only">{count(idea.votes, texts.votes)}</span>
+                </span>
+                <a class="idea-title" href={idea.url}>{idea.title}</a>
+                <span class="idea-comments">
+                  <Fragment set:html={icon("MessageSquare", 14)} />
+                  {count(idea.comments, texts.comments)}
+                </span>
+              </li>
+            ))}
+          </ol>
+          <p class="doc-meta">{texts.updated} {today}.</p>
+        </>
+      )}
+    </section>
+
+    <section aria-labelledby="discuss">
+      <h2 id="discuss">{texts.discussHeading}</h2>
+      <p>{texts.discussText}</p>
+      <div class="giscus-slot" id="giscus-slot"
+        data-repo={GISCUS.repo} data-repo-id={GISCUS.repoId}
+        data-category={GISCUS.category} data-category-id={GISCUS.categoryId}
+        data-term={String(WELCOME_DISCUSSION)} data-lang={lang}>
+        <button type="button" class="btn btn-ghost" id="giscus-load">
+          <Fragment set:html={icon("MessageSquare", 18)} />{texts.load}
+        </button>
+        <p class="doc-meta">{texts.loadNote} <a href={pageHref(lang, "privacy/")}>{texts.privacy}</a>.</p>
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<script>
+  // giscus až na výslovné kliknutí; téma pevně tmavé (web má jen tmavý režim).
+  const slot = document.getElementById("giscus-slot");
+  document.getElementById("giscus-load")?.addEventListener("click", () => {
+    if (!slot) return;
+    const d = slot.dataset;
+    const s = document.createElement("script");
+    s.src = "https://giscus.app/client.js";
+    s.async = true;
+    s.crossOrigin = "anonymous";
+    const attrs: Record<string, string> = {
+      repo: d.repo!, "repo-id": d.repoId!, category: d.category!, "category-id": d.categoryId!,
+      mapping: "number", term: d.term!, strict: "0", "reactions-enabled": "1", "emit-metadata": "0",
+      "input-position": "top", theme: "transparent_dark", lang: d.lang!,
+    };
+    for (const [k, v] of Object.entries(attrs)) s.setAttribute(`data-${k}`, v);
+    slot.replaceChildren(s);
+    // Tlačítko zmizelo – fokus na místo, kam se giscus vykreslí, ať se klávesnice neztratí.
+    slot.tabIndex = -1;
+    slot.focus();
+  });
+</script>
