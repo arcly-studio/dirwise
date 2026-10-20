@@ -1098,8 +1098,9 @@ fn open_file(path: String) -> CmdResult<()> {
 
 /// Stránka release v prohlížeči (proužek „Je k dispozici nová verze").
 /// Jen stránka vydání tohohle repozitáře — command nesmí otevírat cokoli.
-/// Repo se dřív jmenovalo finder-win (GitHub starou adresu přesměruje) — platí obě.
-const RELEASE_TAG_URLS: [&str; 2] = [
+/// Repo bylo dřív pod krystof2-ops (finder-win, pak dirwise; GitHub staré adresy přesměruje) — platí všechny.
+const RELEASE_TAG_URLS: [&str; 3] = [
+    "https://github.com/arcly-studio/dirwise/releases/tag/",
     "https://github.com/krystof2-ops/dirwise/releases/tag/",
     "https://github.com/krystof2-ops/finder-win/releases/tag/",
 ];
@@ -3082,6 +3083,13 @@ mod release_url_tests {
     fn accepts_only_release_tag_pages() {
         assert!(is_release_page("https://github.com/krystof2-ops/finder-win/releases/tag/v1.3.0"));
         assert!(is_release_page("https://github.com/krystof2-ops/dirwise/releases/tag/v1.6.0"));
+        assert!(is_release_page("https://github.com/arcly-studio/dirwise/releases/tag/v1.7.0"));
+        assert!(!is_release_page("https://github.com/arcly-studio/dirwise-evil/releases/tag/v1"));
+        assert!(!is_release_page("https://github.com/arcly-studio/dirwise/releases/tag/../../x"));
+        assert!(!is_release_page("https://github.com/arcly-studio/dirwise/releases/tag/"));
+        assert!(!is_release_page("https://github.com/arcly-studio/finder-win/releases/tag/v1.7.0"));
+        assert!(!is_release_page("https://github.com/arcly-studio/dirwise/releases/tag/v1.7.0?x=1"));
+        assert!(!is_release_page("https://github.com/arcly-studio/dirwise/releases/tag/v1.7.0/x"));
         assert!(!is_release_page("https://github.com/krystof2-ops/dirwise/releases/tag/../../x"));
         assert!(!is_release_page("https://github.com/krystof2-ops/dirwise-evil/releases/tag/v1"));
         assert!(!is_release_page("https://github.com/krystof2-ops/finder-win/releases/tag/"));

@@ -24,12 +24,14 @@ npm run preview   # servíruje dist/
 
 ## Nasazení
 
-Workflow `.github/workflows/pages.yml` (denně v 4:17 UTC, push do master při změně `site/`, `docs/screenshots/`, `docs/brand/`, README nebo ikony aplikace – jen s proměnnou `PAGES_ENABLED=true`; ručně přes workflow_dispatch). Adresa a base cesta se berou z `actions/configure-pages` (`SITE_URL`, `BASE_PATH`) – lokálně výchozí `https://krystof2-ops.github.io` + `/dirwise`.
+Workflow `.github/workflows/pages.yml` (denně v 4:17 UTC, push do master při změně `site/`, `docs/screenshots/`, `docs/brand/`, README nebo ikony aplikace – jen s proměnnou `PAGES_ENABLED=true`; ručně přes workflow_dispatch). Adresa a base cesta se berou z `actions/configure-pages` (`SITE_URL`, `BASE_PATH`) – lokálně výchozí `https://arcly-studio.github.io` + `/dirwise`.
+
+Staré Pages na `krystof2-ops.github.io/dirwise/` po přesunu repa do organizace nefungují (404, GitHub je nepřesměrovává) – web je jen na `https://arcly-studio.github.io/dirwise/`.
 
 Jednorázově zapnout Pages se zdrojem GitHub Actions a povolit nasazení při pushi (bez proměnné workflow na push nic nedělá):
 
 ```sh
-gh api -X POST repos/krystof2-ops/dirwise/pages -f build_type=workflow
+gh api -X POST repos/arcly-studio/dirwise/pages -f build_type=workflow
 gh variable set PAGES_ENABLED --body true
 gh workflow run pages.yml
 ```
@@ -40,7 +42,7 @@ gh workflow run pages.yml
 
 U nasazení přes Actions se soubor `CNAME` nepoužívá – doména se nastavuje v repu a web se jí přizpůsobí sám (configure-pages pak vrátí prázdnou base cestu).
 
-1. DNS: apex doména → záznamy `A` na `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153` (+ `AAAA` `2606:50c0:8000::153` … `8003::153`); subdoména `www` → `CNAME` na `krystof2-ops.github.io`.
-2. `gh api -X PUT repos/krystof2-ops/dirwise/pages -f cname=<doména>` (nebo Settings → Pages → Custom domain), doménu ověřit v nastavení účtu (Settings → Pages → Verified domains).
-3. Po vydání certifikátu: `gh api -X PUT repos/krystof2-ops/dirwise/pages -F https_enforced=true`.
+1. DNS: apex doména → záznamy `A` na `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153` (+ `AAAA` `2606:50c0:8000::153` … `8003::153`); subdoména `www` → `CNAME` na `arcly-studio.github.io`.
+2. `gh api -X PUT repos/arcly-studio/dirwise/pages -f cname=<doména>` (nebo Settings → Pages → Custom domain), doménu ověřit v nastavení účtu (Settings → Pages → Verified domains).
+3. Po vydání certifikátu: `gh api -X PUT repos/arcly-studio/dirwise/pages -F https_enforced=true`.
 4. Spustit workflow znovu (workflow_dispatch) – canonical, hreflang, sitemap a OG odkazy se přegenerují na novou adresu.

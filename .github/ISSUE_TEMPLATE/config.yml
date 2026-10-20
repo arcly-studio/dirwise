@@ -1,8 +1,8 @@
 blank_issues_enabled: true
 contact_links:
   - name: Support and known issues
-    url: https://krystof2-ops.github.io/dirwise/support/
+    url: https://arcly-studio.github.io/dirwise/support/
     about: Finding your version, the SmartScreen warning, transparency on Windows 10 and more.
   - name: Ideas and voting
-    url: https://krystof2-ops.github.io/dirwise/ideas/
+    url: https://arcly-studio.github.io/dirwise/ideas/
     about: Suggest an improvement or upvote ideas from others in GitHub Discussions.

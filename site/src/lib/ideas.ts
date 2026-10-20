@@ -9,7 +9,7 @@ export const WELCOME_DISCUSSION = 15;
 
 // giscus: ID repa a kategorie Ideas (z GraphQL, nemění se).
 export const GISCUS = {
-  repo: "krystof2-ops/dirwise",
+  repo: "arcly-studio/dirwise",
   repoId: "R_kgDOT1fFWw",
   category: "Ideas",
   categoryId: "DIC_kwDOT1fFW84DI5oa",
@@ -21,7 +21,7 @@ export const ALL_IDEAS = `${REPO}/discussions/categories/ideas`;
 export type Idea = { number: number; title: string; url: string; votes: number; comments: number };
 
 const QUERY = `query($cat: ID!, $after: String) {
-  repository(owner: "krystof2-ops", name: "dirwise") {
+  repository(owner: "arcly-studio", name: "dirwise") {
     discussions(first: 100, after: $after, categoryId: $cat) {
       pageInfo { hasNextPage endCursor }
       nodes { number title url upvoteCount closed comments { totalCount } }

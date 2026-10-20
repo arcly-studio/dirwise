@@ -5,8 +5,8 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for reporting! Please search the [existing issues](https://github.com/krystof2-ops/dirwise/issues) first. You can write in English or Czech.
-        Security vulnerabilities: please report them privately via [Security Advisories](https://github.com/krystof2-ops/dirwise/security/advisories/new), not here.
+        Thanks for reporting! Please search the [existing issues](https://github.com/arcly-studio/dirwise/issues) first. You can write in English or Czech.
+        Security vulnerabilities: please report them privately via [Security Advisories](https://github.com/arcly-studio/dirwise/security/advisories/new), not here.
   - type: input
     id: version
     attributes:

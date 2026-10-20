@@ -2,9 +2,9 @@
 name = "dirwise"
 version = "1.6.0"
 description = "A fast, keyboard-friendly file manager for Windows"
-authors = ["krystof2-ops"]
+authors = ["Arcly Studio"]
 license = "MIT"
-repository = "https://github.com/krystof2-ops/dirwise"
+repository = "https://github.com/arcly-studio/dirwise"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

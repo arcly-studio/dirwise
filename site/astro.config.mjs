@@ -4,7 +4,7 @@ import { defineConfig } from "astro/config";
 import sitemap from "@astrojs/sitemap";
 import { fileURLToPath } from "url";
 
-const site = process.env.SITE_URL ?? "https://krystof2-ops.github.io";
+const site = process.env.SITE_URL ?? "https://arcly-studio.github.io";
 const base = process.env.BASE_PATH ?? "/dirwise";
 
 export default defineConfig({

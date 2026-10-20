@@ -6,15 +6,15 @@
 
 **Rychlý správce souborů pro Windows ovladatelný klávesnicí – sloupcové zobrazení, záložky, rozdělené okno, rychlý náhled a Ctrl+K.**
 
-[English](README.md) · **Čeština** · [Web](https://krystof2-ops.github.io/dirwise/cs/) · [Podpora](https://krystof2-ops.github.io/dirwise/cs/support/) · [Nápady](https://krystof2-ops.github.io/dirwise/cs/ideas/) · [Soukromí](https://krystof2-ops.github.io/dirwise/cs/privacy/)
+[English](README.md) · **Čeština** · [Web](https://arcly-studio.github.io/dirwise/cs/) · [Podpora](https://arcly-studio.github.io/dirwise/cs/support/) · [Nápady](https://arcly-studio.github.io/dirwise/cs/ideas/) · [Soukromí](https://arcly-studio.github.io/dirwise/cs/privacy/)
 
-[![Poslední verze](https://img.shields.io/github/v/release/krystof2-ops/dirwise)](https://github.com/krystof2-ops/dirwise/releases/latest)
-[![Stažení](https://img.shields.io/github/downloads/krystof2-ops/dirwise/total)](https://github.com/krystof2-ops/dirwise/releases)
-[![Licence](https://img.shields.io/github/license/krystof2-ops/dirwise)](LICENSE)
+[![Poslední verze](https://img.shields.io/github/v/release/arcly-studio/dirwise)](https://github.com/arcly-studio/dirwise/releases/latest)
+[![Stažení](https://img.shields.io/github/downloads/arcly-studio/dirwise/total)](https://github.com/arcly-studio/dirwise/releases)
+[![Licence](https://img.shields.io/github/license/arcly-studio/dirwise)](LICENSE)
 ![Windows 10/11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows)
 [![Listed on Open Source Alternatives](https://www.opensourcealternatives.to/badge-osa.svg)](https://www.opensourcealternatives.to)
 
-<p align="center"><a href="https://github.com/krystof2-ops/dirwise/releases/latest"><img src="docs/buttons/download-cs.svg" alt="Stáhnout pro Windows" height="68"></a></p>
+<p align="center"><a href="https://github.com/arcly-studio/dirwise/releases/latest"><img src="docs/buttons/download-cs.svg" alt="Stáhnout pro Windows" height="68"></a></p>
 
 <p align="center"><a href="https://apps.microsoft.com/detail/9MZ67726S65X?hl=cs-cz&gl=CZ&mode=direct"><img src="https://get.microsoft.com/images/cs%20dark.svg" alt="Získat od Microsoftu" width="200"></a></p>
 
@@ -143,7 +143,7 @@ Dirwise (dříve Finder-Win) je inspirován macOS Finderem, vytvořený pro Wind
 
 ## Instalace
 
-1. Stáhni `Dirwise_…_x64-setup.exe` z [poslední verze](https://github.com/krystof2-ops/dirwise/releases/latest) a spusť ho. Instaluje se jen pro aktuálního uživatele, práva správce nejsou potřeba.
+1. Stáhni `Dirwise_…_x64-setup.exe` z [poslední verze](https://github.com/arcly-studio/dirwise/releases/latest) a spusť ho. Instaluje se jen pro aktuálního uživatele, práva správce nejsou potřeba.
 2. Instalátor není digitálně podepsaný, takže Windows SmartScreen ukáže „Systém Windows ochránil váš počítač“. Klikni na **Další informace** → **Přesto spustit**.
 
 Aktualizace z Finder-Win 1.5.x: instalátor Dirwise starou verzi sám tiše odinstaluje (žádná druhá instalace vedle) a nastavení zůstane. Připnutí na hlavním panelu je potřeba udělat znovu.
@@ -165,7 +165,7 @@ Nebo si aplikaci nainstaluj z [Microsoft Storu](https://apps.microsoft.com/detai
 
 ## Soukromí
 
-Dirwise dělá jediný druh síťového požadavku: nejvýš jednou denně se zeptá GitHub API (`api.github.com/repos/krystof2-ops/dirwise/releases/latest`), jestli existuje novější verze, a pokud ano, ukáže proužek s odkazem na stránku vydání. Žádná telemetrie, nic o tobě ani o tvých souborech se neodesílá. Vypnout jde v Více → Kontrolovat aktualizace. Úplné [zásady ochrany soukromí](https://krystof2-ops.github.io/dirwise/cs/privacy/).
+Dirwise dělá jediný druh síťového požadavku: nejvýš jednou denně se zeptá GitHub API (`api.github.com/repos/arcly-studio/dirwise/releases/latest`), jestli existuje novější verze, a pokud ano, ukáže proužek s odkazem na stránku vydání. Žádná telemetrie, nic o tobě ani o tvých souborech se neodesílá. Vypnout jde v Více → Kontrolovat aktualizace. Úplné [zásady ochrany soukromí](https://arcly-studio.github.io/dirwise/cs/privacy/).
 
 ## Sestavení ze zdrojáků
 
@@ -179,7 +179,7 @@ npm run tauri build   # instalátor → src-tauri/target/release/bundle/nsis/
 
 ## Přispívání
 
-Chyby a pull requesty vítány v [Issues](https://github.com/krystof2-ops/dirwise/issues); vylepšení navrhuj a hlasuj pro ně na stránce [Nápady](https://krystof2-ops.github.io/dirwise/cs/ideas/); pomoc a známé problémy jsou na stránce [Podpora](https://krystof2-ops.github.io/dirwise/cs/support/). Před PR spusť `npm run build` a v `src-tauri` `cargo clippy -- -D warnings` a `cargo test`. Texty UI jdou přes překlady v `src/i18n/` (čeština a angličtina). Bezpečnostní problémy: viz [SECURITY.md](SECURITY.md).
+Chyby a pull requesty vítány v [Issues](https://github.com/arcly-studio/dirwise/issues); vylepšení navrhuj a hlasuj pro ně na stránce [Nápady](https://arcly-studio.github.io/dirwise/cs/ideas/); pomoc a známé problémy jsou na stránce [Podpora](https://arcly-studio.github.io/dirwise/cs/support/). Před PR spusť `npm run build` a v `src-tauri` `cargo clippy -- -D warnings` a `cargo test`. Texty UI jdou přes překlady v `src/i18n/` (čeština a angličtina). Bezpečnostní problémy: viz [SECURITY.md](SECURITY.md).
 
 Dirwise vzniká s pomocí AI (Claude Code). Autor řídí návrh, testuje a kontroluje každou verzi.
 

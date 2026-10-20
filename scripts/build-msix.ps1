@@ -26,7 +26,7 @@ Set-StrictMode -Version Latest
 # (DisplayName níž) je Dirwise a musí být rezervovaný v Partner Center.
 $IdentityName = "krystof02.Finder-Win"
 $Publisher = "CN=7A230D16-A4F0-44D2-9725-8DF77823543E"
-$PublisherDisplayName = "krystof02"
+$PublisherDisplayName = "Arcly Studio"
 
 $Root = Split-Path -Parent $PSScriptRoot
 $Version = (Get-Content (Join-Path $Root "package.json") -Raw | ConvertFrom-Json).version

@@ -4,7 +4,7 @@ labels: [enhancement]
 body:
   - type: markdown
     attributes:
-      value: Thanks for the idea! Please search the [existing issues](https://github.com/krystof2-ops/dirwise/issues) first. You can write in English or Czech.
+      value: Thanks for the idea! Please search the [existing issues](https://github.com/arcly-studio/dirwise/issues) first. You can write in English or Czech.
   - type: textarea
     id: problem
     attributes:

@@ -56,8 +56,8 @@
   "bundle": {
     "active": true,
     "targets": ["nsis"],
-    "publisher": "krystof2-ops",
-    "copyright": "Copyright (c) 2026 krystof2-ops",
+    "publisher": "Arcly Studio",
+    "copyright": "Copyright (c) 2026 Arcly Studio",
     "shortDescription": "A fast, keyboard-friendly file manager for Windows",
     "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.ico"],
     "windows": {

@@ -4,11 +4,11 @@
   "private": true,
   "version": "1.6.0",
   "description": "A fast, keyboard-friendly file manager for Windows",
-  "author": "krystof2-ops",
+  "author": "Arcly Studio",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/krystof2-ops/dirwise.git"
+    "url": "https://github.com/arcly-studio/dirwise.git"
   },
   "type": "module",
   "scripts": {

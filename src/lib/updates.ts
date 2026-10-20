@@ -7,11 +7,12 @@ import * as storage from "./storage";
  * (žádná telemetrie, nic se neodesílá). Vypíná se v menu Více.
  */
 
-// Repo se dřív jmenovalo finder-win (starou adresu API GitHub přesměruje).
-const LATEST_RELEASE = "https://api.github.com/repos/krystof2-ops/dirwise/releases/latest";
+// Repo se dřív jmenovalo krystof2-ops/finder-win a krystof2-ops/dirwise (staré adresy API GitHub přesměruje).
+const LATEST_RELEASE = "https://api.github.com/repos/arcly-studio/dirwise/releases/latest";
 /** Stránka vydání — stejné pravidlo hlídá i backend (is_release_page). Starší verze
- *  aplikace dostávaly adresu finder-win, proto platí obě. */
-const RELEASE_PAGE = /^https:\/\/github\.com\/krystof2-ops\/(dirwise|finder-win)\/releases\/tag\/[A-Za-z0-9.-]+$/;
+ *  aplikace dostávaly adresy pod krystof2-ops (finder-win i dirwise), proto platí všechny tři. */
+const RELEASE_PAGE =
+  /^https:\/\/github\.com\/(arcly-studio\/dirwise|krystof2-ops\/(dirwise|finder-win))\/releases\/tag\/[A-Za-z0-9.-]+$/;
 
 function isReleasePage(url: string): boolean {
   return RELEASE_PAGE.test(url) && !url.includes("..");

@@ -7,7 +7,7 @@ import path from "path";
 
 export type Release = { version: string; bytes: number | null };
 
-const API = "https://api.github.com/repos/krystof2-ops/dirwise/releases/latest";
+const API = "https://api.github.com/repos/arcly-studio/dirwise/releases/latest";
 
 // MB jako ve Windows (1024²), s desetinnou čárkou/tečkou podle jazyka.
 export const formatSize = (bytes: number, lang: string) =>

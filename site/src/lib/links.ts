@@ -1,5 +1,5 @@
 // Odkazy mimo web (repo dříve finder-win, GitHub starou adresu přesměruje).
-export const REPO = "https://github.com/krystof2-ops/dirwise";
+export const REPO = "https://github.com/arcly-studio/dirwise";
 
 export const links = {
   repo: REPO,

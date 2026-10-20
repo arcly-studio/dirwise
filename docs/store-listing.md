@@ -5,9 +5,9 @@
 Texty pro Partner Center (Store listing), anglicky a česky. Limity Partner Center: krátký popis ≤ 100 znaků (vlastní rezerva, Partner Center dovolí víc), popis ≤ 10 000, každá feature ≤ 200 znaků, max. 20 features, klíčová slova max. 7 (každé ≤ 30 znaků).
 
 - **Category:** Utilities & tools → File managers (alternativa: Productivity)
-- **Privacy policy URL:** https://krystof2-ops.github.io/dirwise/privacy/
-- **Website:** https://krystof2-ops.github.io/dirwise/
-- **Support contact:** https://krystof2-ops.github.io/dirwise/support/
+- **Privacy policy URL:** https://arcly-studio.github.io/dirwise/privacy/
+- **Website:** https://arcly-studio.github.io/dirwise/
+- **Support contact:** https://arcly-studio.github.io/dirwise/support/
 - **Screenshots (1920×1080):** `docs/store/hero-dark.png`, `hero-light.png`, `split-view.png`, `command-palette.png`, `previews.png`, `transparency.png` (snímky Store = viewport 1280×720 se škálováním 1,5, `shots.mjs --store`)
 - **System requirements (Additional system requirements):** Windows 10 1809 or later, x64; Microsoft Edge WebView2 Runtime (part of Windows 11, on Windows 10 installed by Windows Update)
 - **Store logo:** `src-tauri/icons/Square310x310Logo.png` (nebo `app-icon.png` 1024×1024)
