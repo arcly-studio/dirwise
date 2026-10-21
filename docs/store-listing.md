@@ -38,17 +38,11 @@ The window has the standard Windows 11 title bar with Snap Layouts. Light and da
 Privacy: no telemetry, no account, no ads. The Microsoft Store version itself makes no network requests – updates come from the Store.
 
 ### What's new
-Version 1.6.0
-- New name: Dirwise.
-- Windows 11 title bar: small icon and name on the left, standard Minimize, Maximize and Close buttons on the right, with Snap Layouts when you hover Maximize.
-- Sidebar sections: Quick access, This PC, Cloud, Drives (with the Recycle Bin), Recent and Tags. Pin folders from the context menu with Pin to Quick Access.
-- Icons view highlights the whole tile when selected.
-- The status bar shows the selection and free space, e.g. 1 of 52 selected · 120.7 GB free.
-- New amber folder icon in the style of Windows 11.
-- Blurred transparency (Acrylic) on Windows 11 22H2 and later: More → Appearance → Transparency: Blurred.
-- File extensions like in Windows: shortcuts never show one, other files follow your Windows setting (or Always / Never in More → View → File Extensions).
-- The toolbar fits narrow windows; the search field turns into an icon when space runs out.
-- The quick preview is now simply called Preview.
+Version 1.6.1
+- New Share icon in the style of Windows 11.
+- Toolbar icons on the right are now the same size and colour, with even spacing.
+- The publisher is now Arcly Studio.
+- New website (arcly-studio.github.io/dirwise) and repository addresses.
 
 ### Features (max 20)
 1. Column view with a preview pane, plus Icons and List views
@@ -94,17 +88,11 @@ Okno má standardní titulkovou lištu Windows 11 se Snap Layouts. Světlý a tm
 Soukromí: žádná telemetrie, žádný účet, žádné reklamy. Verze z Microsoft Storu sama nedělá žádné síťové požadavky – aktualizace přicházejí ze Storu.
 
 ### Novinky
-Verze 1.6.0
-- Nový název: Dirwise.
-- Titulková lišta jako ve Windows 11: vlevo malá ikona a název, vpravo standardní tlačítka Minimalizovat, Maximalizovat a Zavřít, při najetí na Maximalizovat se Snap Layouts.
-- Sekce postranního panelu: Rychlý přístup, Tento počítač, Cloud, Disky (s Košem), Nedávné a Štítky. Složky připneš v kontextovém menu přes Připnout do Rychlého přístupu.
-- V zobrazení Ikony se při výběru podbarví celá dlaždice.
-- Stavový řádek ukazuje výběr a volné místo, např. 1 z 52 vybráno · volno 120,7 GB.
-- Nová jantarová ikona složky ve stylu Windows 11.
-- Rozmazaná průhlednost (Acrylic) ve Windows 11 22H2 a novějších: Více → Vzhled → Průhlednost: rozmazaná.
-- Přípony jako ve Windows: zástupci je neukazují nikdy, ostatní soubory podle nastavení Windows (nebo Vždy / Nikdy ve Více → Zobrazit → Přípony souborů).
-- Toolbar se vejde i do úzkého okna; hledání se při nedostatku místa schová do ikony.
-- Rychlý náhled se nově jmenuje prostě Náhled.
+Verze 1.6.1
+- Nová ikona Sdílet ve stylu Windows 11.
+- Ikony vpravo v toolbaru jsou stejně velké a stejné barvy, s pravidelnými mezerami.
+- Vydavatel je nově Arcly Studio.
+- Nové adresy webu (arcly-studio.github.io/dirwise) a repozitáře.
 
 ### Funkce (max 20)
 1. Sloupcové zobrazení s náhledovým panelem, k tomu Ikony a Seznam

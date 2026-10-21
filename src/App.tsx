@@ -3319,6 +3319,7 @@ export default function App() {
             newMenuRequest={newMenuRequest}
             commands={commands}
             onMenuOpenChange={setToolbarMenuOpen}
+            onNotice={showInfo}
           />
 
           <TabBar

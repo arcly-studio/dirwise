@@ -1501,12 +1501,22 @@ body {
   }
 }
 
+/* Skupina nástrojů v toolbaru: tlačítka 28 × 28 s mezerou 4 px; mezi
+   skupinami je gap toolbaru (12 px). */
+.fw-tool-group {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 4px;
+}
+
 /* Přepínač zobrazení — jeden segmented control. Vyzdvižený segment je
-   samostatný prvek, který se posouvá transformací (160 ms). */
+   samostatný prvek, který se posouvá transformací (160 ms). Výška 28 px
+   jako ostatní tlačítka, ať sedí na stejné lince. */
 .fw-segmented {
   position: relative;
   display: flex;
-  height: 26px;
+  height: 28px;
   padding: 2px;
   border-radius: 7px;
   background-color: var(--hover);
@@ -1530,20 +1540,7 @@ body {
   width: 30px;
   align-items: center;
   justify-content: center;
-  color: var(--text-secondary);
-}
-
-.fw-segment[aria-checked="true"] {
-  color: var(--text-primary);
-}
-
-/* Méně důležité nástroje (Seřadit, Sdílet, Štítky, Více, téma) — tlumené,
-   ať nemají stejnou váhu jako přepínač zobrazení. */
-.fw-tool-secondary {
-  color: var(--text-secondary);
-}
-
-.fw-tool-secondary:hover {
+  /* Stejná barva jako ostatní ikony toolbaru; vybraný segment ukazuje podklad. */
   color: var(--text-primary);
 }
 

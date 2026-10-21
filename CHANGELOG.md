@@ -2,11 +2,12 @@
 
 Notable changes in each Dirwise release (up to 1.5.2 the app was called Finder-Win). Installers are on the [Releases](https://github.com/arcly-studio/dirwise/releases) page.
 
-## Unreleased
+## [1.6.1](https://github.com/arcly-studio/dirwise/releases/tag/v1.6.1) – 2026-10-21
 
-- **Repository moved to arcly-studio/dirwise** – the update check uses the new API URL. Versions up to 1.6.0 only accept release pages under the old owner, so they will not notify about this or later releases – update manually from the Releases page, winget or the Store.
-- **Publisher Arcly Studio** – shown in the installer, Apps & features and the Store package (identities unchanged).
-- **Website moved** to https://arcly-studio.github.io/dirwise/.
+- **New Share icon in the style of Windows 11** in the toolbar – thanks to [@Doomguy-BFG9000](https://github.com/Doomguy-BFG9000) ([#14](https://github.com/arcly-studio/dirwise/pull/14)).
+- **Consistent toolbar icons** – all buttons on the right are the same size, weight and colour, sit on one line and are grouped with even spacing (view switcher and sort | share and tags | split view and More).
+- **Publisher Arcly Studio** – shown in the installer, Apps & features and the Store package (identities unchanged). Upgrading from 1.6.0 replaces the existing installation, no second copy.
+- **New addresses** – the repository moved to https://github.com/arcly-studio/dirwise (old links redirect) and the website to https://arcly-studio.github.io/dirwise/. The update check uses the new API URL. Versions up to 1.6.0 only accept release pages under the old owner, so they may not notify about this or later releases – update manually from the Releases page, winget or the Store.
 
 ## [1.6.0](https://github.com/arcly-studio/dirwise/releases/tag/v1.6.0) – 2026-10-14
 

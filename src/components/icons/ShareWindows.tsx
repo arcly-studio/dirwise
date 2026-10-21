@@ -2,24 +2,36 @@ import { forwardRef } from "react";
 import type { LucideProps } from "lucide-react";
 
 /**
- * Zdroj: Fluent UI System Icons, Share 20 Regular.
+ * Předloha: Fluent UI System Icons, Share 20 Regular.
  * Licence: MIT, https://github.com/microsoft/fluentui-system-icons
+ *
+ * Fluent kreslí obrys výplní, lucide tahem. Aby ikona v toolbaru měla stejnou
+ * tloušťku čar jako ostatní, je překreslená tahem po ose Fluent obrysu
+ * (souřadnice z 20) a strokeWidth se přepočítá z 24 na výřez 19 — v pixelech pak
+ * vyjde stejně jako u lucide ikon.
  */
 export const ShareWindows = forwardRef<SVGSVGElement, LucideProps>(
-  ({ size = 20, color = "currentColor", className, strokeWidth: _strokeWidth, ...props }, ref) => (
+  ({ size = 24, color = "currentColor", className, strokeWidth = 2, ...props }, ref) => (
     <svg
       ref={ref}
       width={size}
       height={size}
-      viewBox="0 0 20 20"
+      // Osa obrysu leží v x 3,5–18,3 a y 3,1–16,5: výřez 19 jednotek kolem jejího
+      // středu, ať je ikona stejně velká jako lucide (obsah ~12 px z 16).
+      viewBox="1.4 0.3 19 19"
       fill="none"
+      stroke={color}
+      strokeWidth={((Number(strokeWidth) || 2) * 19) / 24}
+      strokeLinecap="round"
+      strokeLinejoin="round"
       className={className}
+      aria-hidden="true"
       {...props}
     >
-      <path
-        d="M9.49994 2.99983C9.77601 2.99983 9.99982 3.22379 9.99994 3.49983C9.99991 3.77595 9.77606 3.99983 9.49994 3.99983H5.99994C4.89544 3.99983 4.00006 4.89537 3.99994 5.99983V13.9998C3.99997 15.1044 4.89539 15.9998 5.99994 15.9998H13.9999C15.1045 15.9998 15.9999 15.1044 15.9999 13.9998V12.4998C16.0001 12.2238 16.2239 11.9998 16.4999 11.9998C16.776 11.9998 16.9998 12.2238 16.9999 12.4998V13.9998C16.9999 15.6567 15.6568 16.9998 13.9999 16.9998H5.99994C4.34311 16.9998 2.99997 15.6567 2.99994 13.9998V5.99983C3.00006 4.34308 4.34316 2.99983 5.99994 2.99983H9.49994ZM13.2968 2.0428C13.477 1.96273 13.6883 1.99586 13.8349 2.12776L18.8349 6.62776C18.9401 6.72253 18.9999 6.85821 18.9999 6.99983C18.9999 7.14148 18.9401 7.2771 18.8349 7.3719L13.8349 11.8719C13.6882 12.0039 13.4771 12.037 13.2968 11.9569C13.1165 11.8765 13 11.6972 12.9999 11.4998V9.33968C11.5991 9.46788 10.3347 10.1192 9.29974 10.9481C8.28548 11.7605 7.52478 12.716 7.10541 13.4324L6.9472 13.7235C6.84349 13.9308 6.61037 14.0394 6.3847 13.9862C6.15928 13.9327 5.99997 13.7315 5.99994 13.4998C5.99997 11.4515 6.38151 9.21555 7.51849 7.47639C8.60923 5.8083 10.3673 4.64297 12.9999 4.51253V2.49983L13.0048 2.42659C13.0296 2.25912 13.1391 2.11304 13.2968 2.0428ZM13.9999 4.99983C13.9999 5.27595 13.7761 5.49983 13.4999 5.49983C10.9124 5.49983 9.32304 6.54517 8.35638 8.02327C7.67093 9.07163 7.28303 10.3628 7.11029 11.7069C7.54271 11.187 8.06927 10.6528 8.67474 10.1678C9.943 9.15206 11.6004 8.31526 13.4999 8.31526C13.776 8.31526 13.9997 8.53928 13.9999 8.81526V10.3758L17.7509 6.99983L13.9999 3.62288V4.99983Z"
-        fill={color}
-      />
+      {/* Rámeček s mezerou vpravo nahoře, kudy šipka vychází. */}
+      <path d="M9.5 3.5H6A2.5 2.5 0 0 0 3.5 6v8A2.5 2.5 0 0 0 6 16.5h8a2.5 2.5 0 0 0 2.5-2.5v-1.5" />
+      {/* Šipka: hrot vpravo, ohnutý ocas vlevo dole. */}
+      <path d="M13.5 3.1 18.3 7l-4.8 3.9V8.8c-2.1.1-3.7 1-4.8 2-1 .9-1.7 1.9-2.2 2.7 0-2.2.4-4.3 1.4-5.8 1.1-1.7 2.9-2.7 5.6-2.7Z" />
     </svg>
   ),
 );

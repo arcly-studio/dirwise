@@ -21,6 +21,10 @@ import type { CommandId, Command, Commands } from "../commands";
 import { useT, type MessageKey } from "../i18n";
 import type { ViewMode } from "../types";
 
+/** Všechny ikony toolbaru stejně velké a stejně silné (i v přepínači zobrazení a u Nový). */
+const TOOL_ICON_SIZE = 16;
+const TOOL_ICON_STROKE = 1.75;
+
 type IconButtonProps = {
   Icon: LucideIcon;
   label: string;
@@ -31,11 +35,11 @@ type IconButtonProps = {
   onMouseDown?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   /** Třída na samotnou ikonu, kvůli animaci uvnitř nehybného tlačítka. */
   iconClassName?: string;
-  /** Vypnuté tlačítko s vysvětlením v tooltipu ("Vyberte soubor"). Obyčejné
-   *  `disabled` by tooltip nedovolilo — vypnutý button nedostává myš. */
+  /** Nedostupná akce s vysvětlením ("Vyberte soubor") v tooltipu a po kliknutí
+   *  v hlášce (onUnavailable). Vzhled zůstává plný jako u ostatních nástrojů;
+   *  obyčejné `disabled` by tooltip nedovolilo — vypnutý button nedostává myš. */
   unavailable?: string;
-  /** Vedlejší nástroj: menší tlumená ikona (15 px, tah 1.5). */
-  secondary?: boolean;
+  onUnavailable?: (message: string) => void;
   /** Otevírá menu — kontextové menu ho při kliknutí mimo sebe nechá být. */
   menuTrigger?: boolean;
 };
@@ -49,7 +53,7 @@ function IconButton({
   onMouseDown,
   iconClassName,
   unavailable,
-  secondary = false,
+  onUnavailable,
   menuTrigger = false,
 }: IconButtonProps) {
   return (
@@ -60,24 +64,23 @@ function IconButton({
       data-tooltip={unavailable ?? label}
       data-fw-menu-trigger={menuTrigger || undefined}
       disabled={disabled}
-      onClick={unavailable === undefined ? onClick : undefined}
+      onClick={(event) => {
+        if (unavailable === undefined) onClick?.();
+        // Enter / mezerník (detail 0) — myš hlášku ukázala už na mousedown.
+        else if (event.detail === 0) onUnavailable?.(unavailable);
+      }}
       onMouseDown={(event) => {
         // Tlačítko si fokus nebere — jinak by po kliku přestaly fungovat
         // šipky ve výpisu (column view drží klávesnici na svém kontejneru).
         event.preventDefault();
         if (unavailable === undefined) onMouseDown?.(event);
+        else if (event.button === 0) onUnavailable?.(unavailable);
       }}
-      className={`fw-tool-btn flex h-7 w-7 shrink-0 items-center justify-center rounded-md ${
-        secondary ? "fw-tool-secondary" : "text-primary"
-      } ${
-        unavailable !== undefined ? "opacity-35" : active ? "bg-selected" : "hover:bg-hover"
+      className={`fw-tool-btn flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-primary ${
+        active ? "bg-selected" : "hover:bg-hover"
       } disabled:pointer-events-none disabled:opacity-35`}
     >
-      <Icon
-        size={secondary ? 15 : 16}
-        strokeWidth={secondary ? 1.5 : 1.75}
-        className={iconClassName}
-      />
+      <Icon size={TOOL_ICON_SIZE} strokeWidth={TOOL_ICON_STROKE} className={iconClassName} />
     </button>
   );
 }
@@ -115,7 +118,7 @@ function ViewSwitcher({ mode, onChange }: { mode: ViewMode; onChange: (mode: Vie
           onClick={() => onChange(segment)}
           className="fw-segment"
         >
-          <Icon size={15} strokeWidth={1.75} />
+          <Icon size={TOOL_ICON_SIZE} strokeWidth={TOOL_ICON_STROKE} />
         </button>
       ))}
     </div>
@@ -151,6 +154,8 @@ type ToolbarProps = {
   commands: Commands;
   /** Otevřené menu musí App znát kvůli globálním zkratkám (modalOpen). */
   onMenuOpenChange: (open: boolean) => void;
+  /** Krátká hláška nad status barem (klik na nedostupné Štítky). */
+  onNotice: (message: string) => void;
 };
 
 /** Položka menu z příkazu registru — název, zkratka a stav z jednoho místa. */
@@ -185,6 +190,7 @@ export function Toolbar({
   newMenuRequest,
   commands,
   onMenuOpenChange,
+  onNotice,
 }: ToolbarProps) {
   const t = useT();
   // Otevřené může být jen jedno menu. Pozice se bere z rámečku tlačítka.
@@ -305,8 +311,8 @@ export function Toolbar({
   ];
 
   return (
-    // Skupiny s mezerou 12 px: [zpět/vpřed] [název] … [zobrazení] [seřadit]
-    // [sdílet, štítky] [rozdělit] [více] [hledání]. Nová záložka je + v liště
+    // Skupiny s mezerou 12 px: [zpět/vpřed] [název] … [nový] [zobrazení, seřadit]
+    // [sdílet, štítky] [rozdělit, více] [hledání]. Nová záložka je + v liště
     // záložek, vzhled v menu Více.
     <header className="fw-toolbar flex h-10 shrink-0 items-center gap-3 px-3">
       <div className="flex shrink-0 items-center gap-0.5">
@@ -355,26 +361,27 @@ export function Toolbar({
           }}
           className={`fw-tool-btn fw-new-btn ${menu?.kind === "new" ? "bg-selected" : "hover:bg-hover"} disabled:pointer-events-none disabled:opacity-35`}
         >
-          <Plus size={16} strokeWidth={1.75} />
+          <Plus size={TOOL_ICON_SIZE} strokeWidth={TOOL_ICON_STROKE} />
           <span className="fw-new-label">{t("menu.new")}</span>
         </button>
 
-        <ViewSwitcher mode={viewMode} onChange={onViewModeChange} />
+        {/* Skupiny: [zobrazení + seřadit] [sdílet, štítky] [rozdělit, více] —
+            uvnitř skupiny 4 px (fw-tool-group), mezi skupinami gap toolbaru 12 px. */}
+        <div className="fw-tool-group">
+          <ViewSwitcher mode={viewMode} onChange={onViewModeChange} />
+          <IconButton
+            Icon={SlidersHorizontal}
+            label={t("toolbar.sort")}
+            active={menu?.kind === "sort"}
+            menuTrigger
+            onMouseDown={toggleMenu("sort")}
+          />
+        </div>
 
-        <IconButton
-          Icon={SlidersHorizontal}
-          label={t("toolbar.sort")}
-          secondary
-          active={menu?.kind === "sort"}
-          menuTrigger
-          onMouseDown={toggleMenu("sort")}
-        />
-
-        <div className="flex shrink-0 items-center gap-0.5">
+        <div className="fw-tool-group">
           <IconButton
             Icon={ShareWindows}
             label={t("toolbar.share")}
-            secondary
             active={menu?.kind === "share"}
             menuTrigger
             onMouseDown={toggleMenu("share")}
@@ -382,30 +389,29 @@ export function Toolbar({
           <IconButton
             Icon={Tag}
             label={t("toolbar.tags")}
-            secondary
             active={menu?.kind === "tags"}
             unavailable={tagItems === null ? t("toolbar.tagsUnavailable") : undefined}
+            onUnavailable={onNotice}
             menuTrigger
             onMouseDown={toggleMenu("tags")}
           />
         </div>
 
-        <IconButton
-          Icon={Columns2}
-          label={t("split.toggleWithShortcut")}
-          secondary
-          active={commands.toggleSplit.checked}
-          onClick={commands.toggleSplit.run}
-        />
-
-        <IconButton
-          Icon={MoreHorizontal}
-          label={t("toolbar.more")}
-          secondary
-          active={menu?.kind === "more"}
-          menuTrigger
-          onMouseDown={toggleMenu("more")}
-        />
+        <div className="fw-tool-group">
+          <IconButton
+            Icon={Columns2}
+            label={t("split.toggleWithShortcut")}
+            active={commands.toggleSplit.checked}
+            onClick={commands.toggleSplit.run}
+          />
+          <IconButton
+            Icon={MoreHorizontal}
+            label={t("toolbar.more")}
+            active={menu?.kind === "more"}
+            menuTrigger
+            onMouseDown={toggleMenu("more")}
+          />
+        </div>
       </div>
 
       <div
