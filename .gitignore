@@ -37,3 +37,7 @@ docs/design/
 
 # Demo folder for screenshots
 docs/demo/
+
+# Pracovní soubory pro sociální sítě (lokálně)
+dirwise-socialni-site/
+dirwise-socialni-site.zip
