@@ -7,11 +7,14 @@
 // Konec se prolne do bílé = první snímek (smyčka).
 // node scripts/docs-media/motion.mjs [--still 2.2,9.3,13.7] [--audio <m4a>] [--out <složka>]
 //   --still = jen vybrané snímky jako PNG (náhled stylu); jinak celé video + mřížka po 0,5 s.
+// node scripts/docs-media/motion.mjs --music <m4a> [--suffix -v2]
+//   = jen vyměnit hudbu u hotového videa (obraz se nepřekódovává), výstup vedle s příponou.
 import fs from "fs";
 import os from "os";
 import path from "path";
 import { execFileSync, spawn } from "child_process";
 import { fileURLToPath } from "url";
+import { swapMusic } from "./music.mjs";
 
 const root = (p) => fileURLToPath(new URL(`../../${p}`, import.meta.url));
 const args = process.argv.slice(2);
@@ -610,7 +613,11 @@ async function withChrome(fn) {
 fs.mkdirSync(WORK, { recursive: true });
 fs.mkdirSync(OUT, { recursive: true });
 const TOTAL = DUR * FPS;
-if (STILLS) {
+const MUSIC = opt("--music", null);
+if (MUSIC) {
+  const out = swapMusic(path.join(OUT, "dirwise-motion-1080x1920.mp4"), path.resolve(MUSIC), opt("--suffix", "-v2"));
+  console.log(out);
+} else if (STILLS) {
   await withChrome(async (shot) => {
     for (const t of STILLS) {
       const file = path.join(OUT, `motion-still-${t.toFixed(2)}s.png`);

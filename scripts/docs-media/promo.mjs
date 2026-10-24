@@ -13,6 +13,8 @@
 // smazání a zkopíruje z docs/demo (jako shorts.mjs).
 // node scripts/docs-media/promo.mjs [portrait|landscape] [--compose] [--audio <m4a>] [--out <složka>]
 //   [--only <záznam,…>]   --compose = jen složit z posledních záznamů (bez aplikace); vedle videí vzniká kontrolní mřížka 1 snímek/s.
+// node scripts/docs-media/promo.mjs [portrait|landscape] --music <m4a> [--suffix -v2]
+//   = jen vyměnit hudbu u hotových videí (obraz se nepřekódovává), výstupy vedle s příponou.
 import fs from "fs";
 import os from "os";
 import path from "path";
@@ -20,6 +22,7 @@ import { execFileSync, spawn } from "child_process";
 import { fileURLToPath } from "url";
 import { setup } from "./setup.mjs";
 import { announceFocus, screen, stage } from "./wallpaper.mjs";
+import { swapMusic } from "./music.mjs";
 
 const root = (p) => fileURLToPath(new URL(`../../${p}`, import.meta.url));
 const args = process.argv.slice(2);
@@ -31,6 +34,7 @@ const ARCLY = path.resolve(opt("--arcly", root("../arcly-studio/logo/png/arcly-l
 // --only palette,look = přetočit jen vybrané záznamy (ostatní zůstanou z minulého běhu).
 const ONLY = opt("--only", null)?.split(",");
 const COMPOSE_ONLY = args.includes("--compose") && args.splice(args.indexOf("--compose"), 1);
+const MUSIC = opt("--music", null), SUFFIX = opt("--suffix", "-v2");
 const WORK = path.join(os.tmpdir(), "dirwise-promo-work");
 const FPS = 30, BEAT = 60 / 124, BEATS = 64;
 const frame = (beat) => Math.round(beat * BEAT * FPS);
@@ -911,6 +915,10 @@ function composeFormat(name) {
 // ---------- běh ----------
 const names = args.length ? args : Object.keys(FORMATS);
 for (const n of names) if (!FORMATS[n]) throw new Error(`neznámý formát: ${n} (${Object.keys(FORMATS).join(", ")})`);
+if (MUSIC) {
+  for (const n of names) console.log(swapMusic(path.join(OUT, FORMATS[n].file), path.resolve(MUSIC), SUFFIX));
+  process.exit(0);
+}
 if (!fs.existsSync(AUDIO)) throw new Error(`chybí hudba: ${AUDIO}`);
 fs.mkdirSync(OUT, { recursive: true });
 if (!COMPOSE_ONLY) for (const n of names) await recordFormat(n);
