@@ -1,4 +1,5 @@
-// Namapuje standardní složky na C:\Demo (bez jména uživatele), zahodí cloud sekci,
+// Namapuje standardní složky na C:\Demo (bez jména uživatele), zahodí cloud sekci a z jednotek nechá jen
+// místní disky (telefony, USB a síťové jednotky tohohle počítače se v záběrech neukážou),
 // podvrhne typy menu + New, nastaví viewport a znovu načte stránku. Patch žije jen po dobu CDP session.
 // Koš: výpis i počet jen z položek, které pocházejí z C:\Demo – skutečný obsah Koše se nikde neukáže.
 // Předpoklad: složky z docs/demo zkopírované do C:\Demo a běžící dev s CDP na portu 9333.
@@ -38,7 +39,8 @@ const patch = `(() => {
     if (!url.startsWith("http://ipc.localhost/get_favorites") || !res.ok) return res;
     const r = await res.json();
     const out = r.filter((s) => s.id !== "cloud").map((s) => ({ ...s,
-      items: s.items.map((i) => (i.id && MAP[i.id] ? { ...i, path: MAP[i.id] } : i)) }));
+      items: s.items.filter((i) => s.id !== "devices" || i.kind === "local")
+        .map((i) => (i.id && MAP[i.id] ? { ...i, path: MAP[i.id] } : i)) }));
     return new Response(JSON.stringify(out), { status: res.status, headers: res.headers });
   };
   window.__demoPatched = true;
