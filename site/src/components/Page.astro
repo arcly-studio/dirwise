@@ -72,14 +72,14 @@ const cardSizes = (c: Card) => {
       </section>
 
       <section class="block" id="features" aria-labelledby="features-title">
-        <header class="block-head">
+        <header class="block-head" data-reveal>
           <p class="eyebrow">{t.featuresEyebrow}</p>
           <h2 id="features-title">{t.featuresTitle}</h2>
           <p class="section-lead">{t.featuresLead}</p>
         </header>
         <div class="bento">
           {FEATURES.map((c) => (
-            <article class:list={["card", { "card-wide": c.wide }]}>
+            <article class:list={["card", { "card-wide": c.wide }]} data-reveal>
               <div class="card-head">
                 <span class="card-icon" set:html={icon(c.ico, 18)} />
                 <h3>{t.features[c.key].title}</h3>
@@ -96,7 +96,7 @@ const cardSizes = (c: Card) => {
       </section>
 
       <section class="block video" aria-labelledby="video-title">
-        <header class="block-head">
+        <header class="block-head" data-reveal>
           <p class="eyebrow">{t.videoEyebrow}</p>
           <h2 id="video-title">{t.videoTitle}</h2>
         </header>
@@ -112,17 +112,17 @@ const cardSizes = (c: Card) => {
       </section>
 
       <section class="block shortcuts" aria-labelledby="shortcuts-title">
-        <header class="block-head">
+        <header class="block-head" data-reveal>
           <p class="eyebrow">{t.shortcutsEyebrow}</p>
           <h2 id="shortcuts-title">{t.shortcutsTitle}</h2>
           <p class="section-lead">{t.shortcutsLead}</p>
         </header>
         <ul class="keys">
           {keys.main.map(([k, a]) => (
-            <li><span class="keycaps" set:html={k} /><span class="key-action" set:html={a} /></li>
+            <li data-reveal><span class="keycaps" set:html={k} /><span class="key-action" set:html={a} /></li>
           ))}
         </ul>
-        <details class="all-keys">
+        <details class="all-keys" data-reveal>
           <summary>{t.allShortcuts}</summary>
           <table>
             <thead><tr><th scope="col">{t.shortcutKey}</th><th scope="col">{t.shortcutAction}</th></tr></thead>
@@ -134,13 +134,13 @@ const cardSizes = (c: Card) => {
       </section>
 
       <section class="block faq" id="faq" aria-labelledby="faq-title">
-        <header class="block-head">
+        <header class="block-head" data-reveal>
           <p class="eyebrow">{t.faqEyebrow}</p>
           <h2 id="faq-title">{t.faqTitle}</h2>
         </header>
         <div class="faq-list">
           {faq.map((f, i) => (
-            <details name="faq" open={i === 0}>
+            <details name="faq" open={i === 0} data-reveal>
               <summary>{f.q}<span class="faq-plus" aria-hidden="true" /></summary>
               <p>{f.a}</p>
             </details>

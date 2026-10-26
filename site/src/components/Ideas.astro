@@ -67,7 +67,7 @@ const today = new Date().toLocaleDateString(lang === "cs" ? "cs-CZ" : "en-GB", {
       <p class="doc-meta">{texts.account}</p>
     </header>
 
-    <div class="ideas-actions">
+    <div class="ideas-actions" data-reveal>
       <a class="btn btn-primary" href={NEW_IDEA}><Fragment set:html={icon("Lightbulb", 18)} />{texts.suggest}</a>
       <a class="btn btn-ghost" href={ALL_IDEAS}>{texts.browse}</a>
     </div>
@@ -102,7 +102,7 @@ const today = new Date().toLocaleDateString(lang === "cs" ? "cs-CZ" : "en-GB", {
     <section aria-labelledby="discuss">
       <h2 id="discuss">{texts.discussHeading}</h2>
       <p>{texts.discussText}</p>
-      <div class="giscus-slot" id="giscus-slot"
+      <div class="giscus-slot" id="giscus-slot" data-lenis-prevent
         data-repo={GISCUS.repo} data-repo-id={GISCUS.repoId}
         data-category={GISCUS.category} data-category-id={GISCUS.categoryId}
         data-term={String(WELCOME_DISCUSSION)} data-lang={lang}>
