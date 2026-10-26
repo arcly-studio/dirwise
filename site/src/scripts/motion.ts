@@ -3,7 +3,7 @@
 // pohyb“ je všechno vidět. Počáteční skryté stavy drží CSS jen pod `html[data-motion="pending"]`
 // (site.css); tady se přepnou na inline styly GSAPu a atribut se změní na "on".
 // Pravidla: jen transform a opacity, každý prvek se objeví jen jednou (kromě scrub efektů),
-// většina animací 0,4–0,7 s s ease-out. Hero nadpis po slovech do ~0,8 s.
+// délky 0,6–0,9 s s ease-out. Hero nadpis po slovech z masky (~0,9 s).
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
@@ -74,7 +74,7 @@ export function init() {
           const revealTargets = $$(REVEAL).filter((el) => !el.dataset.revealed && unseen(el));
           // Patička jen prolne: posun dolů by na krátké stránce (Nápady) prodloužil dokument, objevil by se
           // posuvník a obsah by uskočil (CLS). Ostatní prvky jsou nad ní s rezervou.
-          if (revealTargets.length) gsap.set(revealTargets, { opacity: 0, y: (_: number, el: Element) => (el.classList.contains("foot") ? 0 : 24) });
+          if (revealTargets.length) gsap.set(revealTargets, { opacity: 0, y: (_: number, el: Element) => revealY(el), scale: (_: number, el: Element) => (isCard(el) ? 0.94 : 1) });
           // Intro jen při prvním zobrazení nahoře – ne po přepnutí z mobilu, po odscrollování ani při kotvě
           // v adrese (/#faq: prohlížeč stránku hned posune k cíli).
           if (desktop && !introDone && scrollY < 50 && !targetOf(location.hash)) heroParts = setupHero();
@@ -84,6 +84,7 @@ export function init() {
           if (desktop) {
             if (fine) lenis = setupLenis();
             if (heroParts) heroIntro(heroParts);
+            heroBackdrop(!!heroParts);
             liveParallax();
             cardsParallax();
             videoScale();
@@ -171,7 +172,7 @@ function anchors(signal: AbortSignal) {
 
 /* ---------- Hero ---------- */
 
-type HeroParts = { split: SplitText; rest: HTMLElement[]; live: HTMLElement | null };
+type HeroParts = { split: SplitText; rest: HTMLElement[]; live: HTMLElement | null; accent: HTMLElement | null };
 
 function setupHero(): HeroParts | null {
   const title = $(".hero-title");
@@ -181,7 +182,8 @@ function setupHero(): HeroParts | null {
   // Po slovech (ne po písmenech): kerning uvnitř slov zůstane, takže po split.revert() nic neposkočí.
   // Gradient textu přebírá každé slovo (CSS `.hero-title .hw`) – background-clip rodiče na transformovaných
   // potomcích nefunguje; poloha a výška gradientu se dopočítají, aby navazoval jako na celém nadpisu.
-  const split = new SplitText(title, { type: "words", wordsClass: "hw", aria: "auto" });
+  // mask: "words" obalí každé slovo prvkem s overflow: clip (třída hw-mask) – slovo z něj vyjede zespodu.
+  const split = new SplitText(title, { type: "words", wordsClass: "hw", mask: "words", aria: "auto" });
   title.setAttribute("aria-label", label);
   const t = title.getBoundingClientRect();
   for (const w of split.words as HTMLElement[]) {
@@ -190,20 +192,27 @@ function setupHero(): HeroParts | null {
     w.style.backgroundSize = `100% ${t.height}px`;
     w.style.backgroundPosition = `0 ${t.top - r.top}px`;
   }
-  gsap.set(split.words, { yPercent: 40, opacity: 0 });
+  gsap.set(split.words, { yPercent: 100 });
   const rest = [".hero-sub", ".hero-cta", ".hero-meta", ".winget"].map((s) => $(s)).filter(Boolean) as HTMLElement[];
   gsap.set(rest, { opacity: 0, y: 18 });
   const live = $(".dw-wrap");
   if (live) gsap.set(live, { opacity: 0, y: 56 });
-  return { split, rest, live };
+  return { split, rest, live, accent: $("em", title) };
 }
 
-function heroIntro({ split, rest, live }: HeroParts) {
+function heroIntro({ split, rest, live, accent }: HeroParts) {
   const tl = gsap.timeline({ defaults: { ease: EASE } });
-  // Slova: 0,5 s každé, rozložení startů 0,3 s → celkem ~0,8 s.
-  tl.to(split.words, { yPercent: 0, opacity: 1, duration: 0.5, stagger: { amount: 0.3 } }, 0)
-    .to(rest, { opacity: 1, y: 0, duration: 0.5, stagger: 0.07 }, 0.3);
-  if (live) tl.to(live, { opacity: 1, y: 0, duration: 0.7 }, 0.35);
+  // Slova z masky: 0,7 s každé, rozložení startů 0,2 s → nadpis celý za ~0,9 s.
+  tl.to(split.words, { yPercent: 0, duration: 0.7, ease: "power4.out", stagger: { amount: 0.2 } }, 0)
+    .to(rest, { opacity: 1, y: 0, duration: 0.7, stagger: 0.08 }, 0.35);
+  if (live) tl.to(live, { opacity: 1, y: 0, duration: 0.9 }, 0.4);
+  if (accent) {
+    // Zvýrazněné slovo se „rozsvítí“: světelný pruh přejede zleva doprava (--sweep, CSS .hero-title em .hw)
+    // a záře (drop-shadow) se krátce zesílí. Výchozí hodnoty = klidový stav z CSS, po dojetí se nic nezmění.
+    const words = $$(".hw", accent);
+    tl.fromTo(words, { "--sweep": "100%" }, { "--sweep": "0%", duration: 0.9, ease: "power2.inOut" }, 0.6)
+      .to(accent, { filter: "drop-shadow(0 0 44px rgba(74, 168, 255, 0.95))", duration: 0.45, ease: "power2.out", yoyo: true, repeat: 1 }, 0.65);
+  }
   tl.eventCallback("onComplete", () => {
     // Původní DOM nadpisu (gradient, výběr textu, aria) a vyčištění inline stylů.
     split.revert();
@@ -217,12 +226,23 @@ function liveParallax() {
   const live = $(".live");
   const stage = $(".dw-stage");
   if (!live || !stage) return;
-  gsap.set(live, { perspective: 1400 });
+  // Od začátku stránky (náklon 20°, 0,88) do chvíle, kdy je střed okna uprostřed obrazovky (rovně, 1).
+  // Perspektiva přímo v transformaci okna – CSS perspective na předkovi by platila jen pro přímé potomky.
   gsap.fromTo(
     stage,
-    { rotateX: 9, scale: 0.965, transformOrigin: "50% 100%" },
-    { rotateX: 0, scale: 1, ease: "none", scrollTrigger: { trigger: live, start: "top 95%", end: "top 35%", scrub: 0.4 } },
+    { rotateX: 20, scale: 0.88, transformPerspective: 1600, transformOrigin: "50% 100%" },
+    { rotateX: 0, scale: 1, transformPerspective: 1600, ease: "none", scrollTrigger: { trigger: live, start: 0, end: "center center", scrub: 0.5 } },
   );
+}
+
+/** Záře a hvězdy za hero: při načtení se rozsvítí, při scrollu se posunou pomaleji než obsah a ztlumí se. */
+function heroBackdrop(intro: boolean) {
+  const sky = $(".hero-sky");
+  const glow = $(".hero-glow");
+  if (!sky || !glow) return;
+  if (intro) gsap.fromTo(glow, { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.9, ease: EASE, clearProps: "opacity,transform" });
+  else gsap.set(glow, { clearProps: "opacity,transform" });
+  gsap.to(sky, { y: 160, scale: 1.12, opacity: 0.45, ease: "none", scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: 0.5 } });
 }
 
 /** Magnetický odznak Store: jde za kurzorem do ±8 px, jen s jemnou myší. */
@@ -245,23 +265,33 @@ function magneticBadge(signal: AbortSignal) {
 
 /* ---------- Sekce ---------- */
 
-const show = (els: HTMLElement[], stagger = 0.07) => {
+const isCard = (el: Element) => el.classList.contains("card");
+/** Výchozí posun dolů: karty 60 px, ostatní 40 px, patička 0 (posun by na krátké stránce prodloužil
+ *  dokument, objevil by se posuvník a obsah by uskočil – CLS). */
+const revealY = (el: Element) => (isCard(el) ? 60 : el.classList.contains("foot") ? 0 : 40);
+
+const show = (els: HTMLElement[], stagger = 0.08) => {
   for (const el of els) el.dataset.revealed = "1";
-  gsap.to(els, { opacity: 1, y: 0, duration: 0.55, ease: EASE, stagger, overwrite: "auto", clearProps: "opacity,transform" });
+  const cards = els.some(isCard);
+  gsap.to(els, { opacity: 1, y: 0, scale: 1, duration: cards ? 0.8 : 0.7, ease: EASE, stagger: cards ? 0.1 : stagger, overwrite: "auto", clearProps: "opacity,transform" });
 };
 
 /** Odhalení prvků při scrollu – jednou (once), po dávkách se stagger. Prvek, na který přejde fokus
  *  klávesnicí dřív, než ho scroll odhalí (Tab u spodního okraje), se ukáže hned. */
 function reveals(targets: HTMLElement[], signal: AbortSignal) {
   if (!targets.length) return;
-  ScrollTrigger.batch(targets, {
-    start: "top 92%",
-    once: true,
-    onEnter: (batch) => {
-      const rest = (batch as HTMLElement[]).filter((el) => el.dataset.revealed !== "1");
-      if (rest.length) show(rest);
-    },
-  });
+  // Karty a ostatní prvky v oddělených dávkách – každá dávka má vlastní pohyb a stagger.
+  for (const group of [targets.filter(isCard), targets.filter((el) => !isCard(el))]) {
+    if (!group.length) continue;
+    ScrollTrigger.batch(group, {
+      start: "top 90%",
+      once: true,
+      onEnter: (batch) => {
+        const rest = (batch as HTMLElement[]).filter((el) => el.dataset.revealed !== "1");
+        if (rest.length) show(rest);
+      },
+    });
+  }
   document.addEventListener(
     "focusin",
     (e) => {
@@ -278,35 +308,36 @@ function keyCaps(unseen: (el: Element) => boolean) {
   for (const li of cards) {
     const caps = $$("kbd", li);
     if (!caps.length) continue;
-    gsap.set(caps, { scale: 0.8 });
+    gsap.set(caps, { scale: 0.55, y: -10 });
     ScrollTrigger.create({
       trigger: li,
-      start: "top 92%",
+      start: "top 90%", // stejně jako odhalení karty
       once: true,
       onEnter: () => {
         li.dataset.keysDone = "1";
         // Lehký přestřel = „stisk“ klávesy.
-        gsap.to(caps, { scale: 1, duration: 0.45, ease: "back.out(1.7)", stagger: 0.05, delay: 0.1, clearProps: "transform" });
+        gsap.to(caps, { scale: 1, y: 0, duration: 0.65, ease: "back.out(3)", stagger: 0.08, delay: 0.15, clearProps: "transform" });
       },
     });
   }
 }
 
-/** Screenshoty v kartách funkcí: jemný parallax ±3 % (scrub). Obrázky jsou už zvětšené (zoom 1,25–2 ×
- *  kolem ohniska, Page.astro) a přesahují rámeček nahoře i dole víc než o 3 %, takže se neodkryje okraj. */
+/** Screenshoty v kartách funkcí: parallax ±30 px (scrub). Obrázky jsou už zvětšené (zoom 1,25–2 × kolem
+ *  ohniska, Page.astro) a přesahují rámeček nahoře nejméně o 7,5 % výšky; scale 1,08 přidá další 4 %,
+ *  takže se ani u nejnižšího přesahu okraj neodkryje. */
 function cardsParallax() {
   for (const card of $$(".bento .card")) {
     const pic = $(".card-shot picture", card);
     if (!pic) continue;
-    gsap.fromTo(pic, { yPercent: -3 }, { yPercent: 3, ease: "none", scrollTrigger: { trigger: card, start: "top bottom", end: "bottom top", scrub: true } });
+    gsap.fromTo(pic, { y: -30, scale: 1.08 }, { y: 30, scale: 1.08, ease: "none", scrollTrigger: { trigger: card, start: "top bottom", end: "bottom top", scrub: true } });
   }
 }
 
-/** Demo video: rámeček se při vjezdu zvětší z 0,93 na plnou velikost (scrub). */
+/** Demo video: rámeček se při vjezdu zvětší z 0,8 na plnou velikost (scrub). */
 function videoScale() {
   const frame = $(".video .frame");
   if (!frame) return;
-  gsap.fromTo(frame, { scale: 0.93 }, { scale: 1, ease: "none", scrollTrigger: { trigger: frame, start: "top 92%", end: "top 45%", scrub: 0.4 } });
+  gsap.fromTo(frame, { scale: 0.8 }, { scale: 1, ease: "none", scrollTrigger: { trigger: frame, start: "top bottom", end: "top 25%", scrub: 0.5 } });
 }
 
 /* ---------- Detaily ---------- */
