@@ -21,6 +21,9 @@ export default defineConfig({
   // Screenshoty a README se berou přímo z repa (docs/, README*.md) – bez kopií.
   vite: {
     server: { fs: { allow: [".."] } },
+    // Licenční hlavičky (/*! … */, @license) přibalených knihoven – GSAP a Lenis v src/scripts/motion.ts.
+    // Vite 8 je při minifikaci jinak zahazuje.
+    build: { rolldownOptions: { output: { comments: { legal: true } } } },
     define: { __REPO_ROOT__: JSON.stringify(fileURLToPath(new URL("..", import.meta.url))) },
   },
 });

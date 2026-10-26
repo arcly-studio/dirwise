@@ -66,9 +66,29 @@ const og = new URL(asset("og.png"), Astro.site).href;
         src: url(${asset("fonts/inter-cs.woff2")}) format("woff2-variations");
         unicode-range: U+010C-010F,U+011A-011B,U+0147-0148,U+0158-0159,U+0160-0161,U+0164-0165,U+016E-016F,U+017D-017E; }
     `} />
+    {/* Animace (src/scripts/motion.ts): bez „omezit pohyb“ označí stránku "pending" – na desktopu (≥ 768 px)
+        CSS pod tím skryje počáteční stavy, modul je pak přepne na "on". Pojistka: když modul do 4 s po načtení
+        nenaběhne (pomalá síť), atribut se na desktopu sundá a vše je vidět bez animací; chyba importu ho sundá
+        hned. Na mobilu CSS nic neskrývá (skryje až modul, a jen obsah pod oknem), pojistka tam není potřeba. */}
+    <script is:inline>
+      (function () {
+        try {
+          var r = matchMedia("(prefers-reduced-motion: reduce)");
+          if (r.matches) return;
+          var h = document.documentElement;
+          h.dataset.motion = "pending";
+          var clear = function () { if (h.dataset.motion === "pending") h.removeAttribute("data-motion"); };
+          addEventListener("load", function () {
+            setTimeout(function () { if (matchMedia("(min-width: 768px)").matches) clear(); }, 4000);
+          });
+          r.addEventListener("change", function () { if (r.matches) clear(); });
+        } catch (e) {}
+      })();
+    </script>
     <slot name="head" />
   </head>
   <body>
+    <div class="scroll-progress" aria-hidden="true"></div>
     <a class="skip" href="#main">{t.skip}</a>
     <div class="page-lines" aria-hidden="true"></div>
     <Nav lang={lang} path={path} />
@@ -84,5 +104,30 @@ const og = new URL(asset("og.png"), Astro.site).href;
       </nav>
       <p>© 2026 Arcly Studio · <a href={links.license}>{t.footerNote}</a></p>
     </footer>
+
+    <script>
+      // Animační modul (GSAP + Lenis, ~55 kB gzip) jen bez „omezit pohyb“: na desktopu hned (hero intro
+      // musí začít s prvním vykreslením), na mobilu až při první interakci (scroll, dotyk, klávesa) nebo
+      // nejpozději 3 s po `load` – nesoupeří tak s prvním vykreslením o síť a CPU; hero se tam neanimuje.
+      let booted = false;
+      const boot = () => {
+        if (booted) return;
+        booted = true;
+        import("../scripts/motion")
+          .then((m) => { try { m.init(); } catch { m.abort(); } })
+          .catch(() => document.documentElement.removeAttribute("data-motion"));
+      };
+      if (document.documentElement.dataset.motion === "pending") {
+        if (matchMedia("(min-width: 768px)").matches) boot();
+        else {
+          const later = () => setTimeout(boot, 3000);
+          if (document.readyState === "complete") later();
+          else addEventListener("load", later, { once: true });
+          for (const ev of ["scroll", "touchstart", "pointerdown", "keydown"]) addEventListener(ev, boot, { once: true, passive: true });
+          // Tablet otočený na šířku před načtením: CSS už skrývá hero (≥ 768 px) – modul hned.
+          matchMedia("(min-width: 768px)").addEventListener("change", boot, { once: true });
+        }
+      }
+    </script>
   </body>
 </html>
