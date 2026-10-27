@@ -78,6 +78,82 @@ const PDFS = [[`${DEMO}\\Documents\\contract.pdf`, "Service Agreement", "Agreeme
   [`${DEMO}\\Documents\\invoice-2026-10.pdf`, "Invoice", "Invoice No. 2026-10-031"]];
 const removePdfs = () => { fs.rmSync(PDFS[1][0], { force: true }); restoreDemo(PDFS[0][0]); };
 
+// Scéna peek: dočasná složka se šesti typy souborů (Markdown, fotka, PDF, zvuk, kód, video) – abecedně
+// v pořadí listování šipkou. Fotka a video jsou kopie demo dat, zvuk je vlastní skladba z docs-media
+// (sociální složka, jinak ticho z ffmpeg), PDF se tiskne z headless Chrome. Po nahrání se smaže.
+const KIT = `${DEMO}\\Projects\\launch-kit`;
+const KIT_MD = `# Launch kit
+
+Everything for the **autumn release** in one folder.
+
+## Checklist
+
+1. Cover photo – *done*
+2. Invoice for the print shop
+3. Jingle for the teaser
+4. Final styles for the landing page
+
+> Press Space on any file to check it before sending.
+
+| Asset | Owner | Due |
+|---|---|---|
+| cover.jpg | Ana | Mon |
+| teaser.mp4 | Leo | Wed |
+| styles.css | Mia | Fri |
+
+## Notes
+
+- Export the cover at **2400 px** wide.
+- Keep the jingle under 15 seconds.
+- Brand blue is \`#0a84ff\` (see styles.css).
+- Send the invoice by **Thursday**.
+
+## Next steps
+
+- Review the teaser cut
+- Book the launch post
+`;
+const KIT_CSS = `/* Landing page – autumn release */
+:root {
+  --brand: #0a84ff;
+  --ink: #1d1d1f;
+  --paper: #fbfbfd;
+  --radius: 14px;
+}
+
+.hero {
+  display: grid;
+  place-items: center;
+  min-height: 70vh;
+  background: linear-gradient(160deg, var(--brand), #5e5ce6);
+  color: white;
+}
+
+.hero h1 {
+  font: 800 clamp(2.5rem, 6vw, 5rem) / 1.05 Inter, sans-serif;
+  letter-spacing: -0.03em;
+}
+
+.button {
+  padding: 0.9em 1.6em;
+  border-radius: var(--radius);
+  background: white;
+  color: var(--brand);
+}
+`;
+function makeKit() {
+  fs.rmSync(KIT, { recursive: true, force: true });
+  fs.mkdirSync(KIT, { recursive: true });
+  fs.writeFileSync(`${KIT}\\brief.md`, KIT_MD);
+  fs.copyFileSync(`${SUMMER}\\alpine-lake.jpg`, `${KIT}\\cover.jpg`);
+  fs.writeFileSync(`${KIT}\\styles.css`, KIT_CSS);
+  fs.copyFileSync(`${DEMO}\\Videos\\city-drive.mp4`, `${KIT}\\teaser.mp4`);
+  const jingle = root("dirwise-socialni-site/dirwise-socialni-site/hudba/05-ambient-focus.mp3");
+  if (fs.existsSync(jingle)) fs.copyFileSync(jingle, `${KIT}\\jingle.mp3`);
+  else execFileSync("ffmpeg", ["-v", "error", "-y", "-f", "lavfi", "-i", "anullsrc=r=44100:cl=stereo", "-t", "20", `${KIT}\\jingle.mp3`]);
+}
+const KIT_FILES = ["brief.md", "cover.jpg", "invoice.pdf", "jingle.mp3", "styles.css", "teaser.mp4"].map((f) => `${KIT}\\${f}`);
+
 // ---------- překryvy (headless Chrome/Edge, jako brand.mjs) ----------
 const dataUri = (file, mime) => `data:${mime};base64,${fs.readFileSync(file).toString("base64")}`;
 const FONTS = [500, 800].map((w) => `@font-face{font-family:Inter;font-weight:${w};
@@ -264,6 +340,7 @@ async function open(scene) {
     if (!p) throw new Error(`nenalezeno: ${what}`);
     await a.moveTo(p);
     await c.sleep(120);
+    a.onInput?.("click");
     await press(p, "left", mods);
   };
   a.rclick = async (p, what = "") => {
@@ -282,12 +359,16 @@ async function open(scene) {
     }
   };
   // Ukazatel klávesy ve spodní části aktuálního výřezu; size = velikost písma (56 = velký štítek).
+  // at = svislá poloha ve výřezu (0 nahoře, 1 dole).
   a.zoom = zoom;
-  a.hud = (text, ms = 1300, size = 32) => {
+  a.hud = (text, ms = 1300, size = 32, at = 0.84) => {
     const { x, y, w, h } = a.crop;
-    return c.evaluate(`window.__hud(${JSON.stringify(text)}, ${x + w / 2}, ${y + h * 0.84}, ${ms}, ${size})`);
+    return c.evaluate(`window.__hud(${JSON.stringify(text)}, ${x + w / 2}, ${y + h * at}, ${ms}, ${size})`);
   };
-  a.press = (k, code, vk, mods = 0, text) => c.key(k, code, vk, mods, text);
+  // onInput: záznam si zapisuje časy kláves a kliků (zvukové efekty v hudbě na přesný okamžik).
+  a.press = (k, code, vk, mods = 0, text) => { a.onInput?.(k); return c.key(k, code, vk, mods, text); };
+  // Pojmenovaný okamžik záznamu (titulky kroků ve composeLens).
+  a.mark = (id) => a.onInput?.(`mark:${id}`);
   // Paleta Ctrl+K: dotaz a Enter, nebo klik na konkrétní výsledek (Enter by vzal první – soubory aktuální složky).
   a.palette = async (query, label, { size = 32, typing = 150 } = {}) => {
     await a.hud("Ctrl + K", 1300, size);
@@ -328,7 +409,8 @@ async function record(a, dir) {
   const { c } = a;
   fs.rmSync(dir, { recursive: true, force: true });
   fs.mkdirSync(dir, { recursive: true });
-  const frames = [], cuts = [];
+  const frames = [], cuts = [], inputs = [];
+  a.onInput = (k) => inputs.push({ t: Date.now() / 1000, k });
   const on = (m) => {
     if (m.method !== "Page.screencastFrame") return;
     const f = path.join(dir, `f${String(frames.length).padStart(5, "0")}.jpg`);
@@ -346,6 +428,7 @@ async function record(a, dir) {
       const end = Date.now() / 1000;
       await c.send("Page.stopScreencast");
       c.listeners.splice(c.listeners.indexOf(on), 1);
+      a.onInput = null;
       const t0 = frames[0].t;
       const list = frames.map((f, i) => `file '${f.f.replace(/\\/g, "/")}'\nduration ${((frames[i + 1]?.t ?? end) - f.t).toFixed(4)}`).join("\n")
         + `\nfile '${frames.at(-1).f.replace(/\\/g, "/")}'\n`;
@@ -355,6 +438,7 @@ async function record(a, dir) {
         input: ["-f", "concat", "-safe", "0", "-i", listFile],
         s: jpegSize(fs.readFileSync(frames[0].f))[0] / a.sceneVw,
         cuts: cuts.map((k) => ({ t: Math.max(0, k.t - t0), crop: k.crop })),
+        inputs: inputs.map((k) => ({ t: Math.max(0, k.t - t0), k: k.k })),
         dur: end - t0, frames: frames.length,
       };
     },
@@ -764,7 +848,186 @@ const SCENES = {
       await a.c.evaluate(`import("/src/lib/storage.ts").then(async (s) => { await s.setWindowTransparency(false); await s.setTransparencyStrength("medium"); })`);
     },
   },
+  // Náhled mezerníkem napříč typy: Space otevře Markdown, šipka → listuje fotkou, PDF, zvukem, kódem
+  // a videem, Space zavře. brief.md je vybraný předem – náhled přes celé okno je vidět i pod titulkem.
+  // Štítky kláves nahoře ve výřezu (ne v dolních 20 %).
+  peek: {
+    file: "dirwise-short-13-peek.mp4",
+    title: "Peek at any file<br>with Space",
+    // Užší okno než TALL: náhled je 85 % okna, text Markdownu a kódu tak v telefonu vyjde čitelně.
+    vw: 560, vh: 996, scale: 1080 / 560, mouse: [380, 700],
+    crops: { main: { x: 0, y: 0, w: 560, h: 996 }, preview: { x: 30, y: 54, w: 500, h: 889 } },
+    prepare: makeKit,
+    pdfs: [[pdfPage("Invoice", "Invoice No. 2026-10-031"), `${KIT}\\invoice.pdf`, "pdf"]],
+    async run(a, r) {
+      const { c } = a;
+      await c.sleep(250);
+      await a.hud("Space", 1200, 42, 0.7);
+      await a.press(" ", "Space", 32, 0, " ");
+      r.cut(this.crops.preview);
+      await c.sleep(2700);
+      for (const [label, ms] of [["Photo", 1900], ["PDF", 2000], ["Audio", 1800], ["Code", 1900], ["Video", 2300]]) {
+        await a.hud(`→  ${label}`, 1300, 34, 0.15);
+        await a.press("ArrowRight", "ArrowRight", 39);
+        await c.sleep(ms);
+      }
+      await a.hud("Space = close", 1100, 34, 0.5);
+      await a.press(" ", "Space", 32, 0, " ");
+      r.cut(this.crops.main);
+      await c.sleep(1100);
+    },
+    before: async (a) => {
+      await a.reset(KIT, "Icons");
+      await a.c.sleep(1500);
+      await a.click(await a.item("\\launch-kit\\brief.md"), "brief.md");
+      // Kurzor mimo výřez náhledu (jinak by zakrýval text).
+      await a.moveTo([545 * a.zoom, 980 * a.zoom], 200);
+      await a.c.sleep(600);
+    },
+    after: async (a) => {
+      // Pryč z dočasné složky, smazat ji a vyčistit Nedávné.
+      await a.go(`${DEMO}\\Projects`);
+      fs.rmSync(KIT, { recursive: true, force: true });
+      for (const p of [KIT, ...KIT_FILES]) {
+        await a.c.evaluate(`import("/src/lib/storage.ts").then((s) => s.removeRecent(${JSON.stringify(p)}))`);
+      }
+    },
+  },
+  // Tip: stavový řádek. Nahoře výpis (hlavní část okna bez sidebaru), pod ním lupa – zvětšený výřez
+  // stavového řádku (počty vpravo, od kroku s5 drobky cesty vlevo). Titulky kroků mimo záběr aplikace
+  // podle značek a.mark(); skládá composeLens.
+  statusbar: {
+    file: "dirwise-short-14-status-bar.mp4",
+    title: "How many files<br>are in here?",
+    // Celé okno (stavový řádek jde přes celou šířku, drobky cesty jsou vlevo pod sidebarem).
+    vw: 760, vh: 640, scale: 2.6, mouse: [560, 420],
+    crops: { main: { x: 0, y: 0, w: 760, h: 640 } },
+    accent: "#ffd25a",
+    chip: "DIRWISE TIP #1",
+    steps: [["s1", "Items + [free space]"], ["s2", "Click → [selected]"], ["s3", "Ctrl+A → [all of them]"],
+      ["s4", "Ctrl+F, type → [matches]"], ["s5", "Click the path → [jump up]"]],
+    compose: (...p) => composeLens(...p),
+    async run(a) {
+      const { c } = a;
+      await c.sleep(2000);
+      a.mark("s1");
+      await c.sleep(2100);
+      a.mark("s2");
+      const items = await a.itemsBelow(300);
+      await a.click(items[1].p, items[1].path);
+      await c.sleep(1900);
+      a.mark("s3");
+      await a.press("a", "KeyA", 65, 2);
+      await c.sleep(1900);
+      a.mark("s4");
+      // Nejdřív zrušit výběr – jinak by filtr ukázal „2 of 2 selected“ místo „2 of 52 (filtered)“.
+      await a.press("Escape", "Escape", 27);
+      await c.sleep(150);
+      await a.press("f", "KeyF", 70, 2);
+      await c.sleep(300);
+      await c.type("beach", 120);
+      await c.sleep(1700);
+      await a.press("Escape", "Escape", 27);
+      await c.sleep(300);
+      a.mark("s5");
+      // Předposlední drobek = nadřazená složka (C:\Demo\Photos).
+      const crumbs = await c.evaluate(`[...document.querySelectorAll(".fw-statusbar button")].map((e) => {
+        const r = e.getBoundingClientRect(); return [Math.round(r.x + r.width / 2), Math.round(r.y + r.height / 2)]; })`);
+      await a.click(crumbs.at(-2), "drobek nadřazené složky");
+      await c.sleep(2100);
+    },
+    async before(a) {
+      await a.reset(SUMMER, "Icons");
+      await a.c.sleep(800);
+      // Stavový řádek v CSS px bez zoomu (lupa a rámečky se počítají z něj).
+      this.bar = await a.c.evaluate(`(() => { const r = document.querySelector(".fw-statusbar").getBoundingClientRect(), z = window.__zoom || 1;
+        return { x: r.x / z, y: r.y / z, w: r.width / z, h: r.height / z }; })()`);
+    },
+    async after(a) {
+      for (const p of [SUMMER, `${DEMO}\\Photos`]) {
+        await a.c.evaluate(`import("/src/lib/storage.ts").then((s) => s.removeRecent(${JSON.stringify(p)}))`);
+      }
+    },
+  },
 };
+
+// Rozložení scény s lupou (statusbar): 1080×1920, nahoře štítek + titulek kroku, uprostřed aplikace,
+// pod ní zvětšený výřez stavového řádku – vše nad dolními 20 %.
+const LENS = { appY: 420, lensY: 1372, lensW: 1040, capY: 268 };
+function lensGeometry(scene) {
+  const app = scene.crops.main, k = W / app.w, bar = scene.bar;
+  // Výřez lupy 270 CSS px: počty (vpravo) i drobky (vlevo) se vejdou a písmo vyjde ~3,8× větší.
+  const half = Math.min(270, Math.round(bar.w / 2));
+  const lens = { right: { x: bar.x + bar.w - half, y: bar.y, w: half, h: bar.h }, left: { x: bar.x, y: bar.y, w: half, h: bar.h } };
+  const lensH = Math.round((bar.h * LENS.lensW) / half / 2) * 2;
+  // Stavový řádek ve zvětšeném záběru aplikace (px výsledného videa).
+  const inApp = (r) => ({ x: (r.x - app.x) * k, y: LENS.appY + (r.y - app.y) * k, w: r.w * k, h: r.h * k });
+  return { k, lens, lensH, appH: Math.round(app.h * k / 2) * 2, inApp };
+}
+const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+const accentText = (t, acc) => esc(t).replace(/\[(.+?)\]/g, `<b style="background:${acc}">$1</b>`);
+function lensOverlays(scene, n) {
+  const g = lensGeometry(scene), acc = scene.accent;
+  const chip = `<div class="chip">${esc(scene.chip)}</div>`;
+  const css = `.chip{position:absolute;left:50%;top:150px;transform:translateX(-50%);padding:8px 30px;border-radius:40px;
+  border:3px solid #fff9;background:#0008;color:${acc};font-weight:800;font-size:40px;letter-spacing:1px;white-space:nowrap}
+  h2{position:absolute;left:30px;right:30px;top:${LENS.capY}px;text-align:center;font-weight:800;font-size:76px;letter-spacing:-2px;line-height:1.1}
+  h2 b{color:#14161c;border-radius:18px;padding:0 16px;font-weight:800}
+  .box{position:absolute;border:5px solid ${acc};border-radius:22px;box-shadow:0 10px 40px #000a}
+  .hl{position:absolute;border:4px solid ${acc};border-radius:8px}
+  .ln{position:absolute;width:4px;background:${acc}}`;
+  // Rámeček lupy + zvýraznění stavového řádku v aplikaci a spojnice, zvlášť pro pravou a levou polovinu.
+  const frame = (side) => {
+    const hl = g.inApp(g.lens[side]), lx = (W - LENS.lensW) / 2;
+    const ly = LENS.lensY, bx = Math.round(hl.x + hl.w / 2);
+    return page(`${chip}<div class="hl" style="left:${hl.x - 4}px;top:${hl.y - 4}px;width:${hl.w + 8}px;height:${hl.h + 8}px"></div>
+      <div class="ln" style="left:${bx - 2}px;top:${hl.y + hl.h + 4}px;height:${ly - 10 - (hl.y + hl.h + 4)}px"></div>
+      <div class="box" style="left:${lx - 10}px;top:${ly - 10}px;width:${LENS.lensW + 20}px;height:${g.lensH + 20}px"></div>`, css);
+  };
+  const title = page(`<div class="scrim"></div>${chip}<h1>${scene.title}</h1>`, `${css}
+    .scrim{position:absolute;inset:0 0 auto 0;height:900px;background:linear-gradient(#000f 0%,#000e 55%,#0000 100%)}
+    h1{position:absolute;left:60px;right:60px;top:250px;font-weight:800;font-size:108px;line-height:1.05;letter-spacing:-3px;text-align:center;text-shadow:0 4px 30px #000a}`);
+  return [[title, path.join(WORK, `title-${n}.png`)], [frame("right"), path.join(WORK, `${n}-frame-right.png`)],
+    [frame("left"), path.join(WORK, `${n}-frame-left.png`)],
+    ...scene.steps.map(([id, text]) => [page(`<h2>${accentText(text, acc)}</h2>`, css), path.join(WORK, `${n}-${id}.png`)])];
+}
+function composeLens(rec, out, titlePng, endPng, scene, n) {
+  const { s } = rec, g = lensGeometry(scene), main = rec.dur;
+  const mark = Object.fromEntries(rec.inputs.filter((i) => i.k.startsWith("mark:")).map((i) => [i.k.slice(5), i.t]));
+  const tSwitch = mark.s5 ?? main;
+  const px = (r) => `crop=${Math.round(r.w * s)}:${Math.round(r.h * s)}:${Math.round(r.x * s)}:${Math.round(r.y * s)}`;
+  const app = scene.crops.main, lx = (W - LENS.lensW) / 2;
+  const inputs = [...rec.input, "-loop", "1", "-t", String(TITLE_S), "-i", titlePng, "-loop", "1", "-t", String(END_S + XFADE), "-i", endPng,
+    "-loop", "1", "-t", main.toFixed(3), "-i", path.join(WORK, `${n}-frame-right.png`),
+    "-loop", "1", "-t", main.toFixed(3), "-i", path.join(WORK, `${n}-frame-left.png`)];
+  const steps = scene.steps.filter(([id]) => mark[id] !== undefined);
+  steps.forEach(([id]) => inputs.push("-loop", "1", "-t", main.toFixed(3), "-i", path.join(WORK, `${n}-${id}.png`)));
+  const total = main - XFADE + END_S + XFADE;
+  inputs.push("-f", "lavfi", "-t", total.toFixed(3), "-i", "anullsrc=r=48000:cl=stereo");
+  const audioIdx = 5 + steps.length;
+  const parts = [`[0:v]fps=${FPS},trim=duration=${main.toFixed(3)},setpts=PTS-STARTPTS,split=3[a][r][l]`,
+    `[a]${px(app)},scale=${W}:${g.appH}:flags=lanczos,setsar=1[app]`,
+    `[r]${px(g.lens.right)},scale=${LENS.lensW}:${g.lensH}:flags=lanczos,setsar=1[lr]`,
+    `[l]${px(g.lens.left)},scale=${LENS.lensW}:${g.lensH}:flags=lanczos,setsar=1[ll]`,
+    `color=c=0x101114:s=${W}x${H}:r=${FPS}:d=${main.toFixed(3)}[bg]`,
+    `[bg][app]overlay=0:${LENS.appY}[b0]`,
+    `[b0][lr]overlay=${lx}:${LENS.lensY}:enable='lt(t,${tSwitch.toFixed(3)})'[b1]`,
+    `[b1][ll]overlay=${lx}:${LENS.lensY}:enable='gte(t,${tSwitch.toFixed(3)})'[b2]`,
+    `[b2][3:v]overlay=0:0:enable='lt(t,${tSwitch.toFixed(3)})'[b3]`,
+    `[b3][4:v]overlay=0:0:enable='gte(t,${tSwitch.toFixed(3)})'[c0]`];
+  steps.forEach(([id], i) => {
+    const t0 = mark[id], t1 = i + 1 < steps.length ? mark[steps[i + 1][0]] : main;
+    parts.push(`[c${i}][${5 + i}:v]overlay=0:0:enable='between(t,${t0.toFixed(3)},${(t1 - 0.001).toFixed(3)})'[c${i + 1}]`);
+  });
+  parts.push(`[1:v]format=rgba,fade=t=out:st=${TITLE_S - 0.35}:d=0.35:alpha=1[tt]`);
+  parts.push(`[c${steps.length}][tt]overlay=eof_action=pass:format=auto,format=yuv420p,fps=${FPS}[body]`);
+  parts.push(`[2:v]fps=${FPS},format=yuv420p,setsar=1[end]`);
+  parts.push(`[body][end]xfade=transition=fade:duration=${XFADE}:offset=${(main - XFADE).toFixed(3)},scale=in_range=auto:out_range=tv,format=yuv420p[v]`);
+  execFileSync("ffmpeg", ["-v", "error", "-y", ...inputs, "-filter_complex", parts.join(";"), "-map", "[v]", "-map", `${audioIdx}:a`,
+    "-c:v", "libx264", "-preset", "slow", "-crf", "18", "-profile:v", "high", "-pix_fmt", "yuv420p", "-r", String(FPS),
+    "-c:a", "aac", "-b:a", "128k", "-shortest", "-movflags", "+faststart", out], { stdio: "inherit" });
+  return total;
+}
 
 // ---------- skládání ----------
 function compose(rec, out, titlePng, endPng) {
@@ -802,8 +1065,11 @@ for (const n of names) if (!SCENES[n]) throw new Error(`neznámá scéna: ${n} (
 fs.mkdirSync(OUT, { recursive: true });
 fs.mkdirSync(WORK, { recursive: true });
 const endPng = path.join(WORK, "endcard.png");
+// prepare: dočasné soubory scény, které musí existovat už při tisku PDF.
+for (const n of names) SCENES[n].prepare?.();
 await renderOverlays([[endPage(), endPng], ...names.map((n) => [titlePage(SCENES[n].title), path.join(WORK, `title-${n}.png`)]),
-  ...(names.includes("thumbnails") ? PDFS.map(([file, title, no]) => [pdfPage(title, no), file, "pdf"]) : [])]);
+  ...(names.includes("thumbnails") ? PDFS.map(([file, title, no]) => [pdfPage(title, no), file, "pdf"]) : []),
+  ...names.flatMap((n) => SCENES[n].pdfs ?? [])]);
 
 for (const n of names) {
   const scene = SCENES[n];
@@ -817,7 +1083,12 @@ for (const n of names) {
     await scene.run(a, r);
     const rec = await r.stop();
     const out = path.join(OUT, scene.file);
-    const total = compose(rec, out, path.join(WORK, `title-${n}.png`), endPng);
+    // Překryvy scény s lupou závisí na poloze stavového řádku změřené v before().
+    if (scene.compose) await renderOverlays(lensOverlays(scene, n));
+    const total = (scene.compose ?? compose)(rec, out, path.join(WORK, `title-${n}.png`), endPng, scene, n);
+    // Časování pro hudbu: délka videa, začátek závěrečné karty, střihy a vstupy (klávesy, kliky).
+    fs.writeFileSync(out.replace(/\.mp4$/i, ".timing.json"), JSON.stringify({ total, endcard: rec.dur - XFADE,
+      cuts: rec.cuts.map((k) => k.t), inputs: rec.inputs ?? [] }, null, 1));
     console.log(`${scene.file}  ${total.toFixed(1)} s  ${rec.frames} snímků  ${(fs.statSync(out).size / 1048576).toFixed(1)} MB`);
   } finally {
     try { await scene.after?.(a); } catch (err) { console.error(`úklid scény ${n} selhal:`, err.message); }
