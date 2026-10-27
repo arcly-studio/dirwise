@@ -24,7 +24,7 @@
 
 </div>
 
-Dirwise (formerly Finder-Win) is inspired by the macOS Finder, built for Windows.
+Dirwise is a free, open-source file manager for Windows 10/11 with column view, tabs, split view, instant preview and a Ctrl+K command palette.
 
 ## Why Dirwise?
 
@@ -146,7 +146,7 @@ Dirwise (formerly Finder-Win) is inspired by the macOS Finder, built for Windows
 1. Download `Dirwise_…_x64-setup.exe` from the [latest release](https://github.com/arcly-studio/dirwise/releases/latest) and run it. It installs for the current user only; no administrator rights needed.
 2. The installer is not code-signed, so Windows SmartScreen shows *"Windows protected your PC"*. Click **More info** → **Run anyway**.
 
-Upgrading from Finder-Win 1.5.x: the Dirwise installer silently uninstalls the old version itself (no second copy side by side) and your settings are kept. Pin it to the taskbar again.
+Upgrading from version 1.5.x (released before the rename to Dirwise): the installer silently uninstalls the old version itself (no second copy side by side) and your settings are kept. Pin it to the taskbar again.
 
 Or get it from the [Microsoft Store](https://apps.microsoft.com/detail/9MZ67726S65X) – no SmartScreen warning, updates come through the Store.
 
