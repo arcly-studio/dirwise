@@ -24,7 +24,7 @@
 
 </div>
 
-Dirwise (dříve Finder-Win) je inspirován macOS Finderem, vytvořený pro Windows.
+Dirwise je bezplatný open-source správce souborů pro Windows 10/11 se sloupcovým zobrazením, záložkami, rozděleným oknem, okamžitým náhledem a paletou příkazů Ctrl+K.
 
 ## Proč Dirwise?
 
@@ -146,7 +146,7 @@ Dirwise (dříve Finder-Win) je inspirován macOS Finderem, vytvořený pro Wind
 1. Stáhni `Dirwise_…_x64-setup.exe` z [poslední verze](https://github.com/arcly-studio/dirwise/releases/latest) a spusť ho. Instaluje se jen pro aktuálního uživatele, práva správce nejsou potřeba.
 2. Instalátor není digitálně podepsaný, takže Windows SmartScreen ukáže „Systém Windows ochránil váš počítač“. Klikni na **Další informace** → **Přesto spustit**.
 
-Aktualizace z Finder-Win 1.5.x: instalátor Dirwise starou verzi sám tiše odinstaluje (žádná druhá instalace vedle) a nastavení zůstane. Připnutí na hlavním panelu je potřeba udělat znovu.
+Aktualizace z verze 1.5.x (vydané před přejmenováním na Dirwise): instalátor starou verzi sám tiše odinstaluje (žádná druhá instalace vedle) a nastavení zůstane. Připnutí na hlavním panelu je potřeba udělat znovu.
 
 Nebo si aplikaci nainstaluj z [Microsoft Storu](https://apps.microsoft.com/detail/9MZ67726S65X?hl=cs-cz&gl=CZ) – bez varování SmartScreen, aktualizace přicházejí přes Store.
 
