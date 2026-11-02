@@ -2,7 +2,7 @@
 
 > Poznámka pro autora: Před odesláním zarezervuj v Partner Center název „Dirwise“ (Product identity → Reserve name); DisplayName v MSIX musí sedět.
 
-Texty pro Partner Center (Store listing), anglicky a česky. Limity Partner Center: krátký popis ≤ 100 znaků (vlastní rezerva, Partner Center dovolí víc), popis ≤ 10 000, každá feature ≤ 200 znaků, max. 20 features, klíčová slova max. 7 (každé ≤ 30 znaků).
+Texty pro Partner Center (Store listing), anglicky a česky. Limity Partner Center (ověřeno 2. 11. 2026 v dokumentaci Microsoftu): krátký popis ≤ 1000 znaků (vlastní rezerva ≤ 100; zobrazí se prvních 270), popis ≤ 10 000, „What's new“ ≤ 1500, každá feature ≤ 200 znaků, max. 20 features, klíčová slova max. 7, každé ≤ 40 znaků, dohromady nejvýš 21 slov (vlastní rezerva ≤ 30 znaků na slovo). Překlady do dalších jazyků: `docs/store-listing-i18n.md`, kontrola délek a zakázaných slov: `node scripts/store-listing-check.mjs`.
 
 - **Category:** Utilities & tools → File managers (alternativa: Productivity)
 - **Privacy policy URL:** https://arcly-studio.github.io/dirwise/privacy/
@@ -38,11 +38,11 @@ The window has the standard Windows 11 title bar with Snap Layouts. Light and da
 Privacy: no telemetry, no account, no ads. The Microsoft Store version itself makes no network requests – updates come from the Store.
 
 ### What's new
-Version 1.6.1
-- New Share icon in the style of Windows 11.
-- Toolbar icons on the right are now the same size and colour, with even spacing.
-- The publisher is now Arcly Studio.
-- New website (arcly-studio.github.io/dirwise) and repository addresses.
+Version 1.7.0
+- Choose the icon size in Icons view: small, medium or large (More → View → Icon Size), or hold Ctrl and turn the mouse wheel.
+- Long file names are easier to read: the selected item shows more of its name.
+- A tidier toolbar with consistent icon sizes and spacing.
+- New app logo.
 
 ### Features (max 20)
 1. Column view with a preview pane, plus Icons and List views
@@ -88,11 +88,11 @@ Okno má standardní titulkovou lištu Windows 11 se Snap Layouts. Světlý a tm
 Soukromí: žádná telemetrie, žádný účet, žádné reklamy. Verze z Microsoft Storu sama nedělá žádné síťové požadavky – aktualizace přicházejí ze Storu.
 
 ### Novinky
-Verze 1.6.1
-- Nová ikona Sdílet ve stylu Windows 11.
-- Ikony vpravo v toolbaru jsou stejně velké a stejné barvy, s pravidelnými mezerami.
-- Vydavatel je nově Arcly Studio.
-- Nové adresy webu (arcly-studio.github.io/dirwise) a repozitáře.
+Verze 1.7.0
+- V zobrazení Ikony si vybereš velikost ikon: malé, střední nebo velké (Více → Zobrazit → Velikost ikon), nebo podržíš Ctrl a otočíš kolečkem myši.
+- Dlouhé názvy souborů jsou čitelnější: u vybrané položky uvidíš větší část názvu.
+- Úhlednější toolbar se stejně velkými ikonami a pravidelnými mezerami.
+- Nové logo aplikace.
 
 ### Funkce (max 20)
 1. Sloupcové zobrazení s náhledovým panelem, k tomu Ikony a Seznam
