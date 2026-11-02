@@ -1,7 +1,13 @@
 # Changelog
 
-Notable changes in each Dirwise release (up to 1.5.2 the app was called Finder-Win). Installers are on the [Releases](https://github.com/arcly-studio/dirwise/releases) page.
+Notable changes in each Dirwise release (releases up to 1.5.2 came out under the app's previous name, now retired). Installers are on the [Releases](https://github.com/arcly-studio/dirwise/releases) page.
 
+## [1.7.0](https://github.com/arcly-studio/dirwise/releases/tag/v1.7.0) – unreleased
+
+- **Icon size** – Icons view now comes in small, medium and large: More → View → Icon Size, the command palette (“Icon Size: Large”), or hold Ctrl and turn the mouse wheel (away from you = larger). The size is remembered, and the items you were looking at stay in view when it changes.
+- **Readable long names** – in Icons view a long name is cut after two lines; the selected item shows up to five lines of it, laid over the tiles below without moving them.
+- **Tidier toolbar** – Back / Forward, the view switcher, search and the + / × buttons of the tab bar share the same icon size, line weight and spacing.
+- **New app logo.** Windows caches taskbar icons, so a pinned Dirwise may keep the old icon until you sign out and back in.
 ## [1.6.1](https://github.com/arcly-studio/dirwise/releases/tag/v1.6.1) – 2026-10-21
 
 - **New Share icon in the style of Windows 11** in the toolbar – thanks to [@Doomguy-BFG9000](https://github.com/Doomguy-BFG9000) ([#14](https://github.com/arcly-studio/dirwise/pull/14)).
@@ -21,8 +27,8 @@ Notable changes in each Dirwise release (up to 1.5.2 the app was called Finder-W
 - **File extensions like File Explorer** – shortcuts (.lnk, .url, .pif) never show an extension, so they read “Cursor”, “Dirwise”; other files follow Windows’ “Hide extensions for known file types” (known type = registered association; AlwaysShowExt respected). More → View → File Extensions: Like Windows / Always / Never (also in the command palette). Applies to all views, Preview, Properties, the Recycle Bin, Recent and dialogs; sorting, filtering and search still use the full name. Rename (F2) keeps a hidden extension; a visible one stays unselected.
 - **More → View** – new submenu like in File Explorer with Hidden Files (Ctrl+Shift+. stays) and File Extensions; Appearance now holds only the theme and transparency.
 - **Toolbar fits narrow windows** – it never runs off the edge (window 900–1920 px, any sidebar width, 100–150 % scaling): the search field gets narrower, then turns into a search icon that expands on click.
-- **Quick Look renamed to Preview** (Space, menu, command palette) – the old name belongs to another vendor.
-- **Upgrading from Finder-Win 1.5.x** – the Dirwise installer silently uninstalls the old installation (no second copy side by side) and your settings are kept. Pin the app to the taskbar again.
+- **Space-bar preview is now called Preview** (Space, menu, command palette) – the old name belonged to another vendor.
+- **Renamed to Dirwise (previous name retired)** – when upgrading from 1.5.x, the Dirwise installer silently uninstalls the old installation (no second copy side by side) and your settings are kept. Pin the app to the taskbar again.
 
 ## [1.5.2](https://github.com/arcly-studio/dirwise/releases/tag/v1.5.2) – 2026-10-11
 
@@ -38,7 +44,7 @@ Notable changes in each Dirwise release (up to 1.5.2 the app was called Finder-W
 
 ## [1.5.0](https://github.com/arcly-studio/dirwise/releases/tag/v1.5.0) – 2026-10-11
 
-- **New default look: glass** – title bar, toolbar and tabs sit on one translucent, blurred plate and the list shows through it as you scroll; the status bar, menus, context menus, command palette, tooltips and toasts are glass too, dialogs blur what is behind them. The sidebar reaches under the window buttons, with a soft gradient, grain and a grey selection like macOS Sonoma; blue is kept for selected files. The 1.4.2 look can no longer be switched on.
+- **New default look: glass** – title bar, toolbar and tabs sit on one translucent, blurred plate and the list shows through it as you scroll; the status bar, menus, context menus, command palette, tooltips and toasts are glass too, dialogs blur what is behind them. The sidebar reaches under the window buttons, with a soft gradient, grain and a grey highlight for the selected sidebar item; blue is kept for selected files. The 1.4.2 look can no longer be switched on.
 - **Window transparency** – More → Appearance → **Transparency: On / Off** (default Off) and **Transparency strength: Subtle / Medium / Strong** (default Medium); picking a strength turns transparency on. The whole window is transparent – sidebar, list, top bar (title bar, toolbar, tabs) and status bar, all with the same opacity for the chosen strength – so the desktop and other windows show through the app. Content scrolling under the top bar stays blurred (glass). Also in the command palette.
 - **Smoother scrolling** in long lists – hover transitions pause while scrolling.
 - **Readability** – text contrast meets WCAG AA over white, green and busy wallpapers at every transparency strength.
@@ -47,7 +53,7 @@ Notable changes in each Dirwise release (up to 1.5.2 the app was called Finder-W
 
 ## [1.4.2](https://github.com/arcly-studio/dirwise/releases/tag/v1.4.2) – 2026-10-09
 
-- **Drag out of the app** – drag files and folders from Finder-Win to File Explorer, the desktop, a browser upload, Discord or an e-mail. Copy by default, Shift moves. Drag & drop now works both ways.
+- **Drag out of the app** – drag files and folders out to File Explorer, the desktop, a browser upload, Discord or an e-mail. Copy by default, Shift moves. Drag & drop now works both ways.
 - **New button** – **+ New** in the toolbar, like File Explorer: Folder, Text Document and every file type Windows offers in New (Word, Excel, ZIP …); also in the context menu (New ▸) and the command palette.
 - **Rounded tabs** – each tab is a rounded chip; the active one is highlighted without blending into the content.
 - **Terminals** – More → Terminal lists PowerShell 7 and Windows PowerShell separately; unavailable ones are greyed out. Shift+click Open in Terminal picks any installed terminal.
@@ -70,7 +76,7 @@ Notable changes in each Dirwise release (up to 1.5.2 the app was called Finder-W
 ## 1.3.0 – 2026-10-07
 
 - **Tabs** – Ctrl+T / Ctrl+W / Ctrl+Tab / Ctrl+1…9, middle-click and *Open in New Tab*; each tab has its own history, view, sorting, selection, columns and search; reorder by dragging, drop files on a tab, restored on start (folder, view and sorting).
-- **Windows clipboard** – copy / cut / paste files between Finder-Win, Explorer, Outlook and browsers (CF_HDROP).
+- **Windows clipboard** – copy / cut / paste files between the app, Explorer, Outlook and browsers (CF_HDROP).
 - **Drag & drop from Explorer** – drop files from Explorer or the desktop onto a folder, a sidebar item, a tab or empty space.
 - **Undo / Redo** – rename, move, copy, new item, delete (from the Recycle Bin) and tags, last 50 operations.
 - **winget manifest** and an opt-out update check (one GET to the GitHub API per day, no telemetry).
@@ -88,7 +94,7 @@ Notable changes in each Dirwise release (up to 1.5.2 the app was called Finder-W
 - **Audit fixes** – selection and navigation logic, safer file operations, security and configuration hardening.
 - **Multi-select and keyboard navigation** – Ctrl/Shift selection, arrow keys across all views, Sort, Share and Tags buttons in the toolbar.
 - **Collision dialog** – paste and move ask what to do when a file with the same name already exists (replace, keep both, skip).
-- **New design with shell icons** – real Windows file icons, Sonoma-style folders, image thumbnails, reworked toolbar, sidebar, views and dialogs, WCAG AA contrast in both themes.
+- **New design with shell icons** – real Windows file icons, new folder icons, image thumbnails, reworked toolbar, sidebar, views and dialogs, WCAG AA contrast in both themes.
 - **Animations and virtualization** – virtualized listings with streamed directory loading, jump-free navigation, micro-interactions, smoother scrolling and `prefers-reduced-motion` support.
 
 ## [1.0.0](https://github.com/arcly-studio/dirwise/releases/tag/v1.0.0) – 2026-09-28
