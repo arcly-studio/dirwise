@@ -50,6 +50,13 @@ export const panel = (v, view) => ({ path: "C:\\Demo\\" + v, view, sortKey: "nam
 export const TABS = { active: 0, items: [panel("Photos\\Summer 2026", "icon"), panel("Documents", "list"), panel("Projects", "column")] };
 
 export async function setup(width = 1280, height = 800, { theme = "dark", language = "en", tabs = TABS, transparency = false, strength = "medium", scale = 1, emulate = true } = {}) {
+  // Pojistka (CLAUDE.md): záložky jen pod C:\Demo; identifier ….demo kontroluje connect().
+  const panels = tabs.items.flatMap((tab) => [tab, tab.second].filter(Boolean));
+  const outside = panels.find((p) => !/^C:\\Demo(\\|$)/i.test(p.path));
+  if (outside) {
+    console.error(`POJISTKA DEMO: záložka mimo C:\\Demo (${outside.path}) – skript končí.`);
+    process.exit(3);
+  }
   const c = await connect();
   await c.send("Page.enable");
   // Výchozí stav (záložky, téma, jazyk, průhlednost) přes modul storage z vite dev serveru.
@@ -67,6 +74,14 @@ export async function setup(width = 1280, height = 800, { theme = "dark", langua
   if (emulate) await c.size(width, height, scale);
   await c.send("Page.reload", { ignoreCache: false });
   await c.sleep(4000);
+  // Po reloadu musí platit demo patch složek a výpis musí být v C:\Demo. Jedna uložená
+  // záložka se po reloadu neobnoví a otevře se Plocha – bez patche skutečná.
+  if (!(await c.evaluate("!!window.__demoPatched"))) {
+    console.error("POJISTKA DEMO: po reloadu chybí demo patch složek – skript končí.");
+    c.close();
+    process.exit(3);
+  }
+  await c.assertDemo();
   return c;
 }
 
