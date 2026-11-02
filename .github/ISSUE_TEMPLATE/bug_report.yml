@@ -12,7 +12,7 @@ body:
     attributes:
       label: Dirwise version
       description: More → About Dirwise
-      placeholder: "1.6.0"
+      placeholder: "1.7.0"
     validations:
       required: true
   - type: dropdown
