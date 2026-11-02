@@ -175,7 +175,8 @@ export function TabBar({ tabs, activeId, windowFocused, onSelect, onClose, onReo
                 onClose(tab.id);
               }}
             >
-              <X size={12} strokeWidth={2.5} />
+              {/* Malý křížek uvnitř ouška (12 px), tah 2 – ne těžší než ikony toolbaru. */}
+              <X size={12} strokeWidth={2} />
             </button>
           </div>
         );
@@ -191,7 +192,8 @@ export function TabBar({ tabs, activeId, windowFocused, onSelect, onClose, onReo
         onMouseDown={(event) => event.preventDefault()}
         onClick={newTab.run}
       >
-        <Plus size={12} strokeWidth={2} />
+        {/* Stejná ikona jako v toolbaru: 16 px, tah 1,75, v tlačítku 28 × 28. */}
+        <Plus size={16} strokeWidth={1.75} />
       </button>
     </div>
   );
