@@ -43,6 +43,7 @@ Dirwise is a free, open-source file manager for Windows 10/11 with column view, 
 </picture>
 
 - **Icons, List and Columns** views; thumbnails for images, videos (with a ▶ badge) and PDFs.
+- **Icon size** – small, medium or large icons in Icons view (More → View → Icon Size, or `Ctrl` + mouse wheel); the selected item shows more of a long name.
 - **Tabs** – rounded chips, each with its own history, view, sorting and selection; drag to reorder, drop files on a tab to move them there.
 - **File extensions like File Explorer** – shortcuts (.lnk, .url) never show one, other files follow Windows’ “Hide extensions for known file types”, or choose Always / Never in More → View → File Extensions. Renaming keeps a hidden extension.
 - **Light and dark mode** following Windows, or set it in More → Appearance. English and Czech UI.
@@ -136,6 +137,7 @@ Dirwise is a free, open-source file manager for Windows 10/11 with column view, 
 | `Ctrl+Shift+.` | Show / hide hidden files |
 | `Esc` | Clear selection; close search results; close menus and dialogs |
 | `←` / `→`, `Esc` | Previous / next file, close (in Preview) |
+| `Ctrl` + mouse wheel | Larger / smaller icons (Icons view) |
 | Mouse button 4 / 5 | Back / forward |
 | Middle click on a folder / tab | Open in a new tab / close the tab |
 
