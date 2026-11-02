@@ -167,11 +167,13 @@ const IconCell = memo(
               {names.entry(entry)}
             </span>
             {expanded && (
-              <span
-                className="fw-icon-name fw-icon-name-full line-clamp-5 text-center"
-                style={{ overflowWrap: "anywhere" }}
-              >
-                {names.entry(entry)}
+              // Podklad a odsazení drží vnější prvek, ořez na 5 řádků vnitřní:
+              // line-clamp ořezává na hraně paddingu, takže spodní odsazení na
+              // stejném prvku by ukázalo horní kraj 6. řádku.
+              <span className="fw-icon-name fw-icon-name-full text-center">
+                <span className="line-clamp-5" style={{ overflowWrap: "anywhere" }}>
+                  {names.entry(entry)}
+                </span>
               </span>
             )}
           </div>
