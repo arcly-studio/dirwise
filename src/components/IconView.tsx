@@ -81,6 +81,8 @@ type CellProps = {
   windowFocused: boolean;
   tags: TagColor[];
   geo: Geometry;
+  /** Jediná vybraná položka — celý název jako překryv (ne při přejmenování). */
+  expanded: boolean;
   handlers: CellHandlers;
 };
 
@@ -96,6 +98,7 @@ const IconCell = memo(
     windowFocused,
     tags,
     geo,
+    expanded,
     handlers,
   }: CellProps) {
     const names = useDisplayNames();
@@ -150,12 +153,28 @@ const IconCell = memo(
             />
           </div>
         ) : (
-          <span
-            className="fw-icon-name line-clamp-2 max-w-full text-center"
-            style={{ overflowWrap: "anywhere" }}
-          >
-            {names.entry(entry)}
-          </span>
+          // Název: nevybraný na 2 řádky s výpustkou (celý v tooltipu). Jediná
+          // vybraná položka ukáže celý název (max 5 řádků) jako překryv přes
+          // řádek pod sebou, jako Průzkumník. Překryv je absolutně uvnitř
+          // obalu, takže rozměr buňky (gumička, virtualizace, animace náhledu)
+          // se nemění, a nechytá myš — klik a drop na přečnívající části
+          // trefí položku pod ním, jako by tam nebyl.
+          <div className="fw-icon-name-box">
+            <span
+              className={`fw-icon-name line-clamp-2 max-w-full text-center ${expanded ? "invisible" : ""}`}
+              style={{ overflowWrap: "anywhere" }}
+            >
+              {names.entry(entry)}
+            </span>
+            {expanded && (
+              <span
+                className="fw-icon-name fw-icon-name-full line-clamp-5 text-center"
+                style={{ overflowWrap: "anywhere" }}
+              >
+                {names.entry(entry)}
+              </span>
+            )}
+          </div>
         )}
 
         {!renaming && <TagDots colors={tags} size={8} />}
@@ -172,6 +191,7 @@ const IconCell = memo(
     a.windowFocused === b.windowFocused &&
     a.tags === b.tags &&
     a.geo === b.geo &&
+    a.expanded === b.expanded &&
     a.handlers === b.handlers,
 );
 
@@ -438,17 +458,29 @@ export function IconView({
     [entries, virtualizer, columns, rowCount, scrollRef, glass, geo],
   );
 
+  // Celý název jen u jediné vybrané položky, ne při přejmenování.
+  const expandedPath =
+    selectedPaths.size === 1 && renamingPath === null ? (selectedPaths.values().next().value ?? null) : null;
+
   return (
     <div className="relative w-full" style={{ height: virtualizer.getTotalSize() }}>
       {virtualizer.getVirtualItems().map((row) => {
         const start = row.index * columns;
         const cells = entries.slice(start, start + columns);
+        // Řádek s překryvem názvu nad řádkem pod sebou (řádky jsou absolutní
+        // sourozenci s transformací — bez z-indexu by další řádek kreslil navrch).
+        const lifted = expandedPath !== null && cells.some((entry) => entry.path === expandedPath);
 
         return (
           <div
             key={row.key}
             className="absolute top-0 flex"
-            style={{ left: PADDING, gap: geo.gapX, transform: `translateY(${row.start - glass.top}px)` }}
+            style={{
+              left: PADDING,
+              gap: geo.gapX,
+              transform: `translateY(${row.start - glass.top}px)`,
+              zIndex: lifted ? 1 : undefined,
+            }}
           >
             {cells.map((entry) => (
               <IconCell
@@ -462,6 +494,7 @@ export function IconView({
                 windowFocused={windowFocused}
                 tags={tagsOf(tags, entry.path)}
                 geo={geo}
+                expanded={entry.path === expandedPath}
                 handlers={handlers}
               />
             ))}

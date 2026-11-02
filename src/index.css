@@ -986,6 +986,45 @@ body {
   padding: 0 4px;
 }
 
+/* Obal názvu v ikonové buňce: drží místo 2řádkového názvu, překryv celého
+   názvu (jediná vybraná položka) se k němu přichytí nahoře. */
+.fw-icon-name-box {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Celý název přes řádek pod buňkou. Neprůhledný podklad (pozadí výpisu
+   + barva výběru), jinak by přes text prosvítaly ikony dalšího řádku; v buňce
+   vypadá stejně jako výběr dlaždice. Myš ho ignoruje (klik i drop jdou na
+   položku pod ním). */
+.fw-icon-name-full {
+  --name-tint: var(--row-selected);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding-bottom: 4px;
+  border-radius: 0 0 8px 8px;
+  background: linear-gradient(var(--name-tint), var(--name-tint)), var(--bg-main);
+  pointer-events: none;
+}
+
+.fw-icon-cell.is-selected-dim .fw-icon-name-full {
+  --name-tint: var(--row-selected-inactive);
+}
+
+/* Průhledné okno: --bg-main je poloprůhledné (--see-main) a řádek pod
+   překryvem by prosvítal – podklad názvu je plný (barvy jako --bg-main). */
+:root[data-transparency] .fw-icon-name-full {
+  background: linear-gradient(var(--name-tint), var(--name-tint)), rgb(255 255 255);
+}
+
+:root.dark[data-transparency] .fw-icon-name-full {
+  background: linear-gradient(var(--name-tint), var(--name-tint)), rgb(16 16 18);
+}
+
 /* Řádky v list view. Pořadí pravidel je tu nosné: všechna mají stejnou
    specificitu (0,2,0), takže rozhoduje pořadí zápisu — pruh, přes něj hover,
    přes něj výběr. V Tailwindu by to chtělo utility s ručním !important. */
