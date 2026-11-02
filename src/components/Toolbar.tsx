@@ -92,7 +92,11 @@ const VIEW_SEGMENTS: { mode: ViewMode; label: MessageKey; Icon: LucideIcon }[] =
   { mode: "column", label: "toolbar.viewAsColumns", Icon: Columns3 },
 ];
 
-/** Jeden segmented control místo tří samostatných tlačítek, jako ve Finderu.
+/** Šířka segmentu přepínače zobrazení — stejná mřížka 28 px jako tlačítka
+ *  (musí sedět s .fw-segment v index.css). */
+const SEGMENT_WIDTH = 28;
+
+/** Jeden segmented control místo tří samostatných tlačítek.
  *  Vyzdvižený segment se mezi pozicemi posouvá transformací. */
 function ViewSwitcher({ mode, onChange }: { mode: ViewMode; onChange: (mode: ViewMode) => void }) {
   const t = useT();
@@ -103,7 +107,7 @@ function ViewSwitcher({ mode, onChange }: { mode: ViewMode; onChange: (mode: Vie
       <span
         aria-hidden
         className="fw-segment-thumb"
-        style={{ width: 30, transform: `translateX(${index * 30}px)` }}
+        style={{ width: SEGMENT_WIDTH, transform: `translateX(${index * SEGMENT_WIDTH}px)` }}
       />
       {VIEW_SEGMENTS.map(({ mode: segment, label, Icon }) => (
         <button
@@ -325,7 +329,8 @@ export function Toolbar({
     // [sdílet, štítky] [rozdělit, více] [hledání]. Nová záložka je + v liště
     // záložek, vzhled v menu Více.
     <header className="fw-toolbar flex h-10 shrink-0 items-center gap-3 px-3">
-      <div className="flex shrink-0 items-center gap-0.5">
+      {/* Zpět / vpřed jako ostatní skupiny: 4 px uvnitř skupiny. */}
+      <div className="fw-tool-group">
         <IconButton
           Icon={ChevronLeft}
           label={t("toolbar.back")}
@@ -437,7 +442,7 @@ export function Toolbar({
       >
         <div className="fw-search-bg" aria-hidden />
         <div className="fw-search-content">
-          <Search size={14} strokeWidth={2} className="shrink-0 text-secondary" />
+          <Search size={TOOL_ICON_SIZE} strokeWidth={TOOL_ICON_STROKE} className="shrink-0 text-secondary" />
           <input
             ref={searchRef}
             type="text"

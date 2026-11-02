@@ -1264,8 +1264,9 @@ body {
     width: 28px;
   }
 
+  /* Lupa 16 px uprostřed tlačítka 28 px: (28 − 16) / 2. */
   .fw-search .fw-search-content {
-    padding: 0 0 0 7px;
+    padding: 0 0 0 6px;
   }
 
   .fw-search:not(:focus-within):not(:has(input:not(:placeholder-shown))) :is(input, .fw-search-clear) {
@@ -1576,7 +1577,8 @@ body {
   position: relative;
   z-index: 1;
   display: flex;
-  width: 30px;
+  /* Mřížka 28 px jako tlačítka (SEGMENT_WIDTH v Toolbar.tsx). */
+  width: 28px;
   align-items: center;
   justify-content: center;
   /* Stejná barva jako ostatní ikony toolbaru; vybraný segment ukazuje podklad. */
