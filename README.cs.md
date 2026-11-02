@@ -43,6 +43,7 @@ Dirwise je bezplatný open-source správce souborů pro Windows 10/11 se sloupco
 </picture>
 
 - Zobrazení **Ikony, Seznam a Sloupce**; náhledy obrázků, videí (s odznakem ▶) a PDF.
+- **Velikost ikon** – malé, střední nebo velké ikony v zobrazení Ikony (Více → Zobrazit → Velikost ikon, nebo `Ctrl` + kolečko myši); u vybrané položky je vidět větší část dlouhého názvu.
 - **Záložky** – zaoblené čipy, každá s vlastní historií, zobrazením, řazením a výběrem; přerovnání tažením, soubor puštěný na záložku se přesune do její složky.
 - **Přípony jako v Průzkumníku** – zástupci (.lnk, .url) je neukazují nikdy, ostatní soubory podle nastavení Windows „Skrýt přípony známých typů souborů“, nebo zvol Vždy / Nikdy ve Více → Zobrazit → Přípony souborů. Přejmenování skrytou příponu zachová.
 - **Světlý a tmavý režim** podle Windows, nebo nastavený v Více → Vzhled. Rozhraní česky a anglicky.
@@ -136,6 +137,7 @@ Dirwise je bezplatný open-source správce souborů pro Windows 10/11 se sloupco
 | `Ctrl+Shift+.` | Zobrazit / skrýt skryté soubory |
 | `Esc` | Zrušit výběr; zavřít výsledky hledání; zavřít menu a dialogy |
 | `←` / `→`, `Esc` | Předchozí / další soubor, zavřít (v náhledu) |
+| `Ctrl` + kolečko myši | Větší / menší ikony (zobrazení Ikony) |
 | Tlačítko myši 4 / 5 | Zpět / vpřed |
 | Prostřední klik na složku / záložku | Otevřít v nové záložce / zavřít záložku |
 
