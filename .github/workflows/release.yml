@@ -11,12 +11,26 @@ jobs:
       contents: write
     runs-on: windows-latest
     steps:
+      # Tag jen ve tvaru vX.Y.Z (jako winget-manifest.yml) – jinak chyba ještě před buildem.
+      # Tag jde do skriptu přes env, ne přímou substitucí (injekce do shellu).
+      - name: Check tag and read version
+        id: version
+        shell: bash
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Tag '$TAG' neodpovídá tvaru vX.Y.Z"
+            exit 1
+          fi
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+
       - uses: actions/checkout@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Install Rust stable
@@ -38,7 +52,7 @@ jobs:
           tagName: ${{ github.ref_name }}
           releaseName: Dirwise ${{ github.ref_name }}
           releaseBody: |
-            Download `Dirwise_x.y.z_x64-setup.exe` below. It installs for the current user only — no admin rights needed.
+            Download `Dirwise_${{ steps.version.outputs.version }}_x64-setup.exe` below. It installs for the current user only — no admin rights needed.
 
             The installer is not code-signed, so Windows SmartScreen will warn you.
             Click **More info → Run anyway** to continue.
