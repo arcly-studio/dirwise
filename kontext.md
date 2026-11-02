@@ -1,6 +1,6 @@
 # Dirwise – kontext projektu
 
-Stav k 27. 10. 2026: verze **1.6.1**, větev `master`, poslední commit `9f0555e`.
+Stav k 2. 11. 2026: vydaná verze **1.6.1**, rozpracovaná **1.7.0** (hotové fáze 1.7.1, 1.7.1b, 1.7.1d a 1.7.2; další je 1.7.3 – toolbar), větev `master`, poslední commit `5bbedfa`.
 
 Tenhle soubor je přehled celého projektu na jednom místě: co aplikace umí, jak je postavená, kde co leží a jak se vydává. Závazná pravidla práce a známé pasti jsou v [CLAUDE.md](CLAUDE.md). Při rozporu platí CLAUDE.md a kód.
 
@@ -21,7 +21,8 @@ Má instalátor do 3 MB, instaluje se jen pro uživatele bez práv správce. Nem
 | Microsoft Store | ID `9MZ67726S65X` |
 | winget | `krystof2-ops.Dirwise` (README zatím ukazuje „coming soon“) |
 | Binárka / proces | `dirwise.exe` (Cargo balíček `dirwise`) |
-| Původní název | Finder-Win (do 1.5.2); složka repa se pořád jmenuje `finder-win` |
+| Původní název | Finder-Win (do 1.5.2) |
+| Lokální složka repa | `C:\vibe coding picoviny\Dirwise` (dřív `…\finder-win`) |
 | Jazyky UI | čeština, angličtina |
 
 Projekt vyvíjí jeden člověk s pomocí AI (Claude Code). Postup je po fázích, commity „Fáze N.x: …“ a vydání „Release X.Y.Z“.
@@ -74,7 +75,13 @@ Projekt vyvíjí jeden člověk s pomocí AI (Claude Code). Postup je po fázíc
 ### Procházení
 
 **Zobrazení**
-- Tři zobrazení: **Ikony** (virtualizovaná mřížka, buňka 96×118), **Seznam** (sloupce Název / Datum úpravy / Velikost / Druh) a **Sloupce**.
+- Tři zobrazení: **Ikony** (virtualizovaná mřížka), **Seznam** (sloupce Název / Datum úpravy / Velikost / Druh) a **Sloupce**.
+- **Velikost ikon** v zobrazení Ikony (od 1.7.0, fáze 1.7.1): malé / střední / velké – ikona 48 / 64 / 128 px, buňka 80×102 / 96×118 / 160×182 (střední = vzhled do 1.6). Globální pro všechny záložky i oba panely, klíč `iconSize` v settings.json.
+  - Ovládání: Více → Zobrazit → Velikost ikon, paleta („Velikost ikon: …“) a Ctrl + kolečko nad mřížkou (od sebe = větší; delty z touchpadu se sčítají, práh 100). Volba z menu nebo palety mimo Ikony na ně přepne.
+  - Při změně zůstane na místě vybraná položka (je-li vidět), jinak horní řádek. Gumička, šipky, PgUp/PgDn a type-ahead počítají s aktuální geometrií (`GEOMETRY` v `IconView.tsx`).
+  - Velké ikony na HiDPI chtějí od shellu 256 px (`get_file_icon` i `get_file_thumbnail`).
+  - **Dlouhé názvy** (fáze 1.7.2): nevybraná položka 2 řádky s výpustkou, celý název v tooltipu. Jediná vybraná položka (ne při F2) ukáže celý název, nejvýš 5 řádků s výpustkou, jako překryv přes řádek pod sebou (`.fw-icon-name-full` v `index.css`): absolutně v obalu `.fw-icon-name-box`, takže rozměr buňky se nemění (gumička a virtualizace počítají z geometrie, animace náhledu ze středu buňky); `pointer-events: none` – klik i drop na přečnívající části jdou na položku pod ní; řádek s překryvem má `z-index: 1`; neprůhledný podklad (v průhledném okně plný bílý / #101012). Při víc vybraných položkách 2 řádky. U malých a středních ikon se velmi dlouhý název (~90 znaků) do 5 řádků nevejde – výpustka, celý v tooltipu.
+  - Ověřeno skutečnou myší (2. 11. 2026; skutečné události mají `cancelable: false`, nevadí). Touchpad neověřen: v logu ručního testu nebylo žádné Ctrl + kolečko z touchpadu; WebView2 má pinch vypnutý (`IsPinchZoomEnabled` podle `zoomHotkeysEnabled: false`, wry 0.55.1) – v 1.7.0 se neřeší.
 - Sloupce: sloupce po 240 px, vpravo informační panel 272 px. Ukazuje velký náhled, druh, velikost, data, délku a rozlišení videa, rozměry obrázku, počet stran PDF, štítky a tlačítko Otevřít.
 - Mezi zobrazeními se přepíná prolnutím.
 
@@ -218,6 +225,7 @@ Náhled nemají heic, tif, wmv a wma.
 | Ctrl+L, Ctrl+F | upravit cestu, hledání |
 | Ctrl+R / F5 | obnovit |
 | Ctrl+Shift+. | skryté soubory |
+| Ctrl + kolečko myši | velikost ikon (jen zobrazení Ikony) |
 | Backspace / Alt+←, Alt+→, Alt+↑ / Ctrl+↑ | zpět, vpřed, nadřazená složka |
 | Enter / Ctrl+↓ | otevřít |
 | Myš 4/5, prostřední klik | zpět / vpřed; složka do nové záložky / zavřít ouško |
@@ -265,7 +273,7 @@ Náhled nemají heic, tif, wmv a wma.
 - Pořadí v `DEFINITIONS` určuje prioritu: vyhraje první povolený příkaz s danou klávesou. Proto je F5 při rozdělení kopie, jinak obnovit.
 - Rozsahy zkratek: `global` (i při psaní do pole), `overlay` (i ve výsledcích, štítcích a Koši), `folder` (výchozí).
 - Příkazy se zobrazují v paletě, v menu **Více** a na toolbaru:
-  - menu Více: Zpět/Znovu | Nová záložka, Rozdělit, Paleta, Obnovit, Nadřazená | Zobrazit ▸ (Skryté, Přípony ▸) | Vzhled ▸ (téma + Průhlednost a síla) | Animace ▸ | Terminál ▸ | Jazyk ▸ | Kontrolovat aktualizace | O aplikaci;
+  - menu Více: Zpět/Znovu | Nová záložka, Rozdělit, Paleta, Obnovit, Nadřazená | Zobrazit ▸ (Velikost ikon ▸, Skryté, Přípony ▸) | Vzhled ▸ (téma + Průhlednost a síla) | Animace ▸ | Terminál ▸ | Jazyk ▸ | Kontrolovat aktualizace | O aplikaci;
   - toolbar: zpět, vpřed, rozdělit; tlačítko Nový otevírá stejné menu jako `newItem`.
 - `checkUpdates` je **přepínač** „Kontrolovat aktualizace“, ne „zkontrolovat teď“. Ve Store buildu chybí.
 - Mimo registr (natvrdo v `App.tsx` a komponentách): Ctrl+1…9, mezerník, šipky, Home/End, PgUp/PgDn, Enter, Esc, type-ahead, MB4/MB5 a prostřední klik.
@@ -320,6 +328,7 @@ Soubor leží v `%APPDATA%\com.krystof2ops.finderwin\settings.json`, ve Store bu
 | `sidebarWidth` | 220 (180–360) |
 | `motion` | `system` / `on` / `off` |
 | `extensions` | `windows` / `always` / `never` (v kódu `extensionMode`) |
+| `iconSize` | `small` / `medium` (výchozí) / `large` – velikost ikon v zobrazení Ikony, globální; neplatná hodnota → `medium` |
 | `language` | `system` / `en` / `cs` (system = čeština jen pro `navigator.language` začínající `cs`) |
 | `theme` | `system` / `light` / `dark` |
 | `terminal` | `auto` / `windowsTerminal` / `pwsh` / `powershell` / `cmd` |
@@ -374,7 +383,7 @@ Commandy jsou `#[tauri::command(async)]`. Výjimkou jsou sync `app_ready` a `win
 |---|---|
 | Výpis | `list_dir` (řadí, jen sloupce), `list_dir_stream` (300 hned + `dir-chunk` po 500, neřadí, tokeny ve 2 slotech), `can_list_dir` |
 | Metadata | `stat_paths` (skutečná velikost písmen, `missing` jen při NotFound), `get_file_properties`, `folder_stats` + `cancel_folder_stats` (IPC Channel, strop 200 000), `get_media_info` (IPropertyStore: délka, rozměry, strany; limit 2 s), `read_text_file` (≤ 1 MiB), `get_disk_free_space` |
-| Ikony / náhledy | `get_file_icon` (32/64/128), `get_file_thumbnail` (64/128/256) – shell na STA vlákně, PNG data URL, disková cache |
+| Ikony / náhledy | `get_file_icon` (32/64/128/256), `get_file_thumbnail` (64/128/256) – shell na STA vlákně, PNG data URL, disková cache |
 | Hledání | `search_recursive`, `cancel_search` |
 | Operace (std::fs) | `rename_path` (`validate_name`, MoveFileExW; změna jen velikosti písmen přes dočasný `.finder-win-rename-N`), `copy_path`, `move_path` (Rename / Replace / Skip; Replace u složky slučuje; přesun mezi svazky = kopie + smazání), `duplicate_path`, `create_folder`, `create_file`, `restore_from_trash`, `trash_is_permanent` |
 | Operace (IFileOperation, `fileop.rs`) | `delete_paths` (Koš / trvale / elevate), `transfer_elevated`, `rename_elevated`, `create_folder_elevated` |
@@ -515,7 +524,7 @@ Commandy jsou `#[tauri::command(async)]`. Výjimkou jsou sync `app_ready` a `win
 | localStorage | `finder-theme` (zrcadlo tématu pro první render), `finder-sidebar-collapsed` |
 | Instalace NSIS | `%LOCALAPPDATA%\Dirwise`, klíč odinstalace HKCU `Uninstall\Dirwise`, `HKCU\Software\Arcly Studio\Dirwise` |
 
-Dev build sdílí identifier i settings.json s nainstalovanou aplikací. Demo a snímky proto běží s `scripts/docs-media/demo-conf.json` (identifier `….demo`).
+Dev build sdílí identifier i settings.json s nainstalovanou aplikací. Demo, snímky i testy proto běží VŽDY s `scripts/docs-media/demo-conf.json` (identifier `….demo`) a CDP skripty jen přes pojistku v `cdp.mjs` (viz kap. 12).
 
 ---
 
@@ -624,7 +633,8 @@ Jen node, Python na stroji není. Přes CDP se ovládá běžící dev build na 
 
 | Skript | Účel |
 |---|---|
-| `cdp.mjs`, `setup.mjs`, `mksettings.mjs`, `demo-conf.json` | CDP klient, patch IPC na `C:\Demo`, demo nastavení, oddělený identifier |
+| `cdp.mjs` | CDP klient s pojistkou demo prostředí a náhradou cest `DEMO_PATCH` (patch IPC: standardní složky → `C:\Demo`, Koš jen z `C:\Demo`) |
+| `setup.mjs`, `mksettings.mjs`, `demo-conf.json` | výchozí stav demo (záložky jen pod `C:\Demo`, téma, jazyk, viewport), demo nastavení, oddělený identifier |
 | `shots.mjs` | screenshoty (`--store` pro Store, argumentem jedna scéna) |
 | `demo.mjs` | `docs/demo.gif` (ffmpeg gdigrab ze skutečné obrazovky) |
 | `shorts.mjs` | 9 vertikálních videí 1080×1920 pro Shorts / TikTok / Reels |
@@ -640,6 +650,7 @@ Jen node, Python na stroji není. Přes CDP se ovládá běžící dev build na 
 ### Pravidla a umístění
 
 - Postup a pasti jsou v CLAUDE.md, sekce *Screenshoty a demo*.
+- **Pojistka demo prostředí** (fáze 1.7.1b a 1.7.1d, po dvou incidentech 2. 11. 2026, kdy test ukázal skutečnou Plochu – nic se nezměnilo): `connect()` v `cdp.mjs` skončí s exit 3, když identifier nekončí `.demo`; náhradu cest vkládá do každého načtení stránky; po `Page.reload` / `Page.navigate` ověří nový dokument; výpis a složka v toolbaru musí být pod `C:\Demo` při připojení, při čtení (1× za 250 ms), před každým vstupem a snímkem. `setup()` odmítne záložky mimo `C:\Demo`. Zdržovat nebo simulovat pomalé načítání nastavení je zakázané.
 - Jen skutečné snímky, nic skládaného.
 - Testy s Košem smí trvale mazat jen vlastní soubory, ověřené podle cesty a času smazání.
 - Výstupy videí a hudba leží v ignorované složce `dirwise-socialni-site/`. `promo.mjs` bere logo ze sourozeneckého repa `../arcly-studio/`.
@@ -720,14 +731,20 @@ Další milníky:
 | 20. 10. | přesun do organizace arcly-studio |
 | 24.–26. 10. | motion a promo videa, animace webu (GSAP + Lenis) |
 | 27. 10. | README bez jmen cizích produktů |
+| 2. 11. | 1.7.0 v práci: fáze 1.7.1 velikost ikon (`6e80098`), 1.7.1b a 1.7.1d pojistka demo prostředí (`49a2b23`, `5bbedfa`), 1.7.2 ořezávání názvů; 1.7.1c (zrcadlo velikosti ikon v localStorage proti bliknutí při startu) zahozena – bliknutí nešlo prokázat; winget PR #453868 pořád čeká na moderátora (validace prošly, balíček 1.6.0) |
 
 ---
 
 ## 15. Plán (`ROADMAP.md`)
 
-- **1.6.2:** velikost ikon malá / střední / velká (64 / 96 / 128 px) v zobrazení Ikony.
-  - Ovládání: menu Více → Zobrazit, paleta a Ctrl + kolečko. Ukládá se do settings.json.
-  - Po vydání přetočit hero pro Store.
+- **1.7.0** (v `ROADMAP.md` zatím jako 1.6.2), fáze:
+  - 1.7.1 velikost ikon – **hotovo** (ikona 48 / 64 / 128 px, viz kap. 4);
+  - 1.7.2 ořezávání dlouhých názvů v Ikonách – **hotovo** (2 řádky, u jediné vybrané celý název max. 5 řádků jako překryv);
+  - 1.7.3 sjednocení velikosti a rozestupů ikon v toolbaru;
+  - 1.7.4 nové logo (tmavá dlaždice; položka „ikona bez squircle“ v Později se nezaškrtává);
+  - 1.7.5 `release.yml` – kontrola tagu, Node 22, verze v textu releasu;
+  - 1.7.6 Store listing v ru, zh-TW, zh-CN, ko, uk;
+  - vydání 1.7.0 + po něm přetočit hero pro Store.
 - **Později:**
   - štítky jiným tvarem než barevnými tečkami (např. pilulka);
   - ikona aplikace bez tmavého „squircle“ podkladu, ve stylu Windows 11;
