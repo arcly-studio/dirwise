@@ -295,17 +295,20 @@ export function EntryIcon({
   );
 }
 
-/** Velká ikona 64px pro icon view. `thumbnail` = u obrázku, videa a PDF náhled. */
+/** Velká ikona pro icon view (výchozí 64 px, v mřížce podle velikosti ikon).
+ *  `thumbnail` = u obrázku, videa a PDF náhled. */
 export function LargeEntryIcon({
   entry,
+  size = 64,
   thumbnail = false,
   shellPreview = true,
 }: {
   entry: FileEntry;
+  size?: number;
   thumbnail?: boolean;
   shellPreview?: boolean;
 }) {
-  return <EntryIcon entry={entry} size={64} thumbnail={thumbnail} shellPreview={shellPreview} />;
+  return <EntryIcon entry={entry} size={size} thumbnail={thumbnail} shellPreview={shellPreview} />;
 }
 
 /** Malá ikona 16px pro list view, sloupce a výsledky. */

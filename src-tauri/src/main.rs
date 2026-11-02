@@ -2582,7 +2582,7 @@ fn prune_thumbnail_cache() {
 /// nezdrží výpis. Po limitu chyba a frontend nechá obecnou ikonu.
 #[tauri::command(async)]
 fn get_file_icon(path: String, size: u32) -> CmdResult<String> {
-    if !matches!(size, 32 | 64 | 128) {
+    if !matches!(size, 32 | 64 | 128 | 256) {
         return Err(AppError::new("error.iconSize"));
     }
 

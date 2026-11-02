@@ -236,11 +236,21 @@ export function Toolbar({
     item("palette"),
     item("refresh"),
     item("goParent"),
-    // Zobrazit ▸ jako v Průzkumníku: skryté soubory a přípony.
+    // Zobrazit ▸ jako v Průzkumníku: velikost ikon, skryté soubory a přípony.
     {
       type: "submenu",
       label: t("view.menu"),
       items: [
+        {
+          type: "submenu",
+          label: t("iconSize.menu"),
+          items: [
+            item("iconSizeSmall", t("iconSize.smallShort")),
+            item("iconSizeMedium", t("iconSize.mediumShort")),
+            item("iconSizeLarge", t("iconSize.largeShort")),
+          ],
+        },
+        { type: "separator" },
         item("toggleHidden", t("view.hiddenFiles")),
         { type: "separator" },
         {

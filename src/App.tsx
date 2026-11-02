@@ -273,6 +273,7 @@ export default function App() {
     recents,
     motion,
     extensionMode,
+    iconSize,
     updates,
     splitRatio,
     language,
@@ -2659,6 +2660,12 @@ export default function App() {
           ),
           run: () => newShellItem(currentDir, type),
         }));
+  /** Velikost ikon (globální, settings.json). Mimo zobrazení Ikony na ně
+   *  i přepne, jako Průzkumník — jinak by volba neměla viditelný účinek. */
+  const chooseIconSize = (size: storage.IconViewSize) => {
+    void storage.setIconSize(size);
+    if (viewMode !== "icon") changeViewMode("icon");
+  };
   const commands = buildCommands(
     {
       palette: { run: () => setPaletteOpen(true) },
@@ -2695,6 +2702,9 @@ export default function App() {
       },
       extensionsAlways: { run: () => void storage.setExtensionMode("always"), checked: extensionMode === "always" },
       extensionsNever: { run: () => void storage.setExtensionMode("never"), checked: extensionMode === "never" },
+      iconSizeSmall: { run: () => chooseIconSize("small"), checked: iconSize === "small" },
+      iconSizeMedium: { run: () => chooseIconSize("medium"), checked: iconSize === "medium" },
+      iconSizeLarge: { run: () => chooseIconSize("large"), checked: iconSize === "large" },
       motionSystem: { run: () => void storage.setMotion("system"), checked: motion === "system" },
       motionOn: { run: () => void storage.setMotion("on"), checked: motion === "on" },
       motionOff: { run: () => void storage.setMotion("off"), checked: motion === "off" },
@@ -3265,7 +3275,7 @@ export default function App() {
       );
     }
 
-    return <IconView {...shared} />;
+    return <IconView {...shared} iconSize={iconSize} />;
   }
 
   return (

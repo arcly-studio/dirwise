@@ -41,6 +41,9 @@ export type CommandId =
   | "extensionsWindows"
   | "extensionsAlways"
   | "extensionsNever"
+  | "iconSizeSmall"
+  | "iconSizeMedium"
+  | "iconSizeLarge"
   | "toggleTransparency"
   | "transparencySubtle"
   | "transparencyMedium"
@@ -158,6 +161,10 @@ const DEFINITIONS: Record<CommandId, CommandDefinition> = {
   extensionsWindows: { title: "extensions.windows" },
   extensionsAlways: { title: "extensions.always" },
   extensionsNever: { title: "extensions.never" },
+  // Velikost ikon (zobrazení Ikony); v jiném zobrazení na Ikony i přepne.
+  iconSizeSmall: { title: "iconSize.small" },
+  iconSizeMedium: { title: "iconSize.medium" },
+  iconSizeLarge: { title: "iconSize.large" },
   transparencySubtle: { title: "transparency.subtle" },
   transparencyMedium: { title: "transparency.medium" },
   transparencyStrong: { title: "transparency.strong" },
