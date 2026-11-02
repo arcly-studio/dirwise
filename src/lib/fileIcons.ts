@@ -5,7 +5,7 @@ import { invoke } from "../fileops";
 import type { FileEntry } from "../types";
 
 /** Velikosti, které umí backend (get_file_icon). */
-export type IconSize = 32 | 64 | 128;
+export type IconSize = 32 | 64 | 128 | 256;
 
 /** Přípony s vlastní ikonou v souboru — klíčují se cestou, ne příponou.
  *  Stejná sada jako OWN_ICON_EXTENSIONS v main.rs. */
@@ -233,7 +233,7 @@ export function useFileIcon(entry: FileEntry, size: IconSize, enabled = true) {
 /** Kolik pixelů ikony chtít od shellu pro box `css` px — na HiDPI dvojnásob. */
 export function iconRequestSize(css: number): IconSize {
   const needed = css * (window.devicePixelRatio || 1);
-  return needed <= 32 ? 32 : needed <= 64 ? 64 : 128;
+  return needed <= 32 ? 32 : needed <= 64 ? 64 : needed <= 128 ? 128 : 256;
 }
 
 /* ------------------------------ náhledy obsahu ------------------------------ */

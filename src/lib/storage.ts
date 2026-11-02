@@ -26,6 +26,7 @@ const KEY_SHOW_HIDDEN = "showHidden";
 const KEY_SIDEBAR_WIDTH = "sidebarWidth";
 const KEY_MOTION = "motion";
 const KEY_EXTENSIONS = "extensions";
+const KEY_ICON_SIZE = "iconSize";
 const KEY_LANGUAGE = "language";
 const KEY_THEME = "theme";
 const KEY_TERMINAL = "terminal";
@@ -48,6 +49,10 @@ export type MotionPreference = "system" | "on" | "off";
 
 /** Přípony souborů: podle Windows (jako Průzkumník), vždy, nebo nikdy (lib/extensions.ts). */
 export type ExtensionMode = "windows" | "always" | "never";
+
+/** Velikost ikon v zobrazení Ikony (Více → Zobrazit, paleta, Ctrl + kolečko); globální pro všechny záložky. */
+export type IconViewSize = "small" | "medium" | "large";
+export const ICON_VIEW_SIZES: readonly IconViewSize[] = ["small", "medium", "large"];
 
 /** Síla průhlednosti okna (menu Více → Vzhled, paleta). */
 export type TransparencyStrength = "subtle" | "medium" | "strong";
@@ -93,6 +98,7 @@ export type Snapshot = {
   sidebarWidth: number;
   motion: MotionPreference;
   extensionMode: ExtensionMode;
+  iconSize: IconViewSize;
   language: LanguagePreference;
   /** Vzhled (menu Více → Vzhled); výchozí podle Windows. */
   theme: ThemePreference;
@@ -117,6 +123,7 @@ const EMPTY: Snapshot = {
   sidebarWidth: SIDEBAR_DEFAULT,
   motion: "system",
   extensionMode: "windows",
+  iconSize: "medium",
   language: "system",
   // Ze zrcadla v localStorage, ať první render nepřeskočí do jiného tématu,
   // než se načte settings.json.
@@ -338,6 +345,7 @@ export function init(): Promise<void> {
       windowTransparency,
       transparencyStrength,
       extensionMode,
+      iconSize,
     ] = await Promise.all([
       store.get<unknown>(KEY_FAVORITES),
       store.get<unknown>(KEY_RECENTS),
@@ -355,6 +363,7 @@ export function init(): Promise<void> {
       store.get<unknown>(KEY_WINDOW_TRANSPARENCY),
       store.get<unknown>(KEY_TRANSPARENCY_STRENGTH),
       store.get<unknown>(KEY_EXTENSIONS),
+      store.get<unknown>(KEY_ICON_SIZE),
     ]);
 
     commit({
@@ -365,6 +374,7 @@ export function init(): Promise<void> {
       sidebarWidth: typeof sidebarWidth === "number" ? clampSidebar(sidebarWidth) : SIDEBAR_DEFAULT,
       motion: motion === "on" || motion === "off" ? motion : "system",
       extensionMode: extensionMode === "always" || extensionMode === "never" ? extensionMode : "windows",
+      iconSize: ICON_VIEW_SIZES.find((size) => size === iconSize) ?? "medium",
       language: language === "en" || language === "cs" ? language : "system",
       // Bez klíče v souboru (verze do 1.3 ukládaly jen do localStorage)
       // platí zrcadlo — uživatel o zvolený tmavý režim nepřijde.
@@ -434,6 +444,13 @@ export async function setMotion(value: MotionPreference): Promise<void> {
 export async function setExtensionMode(value: ExtensionMode): Promise<void> {
   commit({ extensionMode: value });
   await persist(KEY_EXTENSIONS, value);
+}
+
+/* ----------------------------- velikost ikon -------------------------------- */
+
+export async function setIconSize(value: IconViewSize): Promise<void> {
+  commit({ iconSize: value });
+  await persist(KEY_ICON_SIZE, value);
 }
 
 /* ------------------------------ průhlednost --------------------------------- */

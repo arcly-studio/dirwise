@@ -1,4 +1,4 @@
-import { memo, useEffect, useImperativeHandle, useMemo, useState } from "react";
+import { memo, useEffect, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 
 import { LargeEntryIcon } from "./icons";
@@ -17,22 +17,45 @@ import {
 } from "../lib/rowDnd";
 import { sameEntry } from "../lib/rows";
 import { useGlassInsets } from "../lib/glass";
-import { tagsOf } from "../lib/storage";
+import { ICON_VIEW_SIZES, setIconSize, tagsOf, type IconViewSize } from "../lib/storage";
 import type { ViewHandleRef } from "../lib/viewHandle";
 import type { FileEntry, SelectMods, TagColor, TagMap } from "../types";
 import { useDisplayNames } from "../lib/extensions";
 
-/** Geometrie mřížky (musí sedět s tím, co buňka vykreslí): buňka 96 × 118,
- *  mezery 16 / 24, okraj plochy 20. Virtualizace i gumička z ní počítají. */
-const CELL_WIDTH = 96;
-const CELL_HEIGHT = 118;
-const GAP_X = 16;
-const GAP_Y = 24;
-const PADDING = 20;
-const ROW_PITCH = CELL_HEIGHT + GAP_Y;
+/** Geometrie mřížky pro jednu velikost ikon (musí sedět s tím, co buňka
+ *  vykreslí). Virtualizace, gumička i klávesnice z ní počítají. */
+type Geometry = {
+  /** Strana ikony / náhledu v CSS px. */
+  icon: number;
+  cellWidth: number;
+  /** Výška buňky = ikona + 54 (odsazení, dlaždice, 2 řádky názvu, štítky). */
+  cellHeight: number;
+  gapX: number;
+  gapY: number;
+  rowPitch: number;
+};
 
-function columnsFor(width: number): number {
-  return Math.max(1, Math.floor((width - 2 * PADDING + GAP_X) / (CELL_WIDTH + GAP_X)));
+function geometry(icon: number, cellWidth: number, gapX: number, gapY: number): Geometry {
+  const cellHeight = icon + 54;
+  return { icon, cellWidth, cellHeight, gapX, gapY, rowPitch: cellHeight + gapY };
+}
+
+/** Střední = vzhled do 1.6 (ikona 64, buňka 96 × 118, mezery 16 / 24). */
+const GEOMETRY: Record<IconViewSize, Geometry> = {
+  small: geometry(48, 80, 12, 20),
+  medium: geometry(64, 96, 16, 24),
+  large: geometry(128, 160, 20, 24),
+};
+
+/** Okraj plochy mřížky (stejný pro všechny velikosti). */
+const PADDING = 20;
+
+/** Ctrl + kolečko: o jednu velikost za tolik px posunu. Kolečko myši dá na
+ *  zub 100, touchpad (pinch) posílá drobné delty — sčítají se. */
+const WHEEL_STEP = 100;
+
+function columnsFor(width: number, geo: Geometry): number {
+  return Math.max(1, Math.floor((width - 2 * PADDING + geo.gapX) / (geo.cellWidth + geo.gapX)));
 }
 
 /* ---------------------------------- buňka ---------------------------------- */
@@ -57,6 +80,7 @@ type CellProps = {
   dropTarget: boolean;
   windowFocused: boolean;
   tags: TagColor[];
+  geo: Geometry;
   handlers: CellHandlers;
 };
 
@@ -71,6 +95,7 @@ const IconCell = memo(
     dropTarget,
     windowFocused,
     tags,
+    geo,
     handlers,
   }: CellProps) {
     const names = useDisplayNames();
@@ -106,13 +131,13 @@ const IconCell = memo(
         className={`fw-row fw-icon-cell flex shrink-0 flex-col items-center gap-1 rounded-[8px] ${selectionClass} ${
           dropTarget ? "fw-drop-target" : ""
         }`}
-        style={{ width: CELL_WIDTH, height: CELL_HEIGHT, opacity: entryOpacity(entry, cut) }}
+        style={{ width: geo.cellWidth, height: geo.cellHeight, opacity: entryOpacity(entry, cut) }}
       >
-        {/* Ikona stojí volně v 64px boxu. */}
+        {/* Ikona stojí volně v boxu podle velikosti ikon. */}
         <div className="fw-icon-tile p-1">
           {/* Náhled obrázku — vykreslují se jen viditelné buňky, takže
               se nedekódují tisíce fotek naráz a strop není potřeba. */}
-          <LargeEntryIcon entry={entry} thumbnail shellPreview={shellPreview} />
+          <LargeEntryIcon entry={entry} size={geo.icon} thumbnail shellPreview={shellPreview} />
         </div>
 
         {renaming ? (
@@ -146,6 +171,7 @@ const IconCell = memo(
     a.dropTarget === b.dropTarget &&
     a.windowFocused === b.windowFocused &&
     a.tags === b.tags &&
+    a.geo === b.geo &&
     a.handlers === b.handlers,
 );
 
@@ -164,6 +190,8 @@ type IconViewProps = {
   onContextMenu?: (entry: FileEntry, x: number, y: number) => void;
   onDropInto: DropInto;
   tags: TagMap;
+  /** Velikost ikon (settings.json, globální pro všechny záložky a panely). */
+  iconSize: IconViewSize;
   /** Posouvaný kontejner (drží ho App) — virtualizace podle něj měří. */
   scrollRef: React.RefObject<HTMLDivElement | null>;
   /** Ovládání výpisu pro App (posun na položku, gumička, klávesnice). */
@@ -186,10 +214,12 @@ export function IconView({
   onContextMenu,
   onDropInto,
   tags,
+  iconSize,
   scrollRef,
   handleRef,
   initialOffset = 0,
 }: IconViewProps) {
+  const geo = GEOMETRY[iconSize];
   const { dropTarget, handlers: drop } = useFolderDrop(onDropInto);
 
   // Náhledy videí a PDF táhne shell (pomaleji než obrázky) — dostane je
@@ -205,14 +235,15 @@ export function IconView({
 
   // Počet sloupců ze skutečné šířky kontejneru. ResizeObserver hlásí při
   // tažení okna desítky změn — přepočet se slije do jednoho snímku.
-  const [columns, setColumns] = useState(() => columnsFor(scrollRef.current?.clientWidth ?? 800));
+  const [width, setWidth] = useState(() => scrollRef.current?.clientWidth ?? 800);
+  const columns = columnsFor(width, geo);
   useEffect(() => {
     const element = scrollRef.current;
     if (!element) return;
     let frame = 0;
     const observer = new ResizeObserver(() => {
       cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => setColumns(columnsFor(element.clientWidth)));
+      frame = requestAnimationFrame(() => setWidth(element.clientWidth));
     });
     observer.observe(element);
     return () => {
@@ -231,16 +262,115 @@ export function IconView({
     count: rowCount,
     getScrollElement: () => scrollRef.current,
     initialOffset,
-    estimateSize: () => ROW_PITCH,
+    estimateSize: () => geo.rowPitch,
     // Řádek mřížky nese až desítku buněk — 3 řádky navíc stačí na plynulé
     // kolečko a první vykreslení (přepnutí view) je o polovinu lehčí.
     overscan: 3,
     paddingStart: PADDING,
-    paddingEnd: PADDING - GAP_Y,
+    paddingEnd: PADDING - geo.gapY,
     scrollMargin: glass.top,
     scrollPaddingStart: 8 + glass.top,
     scrollPaddingEnd: 8 + glass.bottom,
   });
+
+  // Kotva pro změnu velikosti: vybraná položka (je-li vidět), jinak první
+  // řádek u horního okraje, a její vzdálenost od horního okraje scrolleru.
+  // Po změně geometrie se posun dopočítá tak, aby zůstala na stejném místě —
+  // jinak by mřížka odskočila jinam (jiný počet sloupců i výška řádku).
+  // Bere se ze staré geometrie, proto průběžně (posun, každý render).
+  const layout = useRef({ geo, columns, glassTop: glass.top });
+  const entriesRef = useRef(entries);
+  const selectedRef = useRef(selectedPaths);
+  const anchor = useRef<{ index: number; offset: number } | null>(null);
+  const captureAnchor = useStableCallback(() => {
+    const element = scrollRef.current;
+    if (!element) return;
+    const { geo: g, columns: cols, glassTop } = layout.current;
+    const rowTop = (row: number) => glassTop + PADDING + row * g.rowPitch;
+    const viewTop = element.scrollTop + glassTop;
+    const viewBottom = element.scrollTop + element.clientHeight;
+    const list = entriesRef.current;
+    if (selectedRef.current.size > 0) {
+      for (let index = 0; index < list.length; index += 1) {
+        if (!selectedRef.current.has(list[index].path)) continue;
+        const top = rowTop(Math.floor(index / cols));
+        if (top + g.cellHeight > viewTop && top < viewBottom) {
+          anchor.current = { index, offset: top - element.scrollTop };
+          return;
+        }
+      }
+    }
+    const row = Math.max(0, Math.floor((viewTop - glassTop - PADDING) / g.rowPitch));
+    anchor.current = { index: row * cols, offset: rowTop(row) - element.scrollTop };
+  });
+
+  useEffect(() => {
+    const element = scrollRef.current;
+    if (!element) return;
+    element.addEventListener("scroll", captureAnchor, { passive: true });
+    return () => element.removeEventListener("scroll", captureAnchor);
+  }, [scrollRef, captureAnchor]);
+
+  // Po změně velikosti: virtualizace přepočítá řádky a posun se vrátí na kotvu
+  // (spočítanou ještě ze staré geometrie). Teprve pak se kotva obnoví.
+  const previousGeo = useRef(geo);
+  useLayoutEffect(() => {
+    const element = scrollRef.current;
+    if (previousGeo.current !== geo) {
+      previousGeo.current = geo;
+      virtualizer.measure();
+      const kept = anchor.current;
+      if (element && kept !== null) {
+        const row = Math.floor(kept.index / columns);
+        element.scrollTop = row === 0 ? 0 : Math.max(0, glass.top + PADDING + row * geo.rowPitch - kept.offset);
+      }
+    }
+    layout.current = { geo, columns, glassTop: glass.top };
+    entriesRef.current = entries;
+    selectedRef.current = selectedPaths;
+    captureAnchor();
+  });
+
+  // Ctrl + kolečko mění velikost ikon — jen tady, IconView je připojená jen
+  // v zobrazení Ikony. Nepasivně, jinak by preventDefault nešel a kolečko by
+  // výpis zároveň posunulo. Zoom WebView2 má Tauri vypnutý (zoomHotkeysEnabled),
+  // preventDefault je pojistka.
+  const iconSizeRef = useRef(iconSize);
+  useEffect(() => {
+    iconSizeRef.current = iconSize;
+  }, [iconSize]);
+  useEffect(() => {
+    const element = scrollRef.current;
+    if (!element) return;
+    let accumulated = 0;
+    let resetTimer = 0;
+    const onWheel = (event: WheelEvent) => {
+      if (!event.ctrlKey) return;
+      event.preventDefault();
+      // Řádky (deltaMode 1) přepočítat na px, jak dává kolečko ve WebView2.
+      const delta = event.deltaMode === 1 ? event.deltaY * 33 : event.deltaY;
+      if (delta === 0) return;
+      // Změna směru zahodí rozpracované gesto.
+      if (Math.sign(delta) !== Math.sign(accumulated)) accumulated = 0;
+      accumulated += delta;
+      window.clearTimeout(resetTimer);
+      resetTimer = window.setTimeout(() => (accumulated = 0), 400);
+      if (Math.abs(accumulated) < WHEEL_STEP) return;
+      // Kolečko od sebe (záporná delta) = větší ikony, jako v Průzkumníku.
+      const step = accumulated < 0 ? 1 : -1;
+      accumulated = 0;
+      const next = ICON_VIEW_SIZES[ICON_VIEW_SIZES.indexOf(iconSizeRef.current) + step];
+      if (next !== undefined) {
+        iconSizeRef.current = next;
+        void setIconSize(next);
+      }
+    };
+    element.addEventListener("wheel", onWheel, { passive: false });
+    return () => {
+      window.clearTimeout(resetTimer);
+      element.removeEventListener("wheel", onWheel);
+    };
+  }, [scrollRef]);
 
   const select = useStableCallback(onSelect);
   const open = useStableCallback(onOpen);
@@ -283,14 +413,14 @@ export function IconView({
         const bottom = box.bottom - rect.top + element.scrollTop - glass.top - PADDING;
 
         const hit: string[] = [];
-        const firstRow = Math.max(0, Math.floor(top / ROW_PITCH));
-        const lastRow = Math.min(rowCount - 1, Math.floor(bottom / ROW_PITCH));
+        const firstRow = Math.max(0, Math.floor(top / geo.rowPitch));
+        const lastRow = Math.min(rowCount - 1, Math.floor(bottom / geo.rowPitch));
         for (let row = firstRow; row <= lastRow; row += 1) {
-          const cellTop = row * ROW_PITCH;
-          if (cellTop > bottom || cellTop + CELL_HEIGHT < top) continue;
+          const cellTop = row * geo.rowPitch;
+          if (cellTop > bottom || cellTop + geo.cellHeight < top) continue;
           for (let column = 0; column < columns; column += 1) {
-            const cellLeft = column * (CELL_WIDTH + GAP_X);
-            if (cellLeft > right || cellLeft + CELL_WIDTH < left) continue;
+            const cellLeft = column * (geo.cellWidth + geo.gapX);
+            if (cellLeft > right || cellLeft + geo.cellWidth < left) continue;
             const entry = entries[row * columns + column];
             if (entry) hit.push(entry.path);
           }
@@ -301,11 +431,11 @@ export function IconView({
         columns,
         rowsPerPage: Math.max(
           1,
-          Math.floor(((scrollRef.current?.clientHeight ?? 0) - glass.top - glass.bottom) / ROW_PITCH),
+          Math.floor(((scrollRef.current?.clientHeight ?? 0) - glass.top - glass.bottom) / geo.rowPitch),
         ),
       }),
     }),
-    [entries, virtualizer, columns, rowCount, scrollRef, glass],
+    [entries, virtualizer, columns, rowCount, scrollRef, glass, geo],
   );
 
   return (
@@ -318,7 +448,7 @@ export function IconView({
           <div
             key={row.key}
             className="absolute top-0 flex"
-            style={{ left: PADDING, gap: GAP_X, transform: `translateY(${row.start - glass.top}px)` }}
+            style={{ left: PADDING, gap: geo.gapX, transform: `translateY(${row.start - glass.top}px)` }}
           >
             {cells.map((entry) => (
               <IconCell
@@ -331,6 +461,7 @@ export function IconView({
                 dropTarget={dropTarget === entry.path}
                 windowFocused={windowFocused}
                 tags={tagsOf(tags, entry.path)}
+                geo={geo}
                 handlers={handlers}
               />
             ))}
