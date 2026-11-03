@@ -83,7 +83,14 @@ Copy-Item $Exe $Staging
 #    $Fill = podíl kratší strany plátna, který zabírá.
 Add-Type -AssemblyName System.Drawing
 $Icon = [System.Drawing.Bitmap]::new((Join-Path $Root "app-icon.png"))
+$Rendered = Join-Path $Root "docs/brand/icon-v2/logo" # vykreslené z SVG (scripts/icons.mjs)
 function New-Asset([string]$Name, [int]$Width, [int]$Height, [double]$Fill) {
+    # Přesná velikost vykreslená z SVG je ostřejší než zmenšení 1024 px přes GDI.
+    $exact = Join-Path $Rendered "dirwise-icon-$Width.png"
+    if ($Width -eq $Height -and $Fill -eq 1.0 -and (Test-Path $exact)) {
+        Copy-Item $exact (Join-Path $Assets $Name)
+        return
+    }
     $bmp = [System.Drawing.Bitmap]::new($Width, $Height, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
     $g = $null
     $attrs = $null
