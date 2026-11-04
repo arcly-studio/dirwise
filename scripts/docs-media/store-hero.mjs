@@ -7,7 +7,8 @@
 // s náhledem (soubory s příponou -columns).
 // Předpoklad: demo prostředí (fotky z photos.mjs) a běžící dev s CDP na portu 9333
 // (viz CLAUDE.md, Screenshoty a demo).
-// node scripts/docs-media/store-hero.mjs [--variant icons|columns] [--out <složka>]
+// node scripts/docs-media/store-hero.mjs [--variant icons|columns] [--icon-size small|medium|large] [--out <složka>]
+//   (--icon-size jen pro icons, výchozí large; po snímku se vrátí původní velikost)
 //   (prohlížeč pro skládání: CHROME=<cesta k exe>)
 import fs from "fs";
 import os from "os";
@@ -18,14 +19,15 @@ import { setup, panel, TABS } from "./setup.mjs";
 
 const arg = (name, def) => { const i = process.argv.indexOf(name); return i > 0 ? process.argv[i + 1] : def; };
 const VARIANT = arg("--variant", "icons");
+const ICON_SIZE = arg("--icon-size", "large");
 const OUT = path.resolve(arg("--out", fileURLToPath(new URL("../../docs/store/hero/", import.meta.url)))) + path.sep;
 // Rozměry okna v CSS px, hustota snímku a šířka okna v kompozici (CSS px při 1920×1080).
 // Hustota = 2 × zobrazená šířka / W, takže na 4K se snímek zobrazí 1:1, bez zvětšování pixelů.
-// icons: okno 960 px = 6 sloupců mřížky; v kompozici zvětšené, ať jsou náhledy (64 px) větší.
+// icons: okno 1140 px = 5 sloupců velkých ikon (128 px; od 1128 px, méně dá 4), v kompozici mírně zvětšené.
 //   Výška se po načtení dorovná tak, aby dole končil celý řádek (viz fitRows).
 // columns: užší okno, ať se celé vejde napravo od volné plochy a tlačítka okna zůstanou vidět.
 const LAYOUT = {
-  icons: { W: 960, H: 740, display: 1180, left: 700 },
+  icons: { W: 1140, H: 860, display: 1180, left: 700 },
   columns: { W: 1040, H: 820, display: 1084, left: 790 },
 }[VARIANT];
 const { W, display: DISPLAY } = LAYOUT;
@@ -79,6 +81,12 @@ async function capture() {
   const first = VARIANT === "icons" ? panel("Photos\\Summer 2026", "icon") : panel("Photos", "column");
   const c = await setup(W, H, { theme: "dark", language: "en", tabs: { active: 0, items: [first, TABS.items[1], TABS.items[2]] }, scale: SHOT_SCALE });
   await c.send("Page.addScriptToEvaluateOnNewDocument", { source: HIDE_MACHINE });
+  // Velikost ikon přes modul storage (jako setup.mjs); původní se po snímku vrátí.
+  const prevIconSize = VARIANT === "icons" ? await c.evaluate(`import("/src/lib/storage.ts").then(async (s) => {
+    const prev = s.getSnapshot().iconSize;
+    await s.setIconSize(${JSON.stringify(ICON_SIZE)});
+    return prev;
+  })`) : null;
   await c.send("Page.reload", { ignoreCache: false });
   await c.sleep(4000);
   const clickName = async (name) => {
@@ -106,6 +114,10 @@ async function capture() {
   await c.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: 1, y: 1 });
   await c.sleep(400);
   const r = await c.send("Page.captureScreenshot", { format: "png" });
+  if (prevIconSize) {
+    await c.evaluate(`import("/src/lib/storage.ts").then((s) => s.setIconSize(${JSON.stringify(prevIconSize)}))`);
+    await c.sleep(400); // autoSave pluginu store
+  }
   await c.send("Emulation.clearDeviceMetricsOverride");
   c.close();
   return Buffer.from(r.data, "base64");
