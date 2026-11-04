@@ -43,9 +43,18 @@ export const DEMO_PATCH = `(() => {
   };
   window.__demoPatched = true;
 })();`;
+// Port 9333 může na IPv4 držet jiný WebView2 s ladicím portem – hledá se stránka Dirwise (vite na 1420)
+// na 127.0.0.1 i [::1].
 export async function connect() {
-  const list = await (await fetch("http://127.0.0.1:9333/json/list")).json();
-  const page = list.find((t) => t.type === "page");
+  let page;
+  for (const host of ["127.0.0.1", "[::1]"]) {
+    try {
+      const list = await (await fetch(`http://${host}:9333/json/list`)).json();
+      page = list.find((t) => t.type === "page" && t.url.startsWith("http://localhost:1420"));
+    } catch {}
+    if (page) break;
+  }
+  if (!page) throw new Error("Nenašel jsem webview Dirwise na portu 9333 (běží dev s WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS?).");
   const ws = new WebSocket(page.webSocketDebuggerUrl);
   await new Promise((r, j) => { ws.onopen = r; ws.onerror = j; });
   let id = 0;
