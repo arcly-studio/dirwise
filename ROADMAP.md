@@ -4,7 +4,7 @@
 
 - [x] **Velikost ikon** (hlavní novinka): malé / střední / velké ikony v zobrazení Ikony. Volba v menu
   Více → Zobrazit → Velikost ikon, v paletě příkazů (Ctrl+K) a přes Ctrl + kolečko myši; ukládá se
-  do settings.json. Po vydání natočit znovu hero pro Store (`docs/store/hero/`) s velkými ikonami.
+  do settings.json. Hero pro Store (`docs/store/hero/`) je natočený znovu s velkými ikonami.
 - [x] Čitelnější dlouhé názvy v zobrazení Ikony (vybraná položka ukáže až 5 řádků názvu).
 - [x] Úhlednější toolbar (stejná velikost ikon, tah a rozestupy).
 - [x] Nové logo aplikace.
