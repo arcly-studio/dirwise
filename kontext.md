@@ -1,6 +1,28 @@
 # Dirwise – kontext projektu
 
-Stav k 2. 11. 2026: vydaná verze **1.6.1**, rozpracovaná **1.7.0** (hotové fáze 1.7.1, 1.7.1b, 1.7.1d a 1.7.2; další je 1.7.3 – toolbar), větev `master`, poslední commit `5bbedfa`.
+Stav k 4. 11. 2026: vydaná verze **1.6.1**, **1.7.0 připravená k vydání** – všechny fáze hotové (1.7.1–1.7.6, 1.7.7 úprava `cdp.mjs`), větev `master`, nepushnuto a bez tagu. Rozpracované vydání viz **0. Rozpracováno**.
+
+## 0. Rozpracováno – Release 1.7.0 (k 4. 11. 2026)
+
+**Hotovo:**
+- verze 1.7.0 v `package.json`, `package-lock.json`, `src-tauri/Cargo.toml`, `Cargo.lock` (MSIX 1.7.0.0 se odvodí v `build-msix.ps1`); `CHANGELOG.md`: 1.7.0 – 2026-11-04 (při vydání jiný den datum přepsat);
+- ověřeno 3. 11.: `npm run build`, `cargo clippy -- -D warnings`, `cargo test` (11 OK, 1 ignorovaný); kód aplikace se od té doby nezměnil;
+- média z demo prostředí (4. 11.): `shots.mjs` (10 scén), `shots.mjs --store` (jen 6 scén Storu, `columns`, `tabs`, `recycle-bin`, `extensions` jsou jen pro web – skript bez argumentu vyrobí všech 10), Store hero s velkými ikonami, `demo.gif`, `brand.mjs` (nové OG);
+- `store-hero.mjs --icon-size small|medium|large` (výchozí large, po snímku vrátí původní velikost); okno 1140 px = 5 sloupců velkých ikon (od 1128 px, méně dá 4);
+- build webu vč. check-words: 8 stránek bez nálezu.
+
+**Další krok = krok 4 a ruční část:**
+- `npm run tauri build`, `node scripts/docs-media/buttons.mjs`, commit `docs/buttons/`, `scripts/build-msix.ps1` (bez `-TestSign`);
+- ručně uživatel: test upgradu z 1.6.1, push, tag `v1.7.0`, publikace draftu, `gh workflow run pages.yml`, Partner Center.
+
+**Úklid po médiích (ručně uživatel):** `%TEMP%\dirwise-dlouhe-nazvy` (zbytek testu 1.7.2, 35 souborů, přesunutý z `C:\Demo\Documents`, do demo dat nepatří) a `C:\Demo`, až se nebude nic dalšího natáčet.
+
+**Pasti ze 3. a 4. 11.:**
+- Paměť: demo build a web potřebují ≥ 3–4 GB volné RAM. Žere ji hlavně Opera, Groovelight (přes 1,5 GB ve WebView2), Razer, víc sezení Claude, WSL (`wsl --shutdown`). Po startu Windows je volná paměť nízká kvůli aplikacím po přihlášení.
+- Dvakrát běžel cizí demo dev build (jiné sezení Claude, `tauri dev --config scripts/docs-media/demo-conf.json` z Git Bash) a držel porty 1420 / 9333 – před startem ověřit `tasklist | grep dirwise` a `netstat` na 1420 / 9333, cizí build nepoužívat.
+- `demo.mjs` nechá `C:\Demo\Projects\meeting-notes.md` a `C:\Demo\Documents\ideas.txt` až do dalšího běhu; po posledním běhu je smazat ručně.
+- `cdp.mjs` s argumentem z Git Bash: cestu `/src/…` v dotazu přepíše MSYS (pomůže `MSYS_NO_PATHCONV=1`).
+- V pracovní kopii jsou rozpracované věci uživatele (sekce Context7 v `CLAUDE.md`, `motion.mjs`, `promo.mjs`, `shorts.mjs`, nesledované `montage-tour-teaser.mjs`, `motion-*.mjs`, `docs/brand/icon-v2/{headers,hero,profilovky,nahled-loga.png}`) – do commitů vydání nepatří, nemazat.
 
 Tenhle soubor je přehled celého projektu na jednom místě: co aplikace umí, jak je postavená, kde co leží a jak se vydává. Závazná pravidla práce a známé pasti jsou v [CLAUDE.md](CLAUDE.md). Při rozporu platí CLAUDE.md a kód.
 
@@ -642,7 +664,8 @@ Jen node, Python na stroji není. Přes CDP se ovládá běžící dev build na 
 | `motion.mjs` | motion-design video 18 s na 120 BPM (port 9335), animace, ne screencast |
 | `promo.mjs` | reklamní video ~31 s na 124 BPM, `portrait` / `landscape`, skutečné záběry + překryvná vrstva (port 9334) |
 | `music.mjs` | výměna hudební stopy ve videu |
-| `store-hero.mjs` | hero art pro Store (`--variant icons|columns`) |
+| `store-hero.mjs` | hero art pro Store (`--variant icons|columns`, `--icon-size small|medium|large`, výchozí large) |
+| `../icons.mjs` | ikony aplikace z `docs/brand/icon-v2/logo/dirwise-icon.svg` (viz CLAUDE.md) |
 | `photos.mjs` | doplní demo fotky (52 položek v `Summer 2026`) |
 | `wallpaper.mjs`, `screen.ps1` | testovací tapeta, okna nahoru / dolů, snímek obrazovky |
 | `buttons.mjs`, `brand.mjs` | download tlačítka, grafika pro sociální sítě |
@@ -732,19 +755,21 @@ Další milníky:
 | 24.–26. 10. | motion a promo videa, animace webu (GSAP + Lenis) |
 | 27. 10. | README bez jmen cizích produktů |
 | 2. 11. | 1.7.0 v práci: fáze 1.7.1 velikost ikon (`6e80098`), 1.7.1b a 1.7.1d pojistka demo prostředí (`49a2b23`, `5bbedfa`), 1.7.2 ořezávání názvů; 1.7.1c (zrcadlo velikosti ikon v localStorage proti bliknutí při startu) zahozena – bliknutí nešlo prokázat; winget PR #453868 pořád čeká na moderátora (validace prošly, balíček 1.6.0) |
+| 3. 11. | 1.7.4 nové logo (`2a808b6`); verze 1.7.0 připravená v pracovní kopii; média a vydání čekají (málo paměti, viz kap. 0) |
+| 4. 11. | Release 1.7.0: média z demo prostředí (screenshoty, Store, Store hero s velkými ikonami, `demo.gif`, OG), build webu; test upgradu, push a tag čekají (viz kap. 0) |
 
 ---
 
 ## 15. Plán (`ROADMAP.md`)
 
-- **1.7.0** (v `ROADMAP.md` zatím jako 1.6.2), fáze:
+- **1.7.0**, fáze:
   - 1.7.1 velikost ikon – **hotovo** (ikona 48 / 64 / 128 px, viz kap. 4);
   - 1.7.2 ořezávání dlouhých názvů v Ikonách – **hotovo** (2 řádky, u jediné vybrané celý název max. 5 řádků jako překryv);
-  - 1.7.3 sjednocení velikosti a rozestupů ikon v toolbaru;
-  - 1.7.4 nové logo (tmavá dlaždice; položka „ikona bez squircle“ v Později se nezaškrtává);
-  - 1.7.5 `release.yml` – kontrola tagu, Node 22, verze v textu releasu;
-  - 1.7.6 Store listing v ru, zh-TW, zh-CN, ko, uk;
-  - vydání 1.7.0 + po něm přetočit hero pro Store.
+  - 1.7.3 sjednocení velikosti a rozestupů ikon v toolbaru – **hotovo**;
+  - 1.7.4 nové logo – **hotovo** (`2a808b6`): tmavá dlaždice se složkou a mřížkou, všechny velikosti z plného SVG přes `scripts/icons.mjs`, bez zjednodušené varianty pro 16 px (rozhodnutí uživatele 3. 11.); položka „ikona bez squircle“ v Později se nezaškrtává;
+  - 1.7.5 `release.yml` – kontrola tagu, Node 22, verze v textu releasu – **hotovo**;
+  - 1.7.6 Store listing v ru, zh-TW, zh-CN, ko, uk – **hotovo**;
+  - vydání 1.7.0 (hero pro Store s velkými ikonami je přetočený před vydáním, 4. 11.).
 - **Později:**
   - štítky jiným tvarem než barevnými tečkami (např. pilulka);
   - ikona aplikace bez tmavého „squircle“ podkladu, ve stylu Windows 11;

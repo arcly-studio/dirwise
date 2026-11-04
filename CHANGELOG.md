@@ -2,7 +2,7 @@
 
 Notable changes in each Dirwise release (releases up to 1.5.2 came out under the app's previous name, now retired). Installers are on the [Releases](https://github.com/arcly-studio/dirwise/releases) page.
 
-## [1.7.0](https://github.com/arcly-studio/dirwise/releases/tag/v1.7.0) – unreleased
+## [1.7.0](https://github.com/arcly-studio/dirwise/releases/tag/v1.7.0) – 2026-11-04
 
 - **Icon size** – Icons view now comes in small, medium and large: More → View → Icon Size, the command palette (“Icon Size: Large”), or hold Ctrl and turn the mouse wheel (away from you = larger). The size is remembered, and the items you were looking at stay in view when it changes.
 - **Readable long names** – in Icons view a long name is cut after two lines; the selected item shows up to five lines of it, laid over the tiles below without moving them.
