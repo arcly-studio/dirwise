@@ -7,7 +7,7 @@
   do settings.json. Po vydání natočit znovu hero pro Store (`docs/store/hero/`) s velkými ikonami.
 - [x] Čitelnější dlouhé názvy v zobrazení Ikony (vybraná položka ukáže až 5 řádků názvu).
 - [x] Úhlednější toolbar (stejná velikost ikon, tah a rozestupy).
-- [ ] Nové logo aplikace.
+- [x] Nové logo aplikace.
 - [x] Release workflow: tag jen vX.Y.Z, Node 22, verze v textu releasu.
 - [x] Store listing v dalších jazycích (ru, uk, zh-CN, zh-TW, ko).
 
