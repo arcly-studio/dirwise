@@ -1,21 +1,29 @@
 # Dirwise – kontext projektu
 
-Stav k 4. 11. 2026: vydaná verze **1.6.1**, **1.7.0 připravená k vydání** – všechny fáze hotové (1.7.1–1.7.6, 1.7.7 úprava `cdp.mjs`), větev `master`, krok 4 hotový, test upgradu z 1.6.1 prošel, následuje push a tag `v1.7.0`. Rozpracované vydání viz **0. Rozpracováno**.
+Stav k 4. 11. 2026: vydaná verze **1.7.0** ([release](https://github.com/arcly-studio/dirwise/releases/tag/v1.7.0)), větev `master`. Co po vydání zbývá, viz **0. Po vydání 1.7.0**.
 
-## 0. Rozpracováno – Release 1.7.0 (k 4. 11. 2026)
+## 0. Po vydání 1.7.0 (k 4. 11. 2026)
 
-**Hotovo:**
-- verze 1.7.0 v `package.json`, `package-lock.json`, `src-tauri/Cargo.toml`, `Cargo.lock` (MSIX 1.7.0.0 se odvodí v `build-msix.ps1`); `CHANGELOG.md`: 1.7.0 – 2026-11-04 (při vydání jiný den datum přepsat);
+**Vydáno 4. 11. 2026:** https://github.com/arcly-studio/dirwise/releases/tag/v1.7.0
+- instalátor z CI `Dirwise_1.7.0_x64-setup.exe`: 2 792 832 B, SHA256 `2171A3D0…3272A` (lokálně testovaný build `C0FF68EC…1D99` má 2 800 803 B, je to jiné sestavení ze stejného commitu);
+- web po `gh workflow run pages.yml` ukazuje v1.7.0 a 2,7 MB (en i `/cs/`; živá stránka se změnila až chvíli po doběhnutí workflow);
+- `winget-manifest.yml` po publikaci prošel a založil PR #26 s manifestem pro 1.7.0.
+
+**Zbývá:**
+- **winget:** až se sloučí PR #453868 (1.6.0, čeká na moderátora), spustit `gh workflow run winget-manifest.yml -f tag=v1.7.0` – publikace 1.7.0 do winget-pkgs nic neposlala, protože tam balíček ještě není. Krok s `wingetcreate` ještě nikdy skutečně neběžel;
+- PR #26 (`winget/`, záznam v repu) čeká na sloučení uživatelem;
+- Partner Center: nahrát `Dirwise_1.7.0.0_x64.msix`.
+
+**Příčina selhání `winget-manifest.yml` u 1.6.1 (21. 10.):** krok `Pull request` – „GitHub Actions is not permitted to create or approve pull requests“, nejspíš po přesunu repa do organizace. Uživatel 4. 11. oprávnění v organizaci zapnul a PR #26 vznikl automaticky.
+
+**Jak vydání proběhlo:**
+- verze 1.7.0 v `package.json`, `package-lock.json`, `src-tauri/Cargo.toml`, `Cargo.lock` (MSIX 1.7.0.0 se odvodí v `build-msix.ps1`); `CHANGELOG.md`: 1.7.0 – 2026-11-04;
 - ověřeno 3. 11.: `npm run build`, `cargo clippy -- -D warnings`, `cargo test` (11 OK, 1 ignorovaný); kód aplikace se od té doby nezměnil;
 - média z demo prostředí (4. 11.): `shots.mjs` (10 scén), `shots.mjs --store` (jen 6 scén Storu, `columns`, `tabs`, `recycle-bin`, `extensions` jsou jen pro web – skript bez argumentu vyrobí všech 10), Store hero s velkými ikonami, `demo.gif`, `brand.mjs` (nové OG);
 - `store-hero.mjs --icon-size small|medium|large` (výchozí large, po snímku vrátí původní velikost); okno 1140 px = 5 sloupců velkých ikon (od 1128 px, méně dá 4);
 - build webu vč. check-words: 8 stránek bez nálezu;
 - krok 4: `npm run tauri build` (`Dirwise_1.7.0_x64-setup.exe`, 2,67 MB), `buttons.mjs` (`docs/buttons/`, 2,7 MB), `build-msix.ps1` bez `-TestSign` (`Dirwise_1.7.0.0_x64.msix`, 3,53 MB, nepodepsaný);
 - test instalátoru (uživatel, 4. 11.): upgrade z 1.6.1 bez chyb, nastavení zůstalo, nové logo, velikost ikon funguje.
-
-**Další krok:**
-- push `master`, tag `v1.7.0`, `release.yml` vytvoří draft;
-- ručně uživatel: publikace draftu, `gh workflow run pages.yml`, Partner Center.
 
 **Úklid po médiích (ručně uživatel):** `%TEMP%\dirwise-dlouhe-nazvy` (zbytek testu 1.7.2, 35 souborů, přesunutý z `C:\Demo\Documents`, do demo dat nepatří) a `C:\Demo`, až se nebude nic dalšího natáčet.
 
@@ -746,6 +754,7 @@ Instalátor vznikne v `src-tauri/target/release/bundle/nsis/`.
 | 1.5.0–1.5.2 | 11. 10. | skleněný vzhled, průhlednost okna, kontrast WCAG; oprava prosvítání pod lištami; Koš v sidebaru, Pokračovat jako správce, Shift+Delete |
 | 1.6.0 | 14. 10. | přejmenování na **Dirwise**, tlačítka Windows 11 se Snap Layouts, nový sidebar, jen rozmazaná průhlednost (Acrylic), přípony jako v Průzkumníku, responzivní toolbar, tichá odinstalace Finder-Win; vyšla i v Microsoft Storu |
 | 1.6.1 | 21. 10. | ikona Sdílet ve stylu Windows 11 (PR #14 od přispěvatele), sjednocené ikony toolbaru, vydavatel Arcly Studio, nové adresy repa a webu |
+| 1.7.0 | 4. 11. | velikost ikon (malé / střední / velké), čitelnější dlouhé názvy v Ikonách, úhlednější toolbar, nové logo |
 
 Další milníky:
 
@@ -759,7 +768,7 @@ Další milníky:
 | 27. 10. | README bez jmen cizích produktů |
 | 2. 11. | 1.7.0 v práci: fáze 1.7.1 velikost ikon (`6e80098`), 1.7.1b a 1.7.1d pojistka demo prostředí (`49a2b23`, `5bbedfa`), 1.7.2 ořezávání názvů; 1.7.1c (zrcadlo velikosti ikon v localStorage proti bliknutí při startu) zahozena – bliknutí nešlo prokázat; winget PR #453868 pořád čeká na moderátora (validace prošly, balíček 1.6.0) |
 | 3. 11. | 1.7.4 nové logo (`2a808b6`); verze 1.7.0 připravená v pracovní kopii; média a vydání čekají (málo paměti, viz kap. 0) |
-| 4. 11. | Release 1.7.0: média z demo prostředí (screenshoty, Store, Store hero s velkými ikonami, `demo.gif`, OG), build webu, instalátor a MSIX; test upgradu z 1.6.1 prošel (viz kap. 0) |
+| 4. 11. | Release 1.7.0: média z demo prostředí (screenshoty, Store, Store hero s velkými ikonami, `demo.gif`, OG), build webu, instalátor a MSIX; test upgradu z 1.6.1 prošel; vydáno, web aktualizovaný, PR #26 s manifestem (viz kap. 0) |
 
 ---
 
@@ -772,7 +781,7 @@ Další milníky:
   - 1.7.4 nové logo – **hotovo** (`2a808b6`): tmavá dlaždice se složkou a mřížkou, všechny velikosti z plného SVG přes `scripts/icons.mjs`, bez zjednodušené varianty pro 16 px (rozhodnutí uživatele 3. 11.); položka „ikona bez squircle“ v Později se nezaškrtává;
   - 1.7.5 `release.yml` – kontrola tagu, Node 22, verze v textu releasu – **hotovo**;
   - 1.7.6 Store listing v ru, zh-TW, zh-CN, ko, uk – **hotovo**;
-  - vydání 1.7.0 (hero pro Store s velkými ikonami je přetočený před vydáním, 4. 11.).
+  - vydání 1.7.0 – **hotovo** (4. 11.; hero pro Store s velkými ikonami přetočený před vydáním).
 - **Později:**
   - štítky jiným tvarem než barevnými tečkami (např. pilulka);
   - ikona aplikace bez tmavého „squircle“ podkladu, ve stylu Windows 11;
