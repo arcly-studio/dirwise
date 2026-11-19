@@ -43,4 +43,5 @@ dirwise-socialni-site/
 dirwise-socialni-site.zip
 
 # Lokální data Claude Code (paměť agentů)
-.claude/
+.claude/*
+!.claude/settings.json
